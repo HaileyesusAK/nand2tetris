@@ -1,0 +1,16 @@
+/**
+ * TFM transforms the input based on z and n.
+ */
+
+// if (z == 1) set in = 0        // 16-bit constant
+// if (n == 1) set in = !in       // bitwise not
+
+CHIP TFM16{
+    IN  
+        in[16], z, n; 
+    OUT 
+        out[16]; 
+    PARTS:
+        Not16(in=in, out=inNeg);
+        Mux4Way16(a=in, b=inNeg, c=false, d=true, sel[1]=z, sel[0]=n, out=out);
+}
