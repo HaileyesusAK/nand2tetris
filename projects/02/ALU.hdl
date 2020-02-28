@@ -48,7 +48,7 @@ CHIP ALU {
         And16(a=xFinal, b=yFinal, out=xAndy);
         Mux16(a=xAndy, b=xPlusy, sel=f, out=result);
         Not16(in=result, out=resultNeg);
-        Mux16(a=result, b=resultNeg, sel=no, out=out, out=finalResult, out[15]=ng, out[0..7]=low8, out[8..15]=high8);
+        Mux16(a=result, b=resultNeg, sel=no, out=out, out[15]=ng, out[0..7]=low8, out[8..15]=high8);
         Or8Way(in=high8, out=firstZr);
         Or8Way(in=low8, out=secondZr);
         Or(a=firstZr, b=secondZr, out=notZr);
