@@ -9,6 +9,9 @@
  * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
  * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
  * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
  */
 
 // Implementation: the ALU logic manipulates the x and y inputs
@@ -20,6 +23,8 @@
 // if (f == 1)  set out = x + y  // integer 2's complement addition
 // if (f == 0)  set out = x & y  // bitwise and
 // if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
 
 CHIP ALU {
     IN  
@@ -32,7 +37,9 @@ CHIP ALU {
         no; // negate the out output?
 
     OUT 
-        out[16];
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
         TFM16(in=x, z=zx, n=nx, out=xFinal);
@@ -41,5 +48,9 @@ CHIP ALU {
         And16(a=xFinal, b=yFinal, out=xAndy);
         Mux16(a=xAndy, b=xPlusy, sel=f, out=result);
         Not16(in=result, out=resultNeg);
-        Mux16(a=result, b=resultNeg, sel=no, out=out);
+        Mux16(a=result, b=resultNeg, sel=no, out=out, out=finalResult, out[15]=ng, out[0..7]=low8, out[8..15]=high8);
+        Or8Way(in=high8, out=firstZr);
+        Or8Way(in=low8, out=secondZr);
+        Or(a=firstZr, b=secondZr, out=notZr);
+        Not(in=notZr, out=zr);
 }
