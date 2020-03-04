@@ -10,10 +10,16 @@
  * (the loaded value will be emitted to out from the next time step onward).
  */
 
-CHIP RAM16K {
+CHIP RAM16K{
     IN in[16], load, address[14];
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    RAM4K(in=in, out=out0, address=address[0..11], load=load0);
+    RAM4K(in=in, out=out1, address=address[0..11], load=load1);
+    RAM4K(in=in, out=out2, address=address[0..11], load=load2);
+    RAM4K(in=in, out=out3, address=address[0..11], load=load3);
+
+    DMux4Way(in=load, sel=address[12..13], a=load0, b=load1, c=load2, d=load3);
+    Mux4Way16(sel=address[12..13], a=out0, b=out1, c=out2, d=out3, out=out);
 }
