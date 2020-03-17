@@ -16,16 +16,16 @@ void* sym_table_init(size_t n_entry)
 	return (void*)htab;
 }
 
-int sym_table_insert(void* symbol_table, char* symbol, size_t address, size_t* table_address)
+int sym_table_insert(void* symbol_table, sym_table_entry* item, size_t* table_address)
 {
-	if(!symbol_table || !symbol || !table_address)
+	if(!symbol_table || !item|| !table_address)
 		return -1;
 
 	struct hsearch_data* htab = (struct hsearch_data *)symbol_table;
-	ENTRY item = {symbol, (void*)address};
+	ENTRY new_item = {item->symbol, (void*)item->address};
 	ENTRY* entry;
 
-	int rc = hsearch_r(item, ENTER, &entry, htab);
+	int rc = hsearch_r(new_item, ENTER, &entry, htab);
 	*table_address = (size_t)entry->data;
 	return (rc == 0);
 }

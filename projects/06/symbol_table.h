@@ -1,3 +1,8 @@
+typedef struct {
+	char *symbol;
+	size_t address;
+}sym_table_entry;
+
 /*
 	Creates a symbol table.
 
@@ -10,16 +15,13 @@
 void* sym_table_init(size_t n_entry);
 
 
-
 /*
-	Attempts to insert a (symbol, address) pair into the table. It
-	creates a new entry only if the symbol doesn't exist already
-	and there is enough space in the table.
+	Attempts to insert a new symbol into the table. It creates a new entry only
+	if the symbol doesn't exist already and there is enough space in the table.
 
 	Parameters:
 		symbol_table: the symbol table created by sym_table_init
-		symbol: the symbol to be added in the table
-		address: the desired address of the symbol to be added
+		item: the (symbol, address) pair to be added in the table
 		table_address: the address associated with the symbol
 
 	Return values:
@@ -27,7 +29,7 @@ void* sym_table_init(size_t n_entry);
 		 0: Success
 		 1: Failure. The table is full
 */
-int sym_table_insert(void* symbol_table, char* symbol, size_t address, size_t* table_address);
+int sym_table_insert(void* symbol_table, sym_table_entry* item, size_t* table_address);
 
 
 
