@@ -2,6 +2,7 @@
 #define __PARSER_H__
 
 #include <ctype.h>
+#include "symbol_table.h"
 
 typedef enum {
 	BLANK_LINE,
@@ -12,5 +13,6 @@ typedef enum {
 
 int parse_line(const char* line, char* parsed_line, LINE_TYPE* type);
 
+int build_sym_table(FILE *asm_file, void** symbol_table_ptr);
 
 #endif
