@@ -53,5 +53,6 @@ int main()
 	//Lookup for non existing symbol must return 1
 	rc = sym_table_lookup(sym_table, "sym2", &entry_address);
 	assert(rc == 1);
+	sym_table_destroy(sym_table);
 	return 0;
 }
