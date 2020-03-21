@@ -99,7 +99,7 @@ static int interpret_inst(void *symbol_table, void* inst_table, char *asm_inst, 
 }
 
 
-int interpret_asm(FILE* asm_file, const void *symbol_table, FILE* output_file)
+int interpret_asm(FILE* asm_file, void *symbol_table, FILE* output_file)
 {
 	if(!asm_file || !symbol_table || !output_file)
 		return -1;
