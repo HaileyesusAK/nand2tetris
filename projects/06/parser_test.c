@@ -46,7 +46,7 @@ int test_parse_line()
 	snprintf(line, MAX_LINE_LEN, "%20s %s  //comment", " ", inst);
 	rc = parse_line(line, parsed_line, &line_type);
 	assert(rc == 0);
-	assert(strcmp(parsed_line, inst) == 0);
+	assert(strcmp(parsed_line, "D=A;JMP") == 0);
 	assert(line_type == C_INST);
 
 	return 0;

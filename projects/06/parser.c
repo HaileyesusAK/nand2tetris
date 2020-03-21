@@ -3,6 +3,7 @@
 #include <string.h>
 #include "parser.h"
 
+
 int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 {
 	if(!line || !parsed_line || !type)
@@ -10,8 +11,7 @@ int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 	
 	*type = BLANK_LINE;
 	const char *c = line;
-	char *end;
-	int len;
+	char *dst;
 	
 	//Advance until a non-whitespace character is found
 	while(*c && isspace(*c))
@@ -21,13 +21,19 @@ int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 		return 0;
 
 	*type = (*c == '@') ? A_INST : ((*c == '(') ? LABEL : C_INST);
-	sscanf(c, "%[^/]", parsed_line);
+	
+	//compact the instruction by removing whitespaces and trailing comment
+	dst = parsed_line;
+	for(; *c; c++)
+	{
+	   	if(isspace(*c))
+			continue;
+		if(*c == '/')
+			break;
 
-	//remove trailing whitespaces from the parsed instruction
-	end = parsed_line + strlen(parsed_line) - 1;
-	while(isblank(*end))
-		*end--;
-	*(++end) = '\0';
-
+		*dst++ = *c;
+	}
+	*dst = '\0';
+	
 	return 0;
 }
