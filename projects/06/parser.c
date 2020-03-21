@@ -212,7 +212,7 @@ int build_sym_table(FILE *asm_file, void** symbol_table_ptr)
 		if(rc == -1)
 		{
 			fprintf(stderr, "sym_table_lookup failed\n");
-			return -1;
+			return -2;
 		}
 
 		if(rc == 1)
@@ -222,7 +222,7 @@ int build_sym_table(FILE *asm_file, void** symbol_table_ptr)
 			if(rc)
 			{
 				fprintf(stderr, "sym_table_insert failed\n");
-				return -1;
+				return -2;
 			}
 		}
 	}
