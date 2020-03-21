@@ -18,7 +18,8 @@ int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 	*type = BLANK_LINE;
 	const char *c = line;
 	char *dst;
-	
+
+	*parsed_line='\0';
 	//Advance until a non-whitespace character is found
 	while(*c && isspace(*c))
 		c++;	
