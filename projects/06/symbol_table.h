@@ -1,5 +1,10 @@
+#ifndef __SYMBOL_TABLE_H__
+#define __SYMBOL_TABLE_H__
+
+#define SYMBOL_LEN	32 
+
 typedef struct {
-	char *symbol;
+	char symbol[SYMBOL_LEN];
 	size_t address;
 }sym_table_entry;
 
@@ -39,14 +44,14 @@ int sym_table_insert(void* symbol_table, sym_table_entry* item, size_t* table_ad
 	Parameters:
 		symbol_table: the symbol table created by sym_table_init
 		symbol: the symbol to look for
-		table_address: the address associated with the symbol
+		address: the address associated with the symbol, if found
 
 	Return values:
 		-1: One of the input pointers is NULL.
 		 0: Symbol found.
 		 1: Symbol not found.
 */
-int sym_table_lookup(void* symbol_table, char* symbol, size_t* table_address);
+int sym_table_lookup(void* symbol_table, char* symbol, size_t* address);
 
 
 
@@ -56,4 +61,6 @@ int sym_table_lookup(void* symbol_table, char* symbol, size_t* table_address);
 		symbol_table_ptr: A pointer to the symbol table
 
 */
-void sym_table_destroy(void** symbol_table_ptr);
+void sym_table_destroy(void* symbol_table_ptr);
+
+#endif
