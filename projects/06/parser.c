@@ -20,7 +20,7 @@ int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 	if(!*c || *c == '/') 
 		return 0;
 
-	*type = (*c == '@') ? A_INST : C_INST;
+	*type = (*c == '@') ? A_INST : ((*c == '(') ? LABEL : C_INST);
 	sscanf(c, "%[^/]", parsed_line);
 
 	//remove trailing whitespaces from the parsed instruction
