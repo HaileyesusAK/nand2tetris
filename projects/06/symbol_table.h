@@ -31,8 +31,8 @@ void* sym_table_init(size_t n_entry);
 
 	Return values:
 		-1: One of the input pointers is NULL.
-		 0: Success
-		 1: Failure. The table is full
+		 0: The entry is inserted successfully.
+		 1: The table is full.
 */
 int sym_table_insert(void* symbol_table, sym_table_entry* item, size_t* table_address);
 

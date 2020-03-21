@@ -1,8 +1,8 @@
 #define _GNU_SOURCE
-#include<search.h>
-#include<stdlib.h>
-#include<string.h>
-#include<stdio.h>
+#include <search.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include "symbol_table.h"
 
 typedef struct {
