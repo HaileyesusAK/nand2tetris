@@ -8,7 +8,7 @@
 #define BLOCK_COUNT 128
 #define N_BUILTIN_SYM 23
 #define VAR_BASE 16
-
+#define MAX_LINE_LEN 256
 
 int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 {
@@ -72,15 +72,13 @@ static int collect_symbols(FILE* file,
 	void *mem_blk;
 	int rc = 0;
 	LINE_TYPE line_type;
-	char *line = NULL;
-	char parsed_line[SYMBOL_LEN];
-	size_t pc = 0, i = 0, j = 0, line_len = 0;
+	char line[MAX_LINE_LEN];
+	char parsed_line[MAX_LINE_LEN];
+	size_t pc = 0, i = 0, j = 0;
 	rewind(file);
 
-	while(getline(&line, &line_len, file) != -1)
+	while(fgets(line, MAX_LINE_LEN, file))
 	{
-		line[line_len - 1] = '\0';	
-
 		parse_line(line, parsed_line, &line_type);
 		if(line_type == BLANK_LINE)
 			continue;
@@ -131,9 +129,6 @@ static int collect_symbols(FILE* file,
 			}
 		}
 		
-		free(line);
-		line = NULL;
-		line_len = 0;
 		if(line_type == A_INST || line_type == C_INST)
 			++pc;
 	}
@@ -178,7 +173,8 @@ int build_sym_table(FILE *asm_file, void** symbol_table_ptr)
 	}
 
 	size_t n_entries = N_BUILTIN_SYM + n_resolved + n_unresolved;
-	void *symbol_table = sym_table_init(n_entries);
+	*symbol_table_ptr = sym_table_init(n_entries);
+	void *symbol_table = *symbol_table_ptr;
 	if(!symbol_table)
 	{
 		fprintf(stderr, "sym_table_init failed\n");
@@ -228,7 +224,7 @@ int build_sym_table(FILE *asm_file, void** symbol_table_ptr)
 		}
 	}
 	
-	*symbol_table_ptr = symbol_table;
+	
 	free(resolved);
 	free(unresolved);
 	return 0;
