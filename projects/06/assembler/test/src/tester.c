@@ -134,6 +134,7 @@ int test_build_sym_table()
 		printf("test_build_sym_table: build_sym_table failed: %d\n", rc);
 		fclose(asm_file);
 		fclose(cmp_file);
+		sym_table_destroy(symbol_table);
 		return 1;
 	}
 
@@ -154,9 +155,9 @@ int test_build_sym_table()
 				 symbol, rc);
 		err += assertEqualInt(rc, 0, msg);
 
-		snprintf(msg, MAX_MSG_LEN, "Wrong address. expected %zu, found %zu",
-			 expected_address, stored_address);
-		err += assertEqualInt(expected_address, stored_address, msg);
+		snprintf(msg, MAX_MSG_LEN, "Wrong address of '%s'. Expected %zu, found %zu",
+				 symbol, expected_address, stored_address);
+		err += assertEqualInt(stored_address, expected_address, msg);
 
 		line = NULL;
 		n_char = 0;
@@ -239,8 +240,9 @@ int test_symbol_table()
 	rc = sym_table_lookup(sym_table, "sym2", &entry_address);
 	snprintf(msg, MAX_MSG_LEN, "sym_table_lookup: failed on non-existing symbol");
 	err += assertEqualInt(rc, 1, msg);
+	
 	sym_table_destroy(sym_table);
-	return 0;
+	return err;
 }
 
 int main () {

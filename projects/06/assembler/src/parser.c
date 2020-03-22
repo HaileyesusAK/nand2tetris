@@ -10,6 +10,53 @@
 #define VAR_BASE 16
 #define MAX_LINE_LEN 256
 
+static int cmp_entry(void const *e1, void const *e2)
+{
+	const sym_table_entry *entry1 = (const sym_table_entry*) e1;
+	const sym_table_entry *entry2 = (const sym_table_entry*) e2;
+	return strcmp(entry1->symbol, entry2->symbol);
+}
+
+static int filter_dup_sym(sym_table_entry* dup_list, size_t n_dup_list,
+						  sym_table_entry** uniq_list_ptr, size_t* n_uniq_list)
+{
+	int rc = -1;
+	if(!dup_list || !uniq_list_ptr || !n_uniq_list)
+		return rc;
+
+	sym_table_entry* uniq_list = calloc(1, n_dup_list * sizeof(sym_table_entry));
+	if(!uniq_list)
+		return rc;
+
+	size_t n = 0, i = 0;
+	qsort(dup_list, n_dup_list, sizeof(sym_table_entry), cmp_entry);
+
+	for(size_t j = 1; j < n_dup_list; ++j)
+	{
+		if(strcmp(dup_list[i].symbol, dup_list[j].symbol))
+		{
+			uniq_list[n++]= dup_list[i];
+			i = j;
+		}
+	}
+	uniq_list[n++] = dup_list[i];
+
+	void *new_blk = realloc(uniq_list, n * sizeof(sym_table_entry));
+	if(!new_blk)
+	{
+		free(uniq_list);
+	}
+	else
+	{
+		*uniq_list_ptr = new_blk;
+		*n_uniq_list = n;
+		rc = 0;
+	}
+	return rc;
+}
+
+
+
 int parse_line(const char* line, char* parsed_line, LINE_TYPE* type)
 {
 	if(!line || !parsed_line || !type)
@@ -57,7 +104,8 @@ static int collect_symbols(FILE* file,
 
 	size_t n_max_resolved = BLOCK_COUNT;	
 	size_t n_max_unresolved = BLOCK_COUNT;
-
+	size_t n_referenced;
+	
 	sym_table_entry *resolved = calloc(1, sizeof(sym_table_entry) * n_max_resolved);
 	if(!resolved)
 		return -2;
@@ -68,7 +116,8 @@ static int collect_symbols(FILE* file,
 		free(resolved);
 		return -2;
 	}
-
+	sym_table_entry *referenced;
+	
 	void *mem_blk;
 	int rc = 0;
 	LINE_TYPE line_type;
@@ -134,18 +183,29 @@ static int collect_symbols(FILE* file,
 	}
 
 
+	//Filter out duplicate entries in the unresolved list
 	if(rc)
 	{
 		free(resolved);
-		free(unresolved);
 	}
 	else
 	{
-		*resolved_symbols = resolved;
-		*n_resolved_symbols = i;
-		*unresolved_symbols = unresolved;
-		*n_unresolved_symbols = j;
+		rc = filter_dup_sym(unresolved, j, &referenced, &n_referenced);
+		if(rc)
+		{
+			free(resolved);
+			rc = -2;
+		}
+		else
+		{
+			*resolved_symbols = resolved;
+			*n_resolved_symbols = i;
+			*unresolved_symbols = referenced;
+			*n_unresolved_symbols = n_referenced;
+		}
+
 	}
+	free(unresolved);
 	return rc;
 }
 
