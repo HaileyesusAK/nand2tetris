@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 #define RAM_SIZE 32768		//32K	
-void* init_vm_translator();
-int translate_vm_inst(const char* vm_inst, char* asm_inst, size_t* inst_len);
+void* init_vm_translator(char *static_prefix);
+void destroy_vm_translator(void* vm_translator);
 int translate_vm_file(FILE* vm_file, FILE* asm_file);
 
 #endif
