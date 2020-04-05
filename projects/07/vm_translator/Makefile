@@ -2,7 +2,7 @@ CC=gcc
 INCPATH=./include
 CFLAGS=-g -Wall -I$(INCPATH)
 OBJS=vm_translator.o main.o
-APP=vm_translator
+APP=VMTranslator
 VPATH=./src
 
 .c.o:
