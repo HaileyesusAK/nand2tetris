@@ -43,8 +43,20 @@ int assertEqualFile(FILE* f1, FILE* f2, char *msg)
 			return 1;
 		}
 		
-		fread(f1_content, f1_size, 1, f1);
-		fread(f2_content, f2_size, 1, f2);
+		rc = fread(f1_content, 1, f1_size, f1);
+		if(rc != f1_size)
+		{
+			printf("Couldn't read full content of f1: expected %li bytes, read %d bytes\n", f1_size, rc);
+			return 1;
+		}
+		
+		rc = fread(f2_content, 1, f2_size, f2);
+		if(rc != f2_size)
+		{
+			printf("Couldn't read full content of f2: expected %li bytes, read %d bytes\n", f2_size, rc);
+			return 1;
+		}
+		
 		if(memcmp(f1_content, f2_content, f1_size))
 		{
 			printf("File content mismatch: %s\n",  msg);
