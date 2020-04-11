@@ -15,10 +15,12 @@ int assertEqualFile(FILE* f1, FILE* f2, char *msg)
 
 	int rc = 0;
 
-	long f1_size = fseek(f1, 0, SEEK_END);
+	fseek(f1, 0, SEEK_END);
+	long f1_size = ftell(f1);
 	rewind(f1);
 	
-	long f2_size = fseek(f2, 0, SEEK_END);
+	fseek(f2, 0, SEEK_END);
+	long f2_size = ftell(f2);
 	rewind(f2);
 
 	if(f1_size != f2_size)
