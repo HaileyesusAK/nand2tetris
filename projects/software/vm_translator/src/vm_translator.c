@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <time.h>
 
 #include "vm_translator.h"
 
@@ -57,7 +56,8 @@ static int parse_vm_inst(const char* vm_inst, char *cmd, InstCode* inst_code,
 						 char *arg1, uint16_t* arg2);
 static size_t get_inst_code(const char *cmd);
 static int translate_vm_inst(const VmTranslator* vm_translator,
-							 const char* vm_inst, FILE* asm_inst, size_t* inst_len);
+							 const char* vm_inst, FILE* asm_inst,
+							 InstCode* inst_code);
 
 static size_t gen_add_asm(FILE *asm_file);
 static size_t gen_and_asm(FILE *asm_file);
@@ -89,6 +89,7 @@ static size_t gen_push_temp_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_pop_temp_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_push_const_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_pop_const_asm(FILE *asm_file, uint16_t idx);
+static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals);
 
 void *init_vm_translator(char *prefix)
 {
@@ -138,7 +139,8 @@ void *init_vm_translator(char *prefix)
 		{"push_pointer", gen_push_ptr_asm}, {"pop_pointer", gen_pop_ptr_asm},
 		{"push_temp", gen_push_temp_asm}, {"pop_temp", gen_pop_temp_asm},
 		{"push_static", gen_push_static_asm}, {"pop_static", gen_pop_static_asm},
-		{"push_constant", gen_push_const_asm}, {"pop_constant", gen_pop_const_asm}
+		{"push_constant", gen_push_const_asm}, {"pop_constant", gen_pop_const_asm},
+		{"function", gen_func_asm}
 	};
 
 	vm_translator->n_cmds = sizeof(cmd_generators) / sizeof(struct CmdGen);	
@@ -211,18 +213,17 @@ void destroy_vm_translator(void* handle)
 	}
 }
 
-int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst, FILE* asm_inst, size_t* inst_len)
+int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst,
+					  FILE* asm_inst, InstCode* inst_code)
 {
 	char cmd[CMD_LEN];
 	char segment[SEGMENT_LEN];
 	uint16_t idx;
-	InstCode inst_code;
 	ENTRY item, *entry;
-	size_t len = 0;
 
-	parse_vm_inst(vm_inst, cmd, &inst_code, segment, &idx);
+	parse_vm_inst(vm_inst, cmd, inst_code, segment, &idx);
 
-	switch(inst_code)
+	switch(*inst_code)
 	{
 		case PUSH_CODE:
 		case POP_CODE:
@@ -238,7 +239,22 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst, FI
 			}	
 
 			Generator *generator = (Generator*)entry->data;
-			len = generator(asm_inst, idx);
+			generator(asm_inst, idx);
+		}
+		break;
+		
+		case FUNC_CODE:
+		{
+			item.key = cmd;
+			if(!hsearch_r(item, FIND, &entry, vm_translator->generator_mapping))
+			{
+				fprintf(stderr, "Cannot translate VM command '%s %s' at %s, line %d\n",
+								cmd, segment, __FILE__, __LINE__);
+				return -1;
+			}	
+
+			Generator *generator = (Generator*)entry->data;
+			generator(asm_inst, segment, idx);
 		}
 		break;
 
@@ -253,7 +269,7 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst, FI
 			}
 
 			Generator *generator = (Generator*)entry->data;
-			len = generator(asm_inst);
+			generator(asm_inst);
 		}
 		break;
 
@@ -261,8 +277,6 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst, FI
 			break;
 	}
 
-	*inst_len = len;
-	
 	return 0;
 }
 
@@ -274,7 +288,7 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 		return -1;
 	}
 	
-	size_t inst_len;
+	InstCode inst_code;
 	char vm_inst[VM_LINE_LEN];
 	VmTranslator* vm_translator = (VmTranslator*) handle;
 
@@ -304,9 +318,8 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 	fprintf(asm_file, "(BEGIN)\n");
 	while(fgets(vm_inst, VM_LINE_LEN, vm_file))
 	{
-		//vm_inst[strlen(vm_inst)-1] = '\0';
 		int len = fprintf(asm_file, "//%s", vm_inst);
-		int rc = translate_vm_inst(vm_translator, vm_inst, asm_file, &inst_len);
+		int rc = translate_vm_inst(vm_translator, vm_inst, asm_file, &inst_code);
 		if(rc)
 		{
 			fprintf(stderr, "Cannot translate VM instruction '%s' at %s, line %d\n",
@@ -315,7 +328,7 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 		}
 
 		//Overwrite comment if no instruction is translated
-		if(!inst_len)
+		if(inst_code == BLANK_CODE)
 			fseek(asm_file, -len, SEEK_CUR); 
 		else
 			fprintf(asm_file, "\n");
@@ -453,7 +466,7 @@ static size_t gen_neg_asm(FILE *asm_file)
 static size_t gen_binary_rel_asm(FILE *asm_file, char op)
 {
 	char *jmp_cmd;
-	
+	static size_t i = 1;	
 	switch(op)
 	{
 		case '=': jmp_cmd = "JEQ"; break;
@@ -462,7 +475,7 @@ static size_t gen_binary_rel_asm(FILE *asm_file, char op)
 	}
 
 	char return_label[VM_LINE_LEN];
-	snprintf(return_label, VM_LINE_LEN, "%li_op_end", time(NULL));
+	snprintf(return_label, VM_LINE_LEN, "%zu_op_end", i++);
 
 	//Save return address on R13
 	fprintf(asm_file, "\t@%s\n"
@@ -709,4 +722,57 @@ static size_t gen_push_const_asm(FILE *asm_file, uint16_t idx)
 static size_t gen_pop_const_asm(FILE *asm_file, uint16_t idx)
 {
 	return gen_pop_asm(asm_file, CONSTANT, 0);
+}
+
+static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
+{
+	/*
+		create a label (f_name)
+		push constant 0 n_locals times
+	*/
+
+	char loop_beg[VM_LINE_LEN], loop_end[VM_LINE_LEN];
+
+	snprintf(loop_beg, VM_LINE_LEN, "%s_SET_LCL", f_name);
+	snprintf(loop_end, VM_LINE_LEN, "%s_SET_LCL_END", f_name);
+
+	//Label function's starting point
+	fprintf(asm_file, "(%s)\n", f_name);
+
+	//Setup loop variables
+	fprintf(asm_file, "\t@i\n"
+					  "\tM=0\n"
+					  "\t@%hu\n"
+					  "\tD=A\n"
+					  "\t@n\n"
+					  "\tM=D\n",
+			n_locals);
+	
+	fprintf(asm_file, "(%s)\n", loop_beg);
+	
+	//Check for loop termination condition
+	fprintf(asm_file, "\t@n\n"
+					  "\tD=M\n"
+					  "\t@i\n"
+					  "\tD=D-M\n"
+					  "\t@%s\n"
+					  "\tD;JEQ\n",
+			loop_end);
+			
+	//Push 0 onto the stack	
+	fprintf(asm_file, "\t@SP\n"
+					  "\tA=M\n"
+					  "\tM=0\n"
+					  "\t@SP\n"
+					  "\tM=M+1\n");
+	
+	//Increment loop variable and goto the beginning
+	fprintf(asm_file, "\t@i\n"
+					  "\tM=M+1\n"
+					  "\t@%s\n"
+					  "\t0;JMP\n",
+			loop_beg);
+
+	fprintf(asm_file, "(%s)\n",loop_end);
+	return 0;
 }

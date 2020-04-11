@@ -41,7 +41,7 @@
 	M=M+1
 
 //eq
-	@46
+	@1_op_end
 	D=A
 	@R13
 	M=D
@@ -55,6 +55,7 @@
 	D;JEQ
 	@PUSH_FALSE
 	0;JMP
+(1_op_end)
 
 //push constant 17
 	@17
@@ -75,7 +76,7 @@
 	M=M+1
 
 //eq
-	@74
+	@2_op_end
 	D=A
 	@R13
 	M=D
@@ -89,6 +90,7 @@
 	D;JEQ
 	@PUSH_FALSE
 	0;JMP
+(2_op_end)
 
 //push constant 16
 	@16
@@ -109,7 +111,7 @@
 	M=M+1
 
 //eq
-	@102
+	@3_op_end
 	D=A
 	@R13
 	M=D
@@ -123,6 +125,7 @@
 	D;JEQ
 	@PUSH_FALSE
 	0;JMP
+(3_op_end)
 
 //push constant 892
 	@892
@@ -143,7 +146,7 @@
 	M=M+1
 
 //lt
-	@130
+	@4_op_end
 	D=A
 	@R13
 	M=D
@@ -157,6 +160,7 @@
 	D;JLT
 	@PUSH_FALSE
 	0;JMP
+(4_op_end)
 
 //push constant 891
 	@891
@@ -177,7 +181,7 @@
 	M=M+1
 
 //lt
-	@158
+	@5_op_end
 	D=A
 	@R13
 	M=D
@@ -191,6 +195,7 @@
 	D;JLT
 	@PUSH_FALSE
 	0;JMP
+(5_op_end)
 
 //push constant 891
 	@891
@@ -211,7 +216,7 @@
 	M=M+1
 
 //lt
-	@186
+	@6_op_end
 	D=A
 	@R13
 	M=D
@@ -225,6 +230,7 @@
 	D;JLT
 	@PUSH_FALSE
 	0;JMP
+(6_op_end)
 
 //push constant 32767
 	@32767
@@ -245,7 +251,7 @@
 	M=M+1
 
 //gt
-	@214
+	@7_op_end
 	D=A
 	@R13
 	M=D
@@ -259,6 +265,7 @@
 	D;JGT
 	@PUSH_FALSE
 	0;JMP
+(7_op_end)
 
 //push constant 32766
 	@32766
@@ -279,7 +286,7 @@
 	M=M+1
 
 //gt
-	@242
+	@8_op_end
 	D=A
 	@R13
 	M=D
@@ -293,6 +300,7 @@
 	D;JGT
 	@PUSH_FALSE
 	0;JMP
+(8_op_end)
 
 //push constant 32766
 	@32766
@@ -313,7 +321,7 @@
 	M=M+1
 
 //gt
-	@270
+	@9_op_end
 	D=A
 	@R13
 	M=D
@@ -327,6 +335,7 @@
 	D;JGT
 	@PUSH_FALSE
 	0;JMP
+(9_op_end)
 
 //push constant 57
 	@57
