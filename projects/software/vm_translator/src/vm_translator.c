@@ -26,10 +26,17 @@ typedef enum {
 }SegmentBase;
 
 typedef enum {
-	BLANK,
-	MEM_INST,
-	ALU_INST
-}InstType;
+	BLANK_CODE = 0, 
+	PUSH_CODE = 448,
+	POP_CODE = 335,
+	FUNC_CODE = 870,
+	CALL_CODE = 412,
+	RET_CODE = 672,
+	LABEL_CODE = 512,
+	GOTO_CODE = 441,
+	IF_GOTO_CODE = 693,
+	ALU_CODE
+}InstCode;
 
 typedef struct  {
 	size_t n_cmds;
@@ -46,9 +53,9 @@ static char* static_prefix;
 
 
 static size_t parse_word(const char* src, char* dst, size_t n_dst);
-static int parse_vm_inst(const char* vm_inst, char *cmd, InstType* inst_type,
-						 char *segment, uint16_t* idx);
-
+static int parse_vm_inst(const char* vm_inst, char *cmd, InstCode* inst_code,
+						 char *arg1, uint16_t* arg2);
+static size_t get_inst_code(const char *cmd);
 static int translate_vm_inst(const VmTranslator* vm_translator,
 							 const char* vm_inst, FILE* asm_inst, size_t* inst_len);
 
@@ -209,15 +216,16 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst, FI
 	char cmd[CMD_LEN];
 	char segment[SEGMENT_LEN];
 	uint16_t idx;
-	InstType inst_type;
+	InstCode inst_code;
 	ENTRY item, *entry;
 	size_t len = 0;
 
-	parse_vm_inst(vm_inst, cmd, &inst_type, segment, &idx);
+	parse_vm_inst(vm_inst, cmd, &inst_code, segment, &idx);
 
-	switch(inst_type)
+	switch(inst_code)
 	{
-		case MEM_INST:
+		case PUSH_CODE:
+		case POP_CODE:
 		{
 			char key[CMD_LEN + SEGMENT_LEN + 1];
 			snprintf(key, CMD_LEN + SEGMENT_LEN + 1, "%s_%s", cmd, segment);
@@ -234,7 +242,7 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst, FI
 		}
 		break;
 
-		case ALU_INST:
+		case ALU_CODE:
 		{
 			item.key = cmd;
 			if(!hsearch_r(item, FIND, &entry, vm_translator->generator_mapping))
@@ -341,12 +349,21 @@ size_t parse_word(const char* src, char* dst, size_t n_dst)
 	return i;
 }
 
-int parse_vm_inst(const char* vm_inst, char *cmd, InstType* inst_type,
-						 char *segment, uint16_t* idx)
+size_t get_inst_code(const char *cmd)
+{
+	size_t sum = 0;
+	const char *c = cmd;
+	while(*c)
+		sum += *c++;
+	return sum;
+}
+
+int parse_vm_inst(const char* vm_inst, char *cmd, InstCode* inst_code,
+						 char *arg1, uint16_t* arg2)
 {
 	const char *c = vm_inst;
 	size_t word_len;	
-	*inst_type = BLANK;
+	*inst_code = BLANK_CODE;
 
 	while(*c && (isblank(*c) || isspace(*c)))
 		c++;	
@@ -354,13 +371,25 @@ int parse_vm_inst(const char* vm_inst, char *cmd, InstType* inst_type,
 	if(!*c || *c == '/') 
 		return 0;
 
-	*inst_type = ALU_INST;
-	
 	word_len = parse_word(c, cmd, CMD_LEN);
-	if(!strcmp(cmd, "push") || !strcmp(cmd, "pop"))
+
+	size_t code = get_inst_code(cmd);
+	*inst_code = code;
+	switch(code)
 	{
-		*inst_type = MEM_INST;
-		sscanf(c + word_len, "%s %hu", segment, idx);
+		case PUSH_CODE:
+		case POP_CODE:
+		case FUNC_CODE:
+		case CALL_CODE:
+			sscanf(c + word_len, "%s %hu", arg1, arg2); break;
+		case GOTO_CODE:
+		case LABEL_CODE:
+		case IF_GOTO_CODE:
+			sscanf(c + word_len, "%s", arg1); break;
+		case RET_CODE:
+			*inst_code = code;
+		default:
+			*inst_code = ALU_CODE;
 	}
 
 	return 0;
