@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "vm_translator.h"
 
@@ -48,7 +49,6 @@ typedef struct  {
 typedef size_t Generator(FILE *, ...);
 
 
-static uint16_t PC;				//Program counter, used when generating instruction for logical operations
 static char* static_prefix;
 
 
@@ -302,8 +302,6 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 					  "\t0;JMP\n\n");
 
 	fprintf(asm_file, "(BEGIN)\n");
-	const size_t N_BEG_LINES = 18;
-	PC = N_BEG_LINES;	//The line number of the next assembly instruction
 	while(fgets(vm_inst, VM_LINE_LEN, vm_file))
 	{
 		//vm_inst[strlen(vm_inst)-1] = '\0';
@@ -321,8 +319,6 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 			fseek(asm_file, -len, SEEK_CUR); 
 		else
 			fprintf(asm_file, "\n");
-				
-		PC += inst_len;
 	}
 
 	//End of translation
@@ -399,7 +395,6 @@ int parse_vm_inst(const char* vm_inst, char *cmd, InstCode* inst_code,
 static size_t gen_binary_alu_op_asm(FILE *asm_file, char op)
 {
 
-	size_t n_lines = 6;
 	fprintf(asm_file,
 			"\t@SP\n"
 			"\tAM=M-1\n"
@@ -412,7 +407,7 @@ static size_t gen_binary_alu_op_asm(FILE *asm_file, char op)
 	else
 		fprintf(asm_file, "\tM=D%cM\n", op);
 
-	return n_lines;
+	return 0;
 }
 
 static size_t gen_add_asm(FILE *asm_file)
@@ -437,31 +432,26 @@ static size_t gen_and_asm(FILE *asm_file)
 
 static size_t gen_not_asm(FILE *asm_file)
 {
-	size_t n_lines = 3;
 	fprintf(asm_file, 
 			"\t@SP\n"
 			"\tA=M-1\n"
 			"\tM=!M\n");
 	
-	return n_lines;
+	return 0;
 }
 
 static size_t gen_neg_asm(FILE *asm_file)
 {
-	size_t n_lines = 3;
 	fprintf(asm_file,
 		    "\t@SP\n"
 		    "\tA=M-1\n"
 		    "\tM=-M\n");
 	
-	return n_lines;
+	return 0;
 }
 
 static size_t gen_binary_rel_asm(FILE *asm_file, char op)
 {
-
-	size_t n_lines =  14;
-	uint16_t return_addr = PC + n_lines;
 	char *jmp_cmd;
 	
 	switch(op)
@@ -471,12 +461,15 @@ static size_t gen_binary_rel_asm(FILE *asm_file, char op)
 		case '>': jmp_cmd = "JGT"; break;
 	}
 
+	char return_label[VM_LINE_LEN];
+	snprintf(return_label, VM_LINE_LEN, "%li_op_end", time(NULL));
+
 	//Save return address on R13
-	fprintf(asm_file, "\t@%hu\n"
+	fprintf(asm_file, "\t@%s\n"
 				      "\tD=A\n"
 				      "\t@R13\n"
 				      "\tM=D\n",
-				      return_addr);
+				      return_label);
 
 	//Compute x - y and put the result on D
 	fprintf(asm_file, "\t@SP\n"
@@ -491,7 +484,10 @@ static size_t gen_binary_rel_asm(FILE *asm_file, char op)
 					  "\t@PUSH_FALSE\n"
 					  "\t0;JMP\n",
 					  jmp_cmd);
-	return n_lines;
+	
+	fprintf(asm_file, "(%s)\n", return_label);	
+
+	return 0;
 }
 
 static size_t gen_eq_asm(FILE *asm_file)
@@ -511,7 +507,6 @@ static size_t gen_gt_asm(FILE *asm_file)
 
 static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 {
-	size_t n_lines = 5;
 	char *push_D = "@SP\n"
 				   "\tA=M\n"
 				   "\tM=D\n"
@@ -524,7 +519,6 @@ static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 				"\t@%hu\n"
 				"\tD=A\n"
 				"\t%s\n", idx, push_D);
-		n_lines += 2;
 	}
 	else if(seg_base == STATIC)
 	{
@@ -532,7 +526,6 @@ static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 			    "\t@%s.%hu\n"
 			    "\tD=M\n"
 			    "\t%s\n", static_prefix, idx, push_D);
-		n_lines += 2;
 	}
 	else
 	{
@@ -552,7 +545,6 @@ static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 			case ARG:
 			case THIS:
 			case THAT:
-				n_lines += 5;
 				fprintf(asm_file,
 						"\t@%hu\n"
 						"\tD=A\n"
@@ -564,7 +556,6 @@ static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 				break;
 			case POINTER:
 			case TEMP:
-				n_lines += 2;
 				fprintf(asm_file,
 						"\t@%hu\n"
 						"\tD=M\n"
@@ -574,7 +565,7 @@ static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 				break;
 		}
 	}
-	return n_lines;
+	return 0;
 }
 
 static size_t gen_pop_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
@@ -582,8 +573,6 @@ static size_t gen_pop_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 	char *pop_D = "@SP\n"
 				  "\tAM=M-1\n"
 				  "\tD=M";
-	
-	size_t n_lines = 3;
 
 	if(seg_base == STATIC)
 	{
@@ -592,7 +581,6 @@ static size_t gen_pop_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 				"\t@%s.%hu\n"
 				"\tM=D\n",
 				pop_D, static_prefix, idx);
-		n_lines += 2;
 	}
 	else
 	{
@@ -627,7 +615,6 @@ static size_t gen_pop_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 						"\t@%s\n"
 						"\tM=M-D\n",
 						idx, symbol, pop_D, symbol, idx, symbol);
-				n_lines += 11;
 				break;
 			case TEMP:
 			case POINTER:
@@ -635,14 +622,13 @@ static size_t gen_pop_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 						"\t%s\n"
 						"\t@%hu\n"
 						"\tM=D\n", pop_D, seg_base + idx);
-				n_lines += 2;
 				break;
 			default:
 				break;
 		}
 	}
 	
-	return n_lines;
+	return 0;
 }
 
 static size_t gen_push_lcl_asm(FILE *asm_file, uint16_t idx)
