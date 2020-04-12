@@ -94,6 +94,9 @@ static size_t gen_pop_const_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals);
 static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args);
 static size_t gen_ret_asm(FILE *asm_file);
+static size_t gen_goto_asm(FILE *asm_file, char *label);
+static size_t gen_if_goto_asm(FILE *asm_file, char *label);
+static size_t gen_label_asm(FILE *asm_file, char *label);
 
 void *init_vm_translator(char *prefix)
 {
@@ -144,7 +147,8 @@ void *init_vm_translator(char *prefix)
 		{"push_temp", gen_push_temp_asm}, {"pop_temp", gen_pop_temp_asm},
 		{"push_static", gen_push_static_asm}, {"pop_static", gen_pop_static_asm},
 		{"push_constant", gen_push_const_asm}, {"pop_constant", gen_pop_const_asm},
-		{"function", gen_func_asm}, {"call", gen_call_asm}, {"ret", gen_ret_asm}
+		{"function", gen_func_asm}, {"call", gen_call_asm}, {"ret", gen_ret_asm},
+		{"goto", gen_goto_asm}, {"if-goto", gen_if_goto_asm}, {"label", gen_label_asm}
 	};
 
 	vm_translator->n_cmds = sizeof(cmd_generators) / sizeof(struct CmdGen);	
@@ -279,6 +283,23 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst,
 		}
 		break;
 
+		case IF_GOTO_CODE:
+		case GOTO_CODE:
+		case LABEL_CODE:
+		{
+			item.key = cmd;
+			if(!hsearch_r(item, FIND, &entry, vm_translator->generator_mapping))
+			{
+				fprintf(stderr, "Cannot translate VM command '%s %s' at %s, line %d\n",
+								cmd, segment, __FILE__, __LINE__);
+				return -1;
+			}	
+
+			Generator *generator = (Generator*)entry->data;
+			generator(asm_inst, segment);
+		}
+		break;
+		
 		default:
 			break;
 	}
@@ -894,6 +915,47 @@ static size_t gen_ret_asm(FILE *asm_file)
 	fprintf(asm_file, "\t@endFrame\n"
 					  "\tA=M-1\n"
 					  "\t0; JMP\n");
+
+	return 0;
+}
+
+static size_t gen_goto_asm(FILE *asm_file, char *label)
+{
+	/*
+		create the final goto destination as currentFunction$label
+	*/
+
+	fprintf(asm_file, "\t@%s$%s\n"
+					  "\t0; JMP\n",
+					  current_function, label);
+
+	return 0;
+}
+
+static size_t gen_if_goto_asm(FILE *asm_file, char *label)
+{
+	/*
+		create the final goto destination as currentFunction$label
+	*/
+
+	fprintf(asm_file, "\t@SP\n"
+					  "\tA=M-1\n"
+					  "\tD=M\n"
+					  "\tD=D+1\n"
+					  "\t@%s$%s\n"
+					  "\tD;JEQ\n",
+					  current_function, label);
+	return 0;
+}
+
+static size_t gen_label_asm(FILE *asm_file, char *label)
+{
+	/*
+		create the label as currentFunction$label
+	*/
+
+	fprintf(asm_file, "(%s$%s)\n",
+					  current_function, label);
 
 	return 0;
 }
