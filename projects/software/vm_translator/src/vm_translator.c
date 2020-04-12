@@ -49,7 +49,7 @@ typedef size_t Generator(FILE *, ...);
 
 
 static char* static_prefix;
-
+static char current_function[VM_LINE_LEN];
 
 static size_t parse_word(const char* src, char* dst, size_t n_dst);
 static int parse_vm_inst(const char* vm_inst, char *cmd, InstCode* inst_code,
@@ -89,7 +89,9 @@ static size_t gen_push_temp_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_pop_temp_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_push_const_asm(FILE *asm_file, uint16_t idx);
 static size_t gen_pop_const_asm(FILE *asm_file, uint16_t idx);
+
 static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals);
+static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args);
 
 void *init_vm_translator(char *prefix)
 {
@@ -140,7 +142,7 @@ void *init_vm_translator(char *prefix)
 		{"push_temp", gen_push_temp_asm}, {"pop_temp", gen_pop_temp_asm},
 		{"push_static", gen_push_static_asm}, {"pop_static", gen_pop_static_asm},
 		{"push_constant", gen_push_const_asm}, {"pop_constant", gen_pop_const_asm},
-		{"function", gen_func_asm}
+		{"function", gen_func_asm}, {"call", gen_func_asm}
 	};
 
 	vm_translator->n_cmds = sizeof(cmd_generators) / sizeof(struct CmdGen);	
@@ -244,6 +246,7 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst,
 		break;
 		
 		case FUNC_CODE:
+		case CALL_CODE:
 		{
 			item.key = cmd;
 			if(!hsearch_r(item, FIND, &entry, vm_translator->generator_mapping))
@@ -774,5 +777,82 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 			loop_beg);
 
 	fprintf(asm_file, "(%s)\n",loop_end);
+	return 0;
+}
+
+static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
+{
+	/*
+		*SP++ = (return_address)
+		*SP++ = *LCL
+		*SP++ = *ARG
+		*SP++ = *THIS
+		*SP++ = *THAT
+		*ARGS = *SP - n_locals - 5
+		*LCL = *SP
+		goto f_name
+		(return_address)
+	*/
+
+	char ret_addr_label[VM_LINE_LEN];
+
+	char *push_D = "@SP\n"
+				   "\tA=M\n"
+				   "\tM=D\n"
+				   "\t@SP\n"
+				   "\tM=M+1";
+
+	//Save the called function name since it will be used to prefix labels
+	//referenced in its lifetime
+	snprintf(current_function, VM_LINE_LEN, "%s", f_name);
+
+	//save return address
+	snprintf(ret_addr_label, VM_LINE_LEN, "END_%s", f_name);
+	fprintf(asm_file, "@%s\n"
+					  "D=A\n"
+					  "\t%s\n", ret_addr_label, push_D);
+	//save LCL
+	fprintf(asm_file, "\t@LCL\n"
+					  "\tD=M\n"
+					  "\t%s\n",
+			push_D);
+
+	//save ARG
+	fprintf(asm_file, "\t@ARG\n"
+					  "\tD=M\n"
+					  "\t%s\n",
+			push_D);
+
+	//save THIS
+	fprintf(asm_file, "\t@THIS\n"
+					  "\tD=M\n"
+					  "\t%s\n",
+			push_D);
+
+	//save THAT
+	fprintf(asm_file, "\t@THAT\n"
+					  "\tD=M\n"
+					  "\t%s\n",
+			push_D);
+
+	//setup ARG for the callee
+	fprintf(asm_file, "\t@5\n"
+					  "\tD=A\n"
+					  "\t@%hu\n"
+					  "\tD=D+A\n"
+					  "\t@SP\n"
+					  "\tD=M-D\n"
+					  "\t@ARG\n"
+					  "\tM=D\n",
+			n_args);
+
+	//jump to the called function
+	fprintf(asm_file, "\t@%s\n"
+					  "\t0;JMP\n",
+			f_name);
+
+	//Label end of function
+	fprintf(asm_file, "(%s)\n", ret_addr_label);
+
 	return 0;
 }
