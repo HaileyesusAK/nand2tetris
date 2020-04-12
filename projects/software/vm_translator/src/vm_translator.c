@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "vm_translator.h"
 
@@ -92,6 +93,7 @@ static size_t gen_pop_const_asm(FILE *asm_file, uint16_t idx);
 
 static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals);
 static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args);
+static size_t gen_ret_asm(FILE *asm_file);
 
 void *init_vm_translator(char *prefix)
 {
@@ -142,7 +144,7 @@ void *init_vm_translator(char *prefix)
 		{"push_temp", gen_push_temp_asm}, {"pop_temp", gen_pop_temp_asm},
 		{"push_static", gen_push_static_asm}, {"pop_static", gen_pop_static_asm},
 		{"push_constant", gen_push_const_asm}, {"pop_constant", gen_pop_const_asm},
-		{"function", gen_func_asm}, {"call", gen_func_asm}
+		{"function", gen_func_asm}, {"call", gen_call_asm}, {"ret", gen_ret_asm}
 	};
 
 	vm_translator->n_cmds = sizeof(cmd_generators) / sizeof(struct CmdGen);	
@@ -262,6 +264,7 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst,
 		break;
 
 		case ALU_CODE:
+		case RET_CODE:
 		{
 			item.key = cmd;
 			if(!hsearch_r(item, FIND, &entry, vm_translator->generator_mapping))
@@ -811,29 +814,15 @@ static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 	fprintf(asm_file, "@%s\n"
 					  "D=A\n"
 					  "\t%s\n", ret_addr_label, push_D);
-	//save LCL
-	fprintf(asm_file, "\t@LCL\n"
-					  "\tD=M\n"
-					  "\t%s\n",
-			push_D);
-
-	//save ARG
-	fprintf(asm_file, "\t@ARG\n"
-					  "\tD=M\n"
-					  "\t%s\n",
-			push_D);
-
-	//save THIS
-	fprintf(asm_file, "\t@THIS\n"
-					  "\tD=M\n"
-					  "\t%s\n",
-			push_D);
-
-	//save THAT
-	fprintf(asm_file, "\t@THAT\n"
-					  "\tD=M\n"
-					  "\t%s\n",
-			push_D);
+	
+	//Save caller's state
+	char *segments[] = {"LCL", "ARG", "THIS", "THAT"}; //Don't reorder the elements
+	for(size_t i = 0; i < sizeof(segments) / sizeof(char*); ++i)
+	{
+		fprintf(asm_file, "\t@%s\n"
+						  "\tD=M\n"
+					      "\t%s\n", segments[i], push_D);
+	}
 
 	//setup ARG for the callee
 	fprintf(asm_file, "\t@5\n"
@@ -853,6 +842,58 @@ static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 
 	//Label end of function
 	fprintf(asm_file, "(%s)\n", ret_addr_label);
+
+	return 0;
+}
+
+static size_t gen_ret_asm(FILE *asm_file)
+{
+	/*
+		startFrame = ARG
+		endFrame = LCL
+		
+		THAT = --endFrame
+		THIS = --endFrame
+		ARG = --endFrame
+		LCL = --endFrame
+
+		*startFrame = *--SP
+		goto endFrame
+	*/
+
+	//Save current function's ARG in a variable
+	fprintf(asm_file, "@ARG\n"
+					  "D=M\n"
+					  "@startFrame\n"
+					  "M=D\n");
+	
+	//Save current function's LCL in a variable
+	fprintf(asm_file, "@LCL\n"
+					  "D=M\n"
+					  "@endFrame\n"
+					  "M=D\n");
+
+	//Reset caller's state
+	char *segments[] = {"THAT", "THIS", "ARG", "LCL"}; //Don't reorder the elements
+	for(size_t i = 0; i < sizeof(segments) / sizeof(char*); ++i)
+	{
+		fprintf(asm_file, "\t@endFrame\n"
+						  "\tDM=M-1\n"
+						  "\t@%s\n"
+						  "\tM=D\n", segments[i]);
+	}
+
+	//Return value to the caller
+	fprintf(asm_file, "\t@SP\n"
+					  "\tAM=M-1\n"
+					  "\tD=M\n"
+					  "@startFrame\n"
+					  "M=D\n");
+	
+	//Return control to the caller
+	fprintf(asm_file, "\t@endFrame\n"
+					  "\tA=M-1\n"
+					  "\t0; JMP\n");
 
 	return 0;
 }
