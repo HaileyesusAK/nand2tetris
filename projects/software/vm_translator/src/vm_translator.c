@@ -1,13 +1,14 @@
 #define _GNU_SOURCE
 #include <ctype.h>
+#include <dirent.h>
+#include <limits.h>
 #include <search.h>
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
-#include <time.h>
+#include <sys/types.h>
 
 #include "vm_translator.h"
 
@@ -43,22 +44,23 @@ typedef struct  {
 	size_t n_cmds;
 	char **cmds;
 	struct hsearch_data* generator_mapping;
-	char *static_prefix;
 }VmTranslator;
 
 typedef size_t Generator(FILE *, ...);
 
-
-static char* static_prefix;
+static char* current_file_name;
 static char current_function[VM_LINE_LEN];
+static VmTranslator* vm_translator;
 
 static size_t parse_word(const char* src, char* dst, size_t n_dst);
 static int parse_vm_inst(const char* vm_inst, char *cmd, InstCode* inst_code,
 						 char *arg1, uint16_t* arg2);
 static size_t get_inst_code(const char *cmd);
-static int translate_vm_inst(const VmTranslator* vm_translator,
-							 const char* vm_inst, FILE* asm_inst,
-							 InstCode* inst_code);
+
+static int init_vm_translator();
+static void destroy_vm_translator();
+static int translate_vm_inst(const char* vm_inst, FILE* asm_inst, InstCode* inst_code);
+static int translate_vm_file(FILE* vm_file, FILE* asm_file);
 
 static size_t gen_add_asm(FILE *asm_file);
 static size_t gen_and_asm(FILE *asm_file);
@@ -98,40 +100,25 @@ static size_t gen_goto_asm(FILE *asm_file, char *label);
 static size_t gen_if_goto_asm(FILE *asm_file, char *label);
 static size_t gen_label_asm(FILE *asm_file, char *label);
 
-void *init_vm_translator(char *prefix)
+static int get_sorted_fn(DIR* dir, char *ext, size_t *count, char *** ptr_fn_list);
+
+int init_vm_translator()
 {
-
-	if(!prefix)
-	{
-		fprintf(stderr, "NULL input pointer at %s, line %d\n", __FILE__, __LINE__);
-		return NULL;
-	}
-
-	VmTranslator* vm_translator = calloc(1, sizeof(VmTranslator));
+	vm_translator = calloc(1, sizeof(VmTranslator));
 	if(!vm_translator)
 	{
 		fprintf(stderr, "calloc failed at %s, line %d\n", __FILE__, __LINE__);
-		return NULL;
+		return -1;
 	}
 	
 	vm_translator->generator_mapping = calloc(1, sizeof(struct hsearch_data));
 	if(!vm_translator->generator_mapping)
 	{
 		fprintf(stderr, "calloc failed at %s, line %d\n", __FILE__, __LINE__);
-		destroy_vm_translator(vm_translator);
-		return NULL;
+		destroy_vm_translator();
+		return -1;
 	}
 
-	vm_translator->static_prefix = strdup(prefix);
-	static_prefix = vm_translator->static_prefix;
-
-	if(!vm_translator->static_prefix)
-	{
-		fprintf(stderr, "strdup failed at %s, line %d\n", __FILE__, __LINE__);
-		destroy_vm_translator(vm_translator);
-		return NULL;
-	}
-	
 	struct CmdGen{
 		char *cmd;
 		void *generator;
@@ -156,8 +143,8 @@ void *init_vm_translator(char *prefix)
 	if(!vm_translator->cmds)
 	{
 		fprintf(stderr, "calloc failed at %s, line %d\n", __FILE__, __LINE__);
-		destroy_vm_translator(vm_translator);
-		return NULL;
+		destroy_vm_translator();
+		return -1;
 	}
 	
 	for(size_t i = 0; i < vm_translator->n_cmds; ++i)
@@ -166,16 +153,16 @@ void *init_vm_translator(char *prefix)
 		if(!vm_translator->cmds[i])
 		{
 			fprintf(stderr, "strdup failed at %s, line %d\n", __FILE__, __LINE__);
-			destroy_vm_translator(vm_translator);
-			return NULL;
+			destroy_vm_translator();
+			return -1;
 		}
 	}
 	
 	if(!hcreate_r(vm_translator->n_cmds, vm_translator->generator_mapping))
 	{
 		fprintf(stderr, "hcreate_r failed at %s, line %d\n", __FILE__, __LINE__);
-		destroy_vm_translator(vm_translator);
-		return NULL;
+		destroy_vm_translator();
+		return -1;
 	}
 
 	size_t i = 0; 
@@ -187,22 +174,18 @@ void *init_vm_translator(char *prefix)
 		if(!hsearch_r(item, ENTER, &entry, vm_translator->generator_mapping))
 		{
 			fprintf(stderr, "hsearch_r failed at %s, line %d\n", __FILE__, __LINE__);
-			destroy_vm_translator(vm_translator);
-			return NULL;
+			destroy_vm_translator();
+			return -1;
 		}
 	}
-	
-	return vm_translator;
+
+	return 0;
 }
 
-void destroy_vm_translator(void* handle)
+void destroy_vm_translator()
 {
-	VmTranslator *vm_translator = (VmTranslator *)handle;
 	if(vm_translator)
 	{
-		if(vm_translator->static_prefix)
-			free(vm_translator->static_prefix);
-		
 		if(vm_translator->cmds)
 		{
 			for(size_t i = 0; i < vm_translator->n_cmds; ++i)
@@ -221,8 +204,7 @@ void destroy_vm_translator(void* handle)
 	}
 }
 
-int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst,
-					  FILE* asm_inst, InstCode* inst_code)
+int translate_vm_inst(const char* vm_inst, FILE* asm_inst, InstCode* inst_code)
 {
 	char cmd[CMD_LEN];
 	char segment[SEGMENT_LEN];
@@ -307,18 +289,8 @@ int translate_vm_inst(const VmTranslator* vm_translator, const char* vm_inst,
 	return 0;
 }
 
-int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
+static void add_preamble(FILE* asm_file)
 {
-	if(!handle || !vm_file || !asm_file)
-	{
-		fprintf(stderr, "NULL input pointer at %s, line %d\n", __FILE__, __LINE__);
-		return -1;
-	}
-	
-	InstCode inst_code;
-	char vm_inst[VM_LINE_LEN];
-	VmTranslator* vm_translator = (VmTranslator*) handle;
-
 	fprintf(asm_file, "\t@BEGIN\n"
 					  "\t0;JMP\n\n");
 
@@ -343,10 +315,25 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 					  "\t0;JMP\n\n");
 
 	fprintf(asm_file, "(BEGIN)\n");
+}
+
+static void add_footer(FILE* asm_file)
+{
+	//End of translation
+	fprintf(asm_file, "(END)\n"
+					  "\t@END\n"
+					  "\t0;JMP\n\n");
+}
+
+int translate_vm_file(FILE* vm_file, FILE* asm_file)
+{
+	InstCode inst_code;
+	char vm_inst[VM_LINE_LEN];
+
 	while(fgets(vm_inst, VM_LINE_LEN, vm_file))
 	{
 		int len = fprintf(asm_file, "//%s", vm_inst);
-		int rc = translate_vm_inst(vm_translator, vm_inst, asm_file, &inst_code);
+		int rc = translate_vm_inst(vm_inst, asm_file, &inst_code);
 		if(rc)
 		{
 			fprintf(stderr, "Cannot translate VM instruction '%s' at %s, line %d\n",
@@ -361,11 +348,219 @@ int translate_vm_file(const void* handle, FILE* vm_file, FILE* asm_file)
 			fprintf(asm_file, "\n");
 	}
 
-	//End of translation
-	fprintf(asm_file, "(END)\n"
-					  "\t@END\n"
-					  "\t0;JMP\n\n");
+	return 0;
+}
 
+int translate_vm(char *input_path, char* output_path)
+{
+	if(!input_path)
+	{
+		fprintf(stderr, "%s: NULL input pointer at %s, line %d\n",
+						__func__, __FILE__, __LINE__);
+		return -1;
+	}
+
+	struct stat sb;
+	if(stat(input_path, &sb))
+	{
+		fprintf(stderr, "%s: failed to stat '%s' at %s, line %d\n",
+						__func__, input_path, __FILE__, __LINE__);
+		return -1;
+	}
+
+	switch (sb.st_mode & S_IFMT)
+	{
+		case S_IFREG:
+		{
+			FILE* vm_file = fopen(input_path, "r");
+			if(!vm_file)
+			{
+				fprintf(stderr, "%s: failed to open '%s' at %s, line %d\n",
+								__func__, input_path, __FILE__, __LINE__);
+				return -1;
+			}
+
+			FILE* asm_file = fopen(output_path, "w");
+			if(!asm_file)
+			{
+				fclose(vm_file);
+				fprintf(stderr, "%s: failed to open '%s' at %s, line %d\n",
+								__func__, output_path, __FILE__, __LINE__);
+				return -1;
+			}
+
+			current_file_name = basename(input_path);
+			
+			if(init_vm_translator())
+			{
+				fclose(vm_file);
+				fclose(asm_file);
+				fprintf(stderr, "%s: failed to initialize translator at %s, line %d\n",
+								__func__, __FILE__, __LINE__);
+			}
+	
+			add_preamble(asm_file);
+			int rc = translate_vm_file(vm_file, asm_file);
+			if(rc)
+				fprintf(stderr, "%s: failed to translate '%s' at %s, line %d\n",
+								__func__, input_path, __FILE__, __LINE__);
+			
+			add_footer(asm_file);
+			
+			destroy_vm_translator();
+			fclose(vm_file);
+			fclose(asm_file);
+			current_file_name = NULL;
+			return rc; 
+		}
+		break;
+
+		case S_IFDIR:
+		{
+			int err = 0;
+			DIR* dir = opendir(input_path);
+			if(!dir)
+			{
+				fprintf(stderr, "%s: cannot open directory '%s' at %s, line %d\n",
+								__func__, input_path, __FILE__, __LINE__);
+				return -1;
+			}
+			
+			FILE* asm_file = fopen(output_path, "w");
+			if(!asm_file)
+			{
+				fprintf(stderr, "%s: failed to open '%s' at %s, line %d\n",
+								__func__, output_path, __FILE__, __LINE__);
+				closedir(dir);
+				return -1;
+			}
+
+			if(init_vm_translator())
+			{
+				closedir(dir);
+				fclose(asm_file);
+				fprintf(stderr, "%s: failed to initialize translator at %s, line %d\n",
+								__func__, __FILE__, __LINE__);
+				return -1;
+			}
+	
+			char **fn_list;
+			size_t n_fn;
+
+			err = get_sorted_fn(dir, ".vm", &n_fn, &fn_list);
+			if(!err)
+			{
+				char vm_file_path[PATH_MAX]; 
+				
+				add_preamble(asm_file);
+
+				for(size_t i = 0; i < n_fn && !err; ++i)
+				{
+					current_file_name = fn_list[i];
+					snprintf(vm_file_path, PATH_MAX, "%s/%s", input_path, fn_list[i]);
+					FILE *vm_file = fopen(vm_file_path, "r");
+					if(!vm_file)
+					{
+						fprintf(stderr, "%s: failed to open '%s' at %s, line %d\n",
+										__func__, vm_file_path, __FILE__, __LINE__);
+						err = -1;
+						break;
+					}
+
+					err = translate_vm_file(vm_file, asm_file);
+					fclose(vm_file);
+				}
+
+				for(size_t i = 0; i < n_fn; ++i)
+					free(fn_list[i]);
+				free(fn_list); 
+			
+				add_footer(asm_file);
+			}
+
+			closedir(dir);
+			fclose(asm_file);
+			destroy_vm_translator();
+			current_file_name = NULL;
+			return err;
+		}
+		break;
+
+		default:
+		{
+			fprintf(stderr, "%s: invalid file '%s' at %s, line %d. Must be either a regular "
+							"file or a directory", __func__, input_path, __FILE__, __LINE__);
+			return -1;
+		}
+		break;
+	}
+	
+	return 0;
+}
+
+int cmp_fn(const void* e1, const void* e2)
+{
+	const char *fn1 = *((const char **)e1);		
+	const char *fn2 = *((const char **)e2);
+	return strcmp(fn1, fn2);
+}
+
+static int get_sorted_fn(DIR* dir, char *ext, size_t *count, char *** ptr_fn_list)
+{
+	struct dirent* d_entry;
+	rewinddir(dir);
+	*count = 0;
+	size_t n_files = 0;
+
+	//count files ending with the supplied extention
+	while((d_entry=readdir(dir)))
+	{
+		char *e= strrchr(d_entry->d_name, '.');
+		if(!e || strcmp(e, ext))
+			continue;
+		
+		++n_files;
+	}
+	
+	if(n_files)
+	{
+		char **fn_list = malloc(n_files * sizeof(char*));
+		if(!fn_list)
+			return -1;
+
+		//copy file names ending with the supplied extension in the list
+		size_t n_copied = 0;
+		rewinddir(dir);
+		while((d_entry=readdir(dir)))
+		{
+			char *e= strrchr(d_entry->d_name, '.');
+			if(!e || strcmp(e, ext))
+				continue;
+
+			fn_list[n_copied] = strdup(d_entry->d_name);
+			if(!fn_list[n_copied])
+				break;
+
+			++n_copied;
+		}
+
+		//The number of file names copied must be equal to the number of
+		//files ending with the supplied extension
+		if(n_copied != n_files)
+		{
+			for(size_t i = 0; i < n_copied; ++i)
+				free(fn_list[i]);
+
+			free(fn_list);
+			return -1;
+		}
+
+		qsort(fn_list, n_files, sizeof(char*), cmp_fn);
+		*ptr_fn_list = fn_list;
+		*count = n_files;
+		return 0;
+	}
+	
 	return 0;
 }
 
@@ -565,7 +760,7 @@ static size_t gen_push_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 		fprintf(asm_file,
 			    "\t@%s.%hu\n"
 			    "\tD=M\n"
-			    "\t%s\n", static_prefix, idx, push_D);
+			    "\t%s\n", current_file_name, idx, push_D);
 	}
 	else
 	{
@@ -620,7 +815,7 @@ static size_t gen_pop_asm(FILE *asm_file, SegmentBase seg_base, uint16_t idx)
 				"\t%s\n"
 				"\t@%s.%hu\n"
 				"\tM=D\n",
-				pop_D, static_prefix, idx);
+				pop_D, current_file_name, idx);
 	}
 	else
 	{
@@ -969,4 +1164,5 @@ static size_t gen_label_asm(FILE *asm_file, char *label)
 
 	return 0;
 }
+
 

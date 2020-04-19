@@ -1,62 +1,52 @@
-#include<stdio.h>
-#include<limits.h>
-#include<string.h>
+#define _GNU_SOURCE
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "vm_translator.h"
 
 int main(int argc, char* argv[])
 {
-
 	if(argc != 2)
 	{
-		fprintf(stderr, "usage: %s <vm file>\n", argv[0]);
+		fprintf(stderr, "usage: %s <input file or folder>\n", argv[0]);
 		return -1;
 	}
 
-	FILE* vm_file = fopen(argv[1], "r");
-	if(!vm_file)
+	char output_path[PATH_MAX];
+
+	struct stat sb;
+	if(stat(argv[1], &sb))
 	{
-		fprintf(stderr, "cannot open %s for reading\n", argv[1]);
+		fprintf(stderr, "%s: failed to stat '%s' at %s, line %d\n",
+						__func__, argv[1], __FILE__, __LINE__);
 		return -1;
 	}
 
-	char asm_file_path[PATH_MAX + 4] = {0};	//+4 for the extension .asm
-	snprintf(asm_file_path, PATH_MAX - 1, "%s", argv[1]);
-	char *ext = strrchr(asm_file_path, '.');
-	if(ext && ext != asm_file_path) {
-		strcpy(ext, ".asm");}
+	if((sb.st_mode & S_IFMT) == S_IFREG)
+	{
+		size_t len = snprintf(output_path, PATH_MAX, "%s", argv[1]);
+		snprintf(&output_path[len - 3], PATH_MAX - len, ".asm");
+	}
+	else if((sb.st_mode & S_IFMT) == S_IFDIR)
+	{
+
+		snprintf(output_path, PATH_MAX, "%s/%s.asm", argv[1], basename(argv[1]));
+	}
 	else
-		strcat(asm_file_path, ".asm");
-
-	FILE* asm_file = fopen(asm_file_path, "w");
-	if(!asm_file)
 	{
-		fclose(vm_file);
-		fprintf(stderr, "cannot open %s for writing\n", asm_file_path);
+		fprintf(stderr, "%s: invalid file '%s' at %s, line %d. Must be either a regular "
+						"file or a directory", __func__, argv[1], __FILE__, __LINE__);
 		return -1;
 	}
 
-	char *asm_file_name = strrchr(asm_file_path, '/');
-	if(asm_file_name)
-		asm_file_name++;
-	else
-		asm_file_name = asm_file_path;
-
-	void *handle = init_vm_translator(asm_file_name);
-	if(!handle)
+	if(translate_vm(argv[1], output_path))
 	{
-		fprintf(stderr, "Failed to initialized vm translator\n");
-		fclose(vm_file);
-		fclose(asm_file);
-		return -1;
-	}	
-	
-	int rc = translate_vm_file(handle, vm_file, asm_file);
-	if(rc)
 		fprintf(stderr, "Failed to translate %s\n", argv[1]);
+		return -1;
+	}
 
-	fclose(vm_file);
-	fclose(asm_file);
-	destroy_vm_translator(handle);
-	return rc;
+	return 0;
 }
