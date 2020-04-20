@@ -539,10 +539,14 @@
 	@5
 	D=A
 	@2
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Class1.set
 	0;JMP
@@ -612,10 +616,14 @@
 	@5
 	D=A
 	@2
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Class2.set
 	0;JMP
@@ -667,10 +675,14 @@
 	@5
 	D=A
 	@0
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Class1.get
 	0;JMP
@@ -715,10 +727,14 @@
 	@5
 	D=A
 	@0
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Class2.get
 	0;JMP

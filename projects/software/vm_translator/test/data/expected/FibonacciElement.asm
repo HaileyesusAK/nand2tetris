@@ -229,10 +229,14 @@
 	@5
 	D=A
 	@1
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Main.fibonacci
 	0;JMP
@@ -306,10 +310,14 @@
 	@5
 	D=A
 	@1
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Main.fibonacci
 	0;JMP
@@ -443,10 +451,14 @@
 	@5
 	D=A
 	@1
-	D=D-A
+	D=D+A
 	@SP
 	D=M-D
 	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
 	M=D
 	@Main.fibonacci
 	0;JMP

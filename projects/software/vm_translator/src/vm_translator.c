@@ -1043,12 +1043,18 @@ static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 	fprintf(asm_file, "\t@5\n"
 					  "\tD=A\n"
 					  "\t@%hu\n"
-					  "\tD=D-A\n"
+					  "\tD=D+A\n"
 					  "\t@SP\n"
 					  "\tD=M-D\n"
 					  "\t@ARG\n"
 					  "\tM=D\n",
 			n_args);
+
+	//setup LCL for the callee
+	fprintf(asm_file, "\t@SP\n"
+					  "\tD=M\n"
+					  "\t@LCL\n"
+					  "\tM=D\n");
 
 	//jump to the called function
 	fprintf(asm_file, "\t@%s\n"
