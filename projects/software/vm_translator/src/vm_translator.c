@@ -1024,10 +1024,6 @@ static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 				   "\t@SP\n"
 				   "\tM=M+1";
 
-	//Save the called function name since it will be used to prefix labels
-	//referenced in its lifetime
-	//snprintf(current_function, VM_LINE_LEN, "%s", f_name);,
-
 	//save return address
 	snprintf(ret_addr_label, VM_LINE_LEN, "END_%s", f_name);
 	fprintf(asm_file, "\t@%s\n"
