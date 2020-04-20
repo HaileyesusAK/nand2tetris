@@ -725,10 +725,10 @@
 (END_Class2.get)
 
 //label WHILE
-(Class2.get$WHILE)
+(Sys.init$WHILE)
 
 //goto WHILE
-	@Class2.get$WHILE
+	@Sys.init$WHILE
 	0; JMP
 
 (END)

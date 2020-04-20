@@ -958,6 +958,9 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 	snprintf(loop_beg, VM_LINE_LEN, "%s_SET_LCL", f_name);
 	snprintf(loop_end, VM_LINE_LEN, "%s_SET_LCL_END", f_name);
 
+	//Save the function's name since it will be used to prefix labels
+	snprintf(current_function, VM_LINE_LEN, "%s", f_name);
+	
 	//Label function's starting point
 	fprintf(asm_file, "(%s)\n", f_name);
 
@@ -1023,7 +1026,7 @@ static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 
 	//Save the called function name since it will be used to prefix labels
 	//referenced in its lifetime
-	snprintf(current_function, VM_LINE_LEN, "%s", f_name);
+	//snprintf(current_function, VM_LINE_LEN, "%s", f_name);,
 
 	//save return address
 	snprintf(ret_addr_label, VM_LINE_LEN, "END_%s", f_name);

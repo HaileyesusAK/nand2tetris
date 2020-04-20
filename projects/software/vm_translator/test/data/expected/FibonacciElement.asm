@@ -90,15 +90,15 @@
 	@SP
 	AM=M-1
 	D=M+1
-	@$IF_TRUE
+	@Main.fibonacci$IF_TRUE
 	D;JEQ
 
 //goto IF_FALSE
-	@$IF_FALSE
+	@Main.fibonacci$IF_FALSE
 	0; JMP
 
 //label IF_TRUE          // if n<2, return n
-($IF_TRUE)
+(Main.fibonacci$IF_TRUE)
 
 //push argument 0        
 	@0
@@ -159,7 +159,7 @@
 	0;JMP
 
 //label IF_FALSE         // if n>=2, returns fib(n-2)+fib(n-1)
-($IF_FALSE)
+(Main.fibonacci$IF_FALSE)
 
 //push argument 0
 	@0
@@ -453,10 +453,10 @@
 (END_Main.fibonacci)
 
 //label WHILE
-(Main.fibonacci$WHILE)
+(Sys.init$WHILE)
 
 //goto WHILE              // loops infinitely
-	@Main.fibonacci$WHILE
+	@Sys.init$WHILE
 	0; JMP
 
 (END)
