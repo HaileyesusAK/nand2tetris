@@ -36,6 +36,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Class1.set.LCL
+	M=D
 (Class1.set_SET_LCL)
 	@n
 	D=M
@@ -43,10 +47,10 @@
 	D=D-M
 	@Class1.set_SET_LCL_END
 	D;JEQ
-	@SP
+	@Class1.set.LCL
 	A=M
 	M=0
-	@SP
+	@Class1.set.LCL
 	M=M+1
 	@i
 	M=M+1
@@ -155,6 +159,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Class1.get.LCL
+	M=D
 (Class1.get_SET_LCL)
 	@n
 	D=M
@@ -162,10 +170,10 @@
 	D=D-M
 	@Class1.get_SET_LCL_END
 	D;JEQ
-	@SP
+	@Class1.get.LCL
 	A=M
 	M=0
-	@SP
+	@Class1.get.LCL
 	M=M+1
 	@i
 	M=M+1
@@ -253,6 +261,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Class2.set.LCL
+	M=D
 (Class2.set_SET_LCL)
 	@n
 	D=M
@@ -260,10 +272,10 @@
 	D=D-M
 	@Class2.set_SET_LCL_END
 	D;JEQ
-	@SP
+	@Class2.set.LCL
 	A=M
 	M=0
-	@SP
+	@Class2.set.LCL
 	M=M+1
 	@i
 	M=M+1
@@ -372,6 +384,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Class2.get.LCL
+	M=D
 (Class2.get_SET_LCL)
 	@n
 	D=M
@@ -379,10 +395,10 @@
 	D=D-M
 	@Class2.get_SET_LCL_END
 	D;JEQ
-	@SP
+	@Class2.get.LCL
 	A=M
 	M=0
-	@SP
+	@Class2.get.LCL
 	M=M+1
 	@i
 	M=M+1
@@ -470,6 +486,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Sys.init.LCL
+	M=D
 (Sys.init_SET_LCL)
 	@n
 	D=M
@@ -477,10 +497,10 @@
 	D=D-M
 	@Sys.init_SET_LCL_END
 	D;JEQ
-	@SP
+	@Sys.init.LCL
 	A=M
 	M=0
-	@SP
+	@Sys.init.LCL
 	M=M+1
 	@i
 	M=M+1

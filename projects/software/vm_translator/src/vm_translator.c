@@ -980,7 +980,14 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 					  "\t@n\n"
 					  "\tM=D\n",
 			n_locals);
-	
+
+	//Save LCL segment base in a variable
+	fprintf(asm_file, "\t@LCL\n"
+					  "\tD=M\n"
+					  "\t@%s.LCL\n"
+					  "\tM=D\n",
+			f_name);
+
 	fprintf(asm_file, "(%s)\n", loop_beg);
 	
 	//Check for loop termination condition
@@ -992,12 +999,13 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 					  "\tD;JEQ\n",
 			loop_end);
 			
-	//Push 0 onto the stack	
-	fprintf(asm_file, "\t@SP\n"
+	//Push 0 onto the local segment 
+	fprintf(asm_file, "\t@%s.LCL\n"
 					  "\tA=M\n"
 					  "\tM=0\n"
-					  "\t@SP\n"
-					  "\tM=M+1\n");
+					  "\t@%s.LCL\n"
+					  "\tM=M+1\n",
+			f_name, f_name);
 	
 	//Increment loop variable and goto the beginning
 	fprintf(asm_file, "\t@i\n"

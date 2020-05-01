@@ -36,6 +36,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Main.fibonacci.LCL
+	M=D
 (Main.fibonacci_SET_LCL)
 	@n
 	D=M
@@ -43,10 +47,10 @@
 	D=D-M
 	@Main.fibonacci_SET_LCL_END
 	D;JEQ
-	@SP
+	@Main.fibonacci.LCL
 	A=M
 	M=0
-	@SP
+	@Main.fibonacci.LCL
 	M=M+1
 	@i
 	M=M+1
@@ -95,9 +99,9 @@
 //if-goto IF_TRUE
 	@SP
 	AM=M-1
-	D=M+1
+	D=M
 	@Main.fibonacci$IF_TRUE
-	D;JEQ
+	D;JNE
 
 //goto IF_FALSE
 	@Main.fibonacci$IF_FALSE
@@ -391,6 +395,10 @@
 	D=A
 	@n
 	M=D
+	@LCL
+	D=M
+	@Sys.init.LCL
+	M=D
 (Sys.init_SET_LCL)
 	@n
 	D=M
@@ -398,10 +406,10 @@
 	D=D-M
 	@Sys.init_SET_LCL_END
 	D;JEQ
-	@SP
+	@Sys.init.LCL
 	A=M
 	M=0
-	@SP
+	@Sys.init.LCL
 	M=M+1
 	@i
 	M=M+1
