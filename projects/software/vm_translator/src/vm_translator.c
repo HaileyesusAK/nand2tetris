@@ -1159,9 +1159,9 @@ static size_t gen_if_goto_asm(FILE *asm_file, char *label)
 
 	fprintf(asm_file, "\t@SP\n"
 					  "\tAM=M-1\n"
-					  "\tD=M+1\n"
+					  "\tD=M\n"
 					  "\t@%s$%s\n"
-					  "\tD;JEQ\n",
+					  "\tD;JNE\n",
 					  current_function, label);
 	return 0;
 }
