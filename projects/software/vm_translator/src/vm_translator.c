@@ -454,6 +454,14 @@ int translate_vm(char *input_path, char* output_path)
 				
 				add_preamble(asm_file);
 
+				//Generate startup code
+				fprintf(asm_file, "\t@256\n"
+								  "\tD=A\n"
+								  "\t@SP\n"
+								  "\tM=D\n"
+								  "\t@Sys.init\n"
+								  "\t0;JMP\n");
+
 				for(size_t i = 0; i < n_fn && !err; ++i)
 				{
 					current_file_name = fn_list[i];

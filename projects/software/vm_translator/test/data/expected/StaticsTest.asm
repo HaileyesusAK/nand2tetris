@@ -22,6 +22,12 @@
 	0;JMP
 
 (BEGIN)
+	@256
+	D=A
+	@SP
+	M=D
+	@Sys.init
+	0;JMP
 //function Class1.set 0
 (Class1.set)
 	@i

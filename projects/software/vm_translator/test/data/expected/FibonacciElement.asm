@@ -22,6 +22,12 @@
 	0;JMP
 
 (BEGIN)
+	@256
+	D=A
+	@SP
+	M=D
+	@Sys.init
+	0;JMP
 //function Main.fibonacci 0
 (Main.fibonacci)
 	@i
