@@ -1,58 +1,82 @@
-	@BEGIN
-	0;JMP
-
-(PUSH_TRUE)
-	@SP
-	A=M
-	M=-1
-	@SP
-	M=M+1
-	@R13
-	A=M
-	0;JMP
-
-(PUSH_FALSE)
-	@SP
-	A=M
-	M=0
-	@SP
-	M=M+1
-	@R13
-	A=M
-	0;JMP
-
-(BEGIN)
 	@256
 	D=A
 	@SP
 	M=D
-	@Sys.init
-	0;JMP
-//function Main.fibonacci 0
-(Main.fibonacci)
-	@i
-	M=0
-	@0
+//call Sys.init 0
+	@Sys.init$end1
 	D=A
-	@n
+	@SP
+	A=M
 	M=D
+	@SP
+	M=M+1
 	@LCL
 	D=M
-	@Main.fibonacci.LCL
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@ARG
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@THIS
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@THAT
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@5
+	D=A
+	@0
+	D=D+A
+	@SP
+	D=M-D
+	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
+	M=D
+	@Sys.init
+	0;JMP
+(Sys.init$end1)
+
+//function Main.fibonacci 0
+(Main.fibonacci)
+	@LCL
+	D=M
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Main.fibonacci_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Main.fibonacci_SET_LCL_END
-	D;JEQ
-	@Main.fibonacci.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Main.fibonacci.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Main.fibonacci_SET_LCL
 	0;JMP
@@ -105,7 +129,7 @@
 
 //goto IF_FALSE
 	@Main.fibonacci$IF_FALSE
-	0; JMP
+	0;JMP
 
 //label IF_TRUE          // if n<2, return n
 (Main.fibonacci$IF_TRUE)
@@ -201,7 +225,7 @@
 	M=M-D
 
 //call Main.fibonacci 1  // computes fib(n-2)
-	@END_Main.fibonacci
+	@Main.fibonacci$end2
 	D=A
 	@SP
 	A=M
@@ -250,7 +274,7 @@
 	M=D
 	@Main.fibonacci
 	0;JMP
-(END_Main.fibonacci)
+(Main.fibonacci$end2)
 
 //push argument 0
 	@0
@@ -282,7 +306,7 @@
 	M=M-D
 
 //call Main.fibonacci 1  // computes fib(n-1)
-	@END_Main.fibonacci
+	@Main.fibonacci$end3
 	D=A
 	@SP
 	A=M
@@ -331,7 +355,7 @@
 	M=D
 	@Main.fibonacci
 	0;JMP
-(END_Main.fibonacci)
+(Main.fibonacci$end3)
 
 //add                    // returns fib(n-1) + fib(n-2)
 	@SP
@@ -389,29 +413,27 @@
 
 //function Sys.init 0
 (Sys.init)
-	@i
-	M=0
-	@0
-	D=A
-	@n
-	M=D
 	@LCL
 	D=M
-	@Sys.init.LCL
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Sys.init_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Sys.init_SET_LCL_END
-	D;JEQ
-	@Sys.init.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Sys.init.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Sys.init_SET_LCL
 	0;JMP
@@ -427,7 +449,7 @@
 	M=M+1
 
 //call Main.fibonacci 1   // computes the 4'th fibonacci element
-	@END_Main.fibonacci
+	@Main.fibonacci$end4
 	D=A
 	@SP
 	A=M
@@ -476,16 +498,36 @@
 	M=D
 	@Main.fibonacci
 	0;JMP
-(END_Main.fibonacci)
+(Main.fibonacci$end4)
 
 //label WHILE
 (Sys.init$WHILE)
 
 //goto WHILE              // loops infinitely
 	@Sys.init$WHILE
-	0; JMP
+	0;JMP
 
 (END)
 	@END
+	0;JMP
+
+(PUSH_TRUE)
+	@SP
+	A=M
+	M=-1
+	@SP
+	M=M+1
+	@R13
+	A=M
+	0;JMP
+
+(PUSH_FALSE)
+	@SP
+	A=M
+	M=0
+	@SP
+	M=M+1
+	@R13
+	A=M
 	0;JMP
 

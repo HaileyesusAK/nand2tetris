@@ -1,27 +1,3 @@
-	@BEGIN
-	0;JMP
-
-(PUSH_TRUE)
-	@SP
-	A=M
-	M=-1
-	@SP
-	M=M+1
-	@R13
-	A=M
-	0;JMP
-
-(PUSH_FALSE)
-	@SP
-	A=M
-	M=0
-	@SP
-	M=M+1
-	@R13
-	A=M
-	0;JMP
-
-(BEGIN)
 //push constant 111
 	@111
 	D=A
@@ -115,5 +91,25 @@
 
 (END)
 	@END
+	0;JMP
+
+(PUSH_TRUE)
+	@SP
+	A=M
+	M=-1
+	@SP
+	M=M+1
+	@R13
+	A=M
+	0;JMP
+
+(PUSH_FALSE)
+	@SP
+	A=M
+	M=0
+	@SP
+	M=M+1
+	@R13
+	A=M
 	0;JMP
 

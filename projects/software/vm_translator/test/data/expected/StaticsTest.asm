@@ -1,58 +1,82 @@
-	@BEGIN
-	0;JMP
-
-(PUSH_TRUE)
-	@SP
-	A=M
-	M=-1
-	@SP
-	M=M+1
-	@R13
-	A=M
-	0;JMP
-
-(PUSH_FALSE)
-	@SP
-	A=M
-	M=0
-	@SP
-	M=M+1
-	@R13
-	A=M
-	0;JMP
-
-(BEGIN)
 	@256
 	D=A
 	@SP
 	M=D
-	@Sys.init
-	0;JMP
-//function Class1.set 0
-(Class1.set)
-	@i
-	M=0
-	@0
+//call Sys.init 0
+	@Sys.init$end5
 	D=A
-	@n
+	@SP
+	A=M
 	M=D
+	@SP
+	M=M+1
 	@LCL
 	D=M
-	@Class1.set.LCL
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@ARG
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@THIS
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@THAT
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@5
+	D=A
+	@0
+	D=D+A
+	@SP
+	D=M-D
+	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
+	M=D
+	@Sys.init
+	0;JMP
+(Sys.init$end5)
+
+//function Class1.set 0
+(Class1.set)
+	@LCL
+	D=M
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Class1.set_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Class1.set_SET_LCL_END
-	D;JEQ
-	@Class1.set.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Class1.set.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Class1.set_SET_LCL
 	0;JMP
@@ -153,29 +177,27 @@
 
 //function Class1.get 0
 (Class1.get)
-	@i
-	M=0
-	@0
-	D=A
-	@n
-	M=D
 	@LCL
 	D=M
-	@Class1.get.LCL
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Class1.get_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Class1.get_SET_LCL_END
-	D;JEQ
-	@Class1.get.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Class1.get.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Class1.get_SET_LCL
 	0;JMP
@@ -255,29 +277,27 @@
 
 //function Class2.set 0
 (Class2.set)
-	@i
-	M=0
-	@0
-	D=A
-	@n
-	M=D
 	@LCL
 	D=M
-	@Class2.set.LCL
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Class2.set_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Class2.set_SET_LCL_END
-	D;JEQ
-	@Class2.set.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Class2.set.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Class2.set_SET_LCL
 	0;JMP
@@ -378,29 +398,27 @@
 
 //function Class2.get 0
 (Class2.get)
-	@i
-	M=0
-	@0
-	D=A
-	@n
-	M=D
 	@LCL
 	D=M
-	@Class2.get.LCL
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Class2.get_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Class2.get_SET_LCL_END
-	D;JEQ
-	@Class2.get.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Class2.get.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Class2.get_SET_LCL
 	0;JMP
@@ -480,29 +498,27 @@
 
 //function Sys.init 0
 (Sys.init)
-	@i
-	M=0
-	@0
-	D=A
-	@n
-	M=D
 	@LCL
 	D=M
-	@Sys.init.LCL
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
 	M=D
 (Sys.init_SET_LCL)
 	@n
 	D=M
 	@i
-	D=D-M
+	D=M-D
 	@Sys.init_SET_LCL_END
-	D;JEQ
-	@Sys.init.LCL
+	D;JGE
+	@i
 	A=M
 	M=0
-	@Sys.init.LCL
-	M=M+1
 	@i
+	M=M+1
+	@SP
 	M=M+1
 	@Sys.init_SET_LCL
 	0;JMP
@@ -527,7 +543,7 @@
 	M=M+1
 
 //call Class1.set 2
-	@END_Class1.set
+	@Class1.set$end6
 	D=A
 	@SP
 	A=M
@@ -576,7 +592,7 @@
 	M=D
 	@Class1.set
 	0;JMP
-(END_Class1.set)
+(Class1.set$end6)
 
 //pop temp 0 // Dumps the return value
 	@SP
@@ -604,7 +620,7 @@
 	M=M+1
 
 //call Class2.set 2
-	@END_Class2.set
+	@Class2.set$end7
 	D=A
 	@SP
 	A=M
@@ -653,7 +669,7 @@
 	M=D
 	@Class2.set
 	0;JMP
-(END_Class2.set)
+(Class2.set$end7)
 
 //pop temp 0 // Dumps the return value
 	@SP
@@ -663,7 +679,7 @@
 	M=D
 
 //call Class1.get 0
-	@END_Class1.get
+	@Class1.get$end8
 	D=A
 	@SP
 	A=M
@@ -712,10 +728,10 @@
 	M=D
 	@Class1.get
 	0;JMP
-(END_Class1.get)
+(Class1.get$end8)
 
 //call Class2.get 0
-	@END_Class2.get
+	@Class2.get$end9
 	D=A
 	@SP
 	A=M
@@ -764,16 +780,36 @@
 	M=D
 	@Class2.get
 	0;JMP
-(END_Class2.get)
+(Class2.get$end9)
 
 //label WHILE
 (Sys.init$WHILE)
 
 //goto WHILE
 	@Sys.init$WHILE
-	0; JMP
+	0;JMP
 
 (END)
 	@END
+	0;JMP
+
+(PUSH_TRUE)
+	@SP
+	A=M
+	M=-1
+	@SP
+	M=M+1
+	@R13
+	A=M
+	0;JMP
+
+(PUSH_FALSE)
+	@SP
+	A=M
+	M=0
+	@SP
+	M=M+1
+	@R13
+	A=M
 	0;JMP
 

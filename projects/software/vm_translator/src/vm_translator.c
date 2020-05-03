@@ -447,9 +447,16 @@ int translate_vm(char *input_path, char* output_path)
 				fprintf(asm_file, "\t@256\n"
 								  "\tD=A\n"
 								  "\t@SP\n"
-								  "\tM=D\n"
-								  "\t@Sys.init\n"
-								  "\t0;JMP\n");
+								  "\tM=D\n");
+				
+				FILE *tmp_vm = tmpfile();
+				if(tmp_vm)
+				{
+					fprintf(tmp_vm, "call Sys.init 0\n");
+					rewind(tmp_vm);
+					translate_vm_file(tmp_vm, asm_file);
+					fclose(tmp_vm);
+				}
 
 				for(size_t i = 0; i < n_fn && !err; ++i)
 				{
@@ -962,20 +969,15 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 	fprintf(asm_file, "(%s)\n", f_name);
 
 	//Setup loop variables
-	fprintf(asm_file, "\t@i\n"
-					  "\tM=0\n"
+	fprintf(asm_file, "\t@LCL\n"
+					  "\tD=M\n"
+					  "\t@i\n"
+					  "\tM=D\n"
 					  "\t@%hu\n"
-					  "\tD=A\n"
+					  "\tD=D+A\n"
 					  "\t@n\n"
 					  "\tM=D\n",
 			n_locals);
-
-	//Save LCL segment base in a variable
-	fprintf(asm_file, "\t@LCL\n"
-					  "\tD=M\n"
-					  "\t@%s.LCL\n"
-					  "\tM=D\n",
-			f_name);
 
 	fprintf(asm_file, "(%s)\n", loop_beg);
 	
@@ -983,26 +985,26 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 	fprintf(asm_file, "\t@n\n"
 					  "\tD=M\n"
 					  "\t@i\n"
-					  "\tD=D-M\n"
+					  "\tD=M-D\n"
 					  "\t@%s\n"
-					  "\tD;JEQ\n",
+					  "\tD;JGE\n",
 			loop_end);
 			
 	//Push 0 onto the local segment 
-	fprintf(asm_file, "\t@%s.LCL\n"
-					  "\tA=M\n"
-					  "\tM=0\n"
-					  "\t@%s.LCL\n"
-					  "\tM=M+1\n",
-			f_name, f_name);
-	
-	//Increment loop variable and goto the beginning
 	fprintf(asm_file, "\t@i\n"
+					  "\tA=M\n"
+					  "\tM=0\n");
+	
+	//Increment SP and loop variable, and goto the beginning
+	fprintf(asm_file, "\t@i\n"
+					  "\tM=M+1\n"
+					  "\t@SP\n"
 					  "\tM=M+1\n"
 					  "\t@%s\n"
 					  "\t0;JMP\n",
 			loop_beg);
 
+	
 	fprintf(asm_file, "(%s)\n",loop_end);
 	return 0;
 }
@@ -1010,18 +1012,16 @@ static size_t gen_func_asm(FILE *asm_file, char *f_name, uint16_t n_locals)
 static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 {
 	/*
-		*SP++ = (return_address)
-		*SP++ = *LCL
-		*SP++ = *ARG
-		*SP++ = *THIS
-		*SP++ = *THAT
-		*ARGS = *SP - n_locals - 5
-		*LCL = *SP
+		push return-address
+		push LCL
+		push ARG
+		push THIS
+		push THAT
+		ARG = SP - n - 5
+		LCL = SP
 		goto f_name
 		(return_address)
 	*/
-
-	char ret_addr_label[VM_LINE_LEN];
 
 	char *push_D = "@SP\n"
 				   "\tA=M\n"
@@ -1029,8 +1029,13 @@ static size_t gen_call_asm(FILE *asm_file, char *f_name, uint16_t n_args)
 				   "\t@SP\n"
 				   "\tM=M+1";
 
+	static size_t n_calls = 1;
+
+	char ret_addr_label[VM_LINE_LEN];
+	snprintf(ret_addr_label, VM_LINE_LEN, "%s$end%zu", f_name, n_calls);
+	++n_calls;
+
 	//save return address
-	snprintf(ret_addr_label, VM_LINE_LEN, "END_%s", f_name);
 	fprintf(asm_file, "\t@%s\n"
 					  "\tD=A\n"
 					  "\t%s\n", ret_addr_label, push_D);
@@ -1142,7 +1147,7 @@ static size_t gen_goto_asm(FILE *asm_file, char *label)
 	*/
 
 	fprintf(asm_file, "\t@%s$%s\n"
-					  "\t0; JMP\n",
+					  "\t0;JMP\n",
 					  current_function, label);
 
 	return 0;
@@ -1169,10 +1174,6 @@ static size_t gen_label_asm(FILE *asm_file, char *label)
 		create the label as currentFunction$label
 	*/
 
-	fprintf(asm_file, "(%s$%s)\n",
-					  current_function, label);
-
+	fprintf(asm_file, "(%s$%s)\n",current_function, label);
 	return 0;
 }
-
-
