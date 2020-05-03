@@ -289,11 +289,13 @@ int translate_vm_inst(const char* vm_inst, FILE* asm_inst, InstCode* inst_code)
 	return 0;
 }
 
-static void add_preamble(FILE* asm_file)
+static void add_footer(FILE* asm_file)
 {
-	fprintf(asm_file, "\t@BEGIN\n"
+	//End of translation
+	fprintf(asm_file, "(END)\n"
+					  "\t@END\n"
 					  "\t0;JMP\n\n");
-
+	
 	fprintf(asm_file, "(PUSH_TRUE)\n"
 					  "\t@SP\n"
 					  "\tA=M\n"
@@ -312,16 +314,6 @@ static void add_preamble(FILE* asm_file)
 					  "\tM=M+1\n"
 					  "\t@R13\n"
 					  "\tA=M\n"
-					  "\t0;JMP\n\n");
-
-	fprintf(asm_file, "(BEGIN)\n");
-}
-
-static void add_footer(FILE* asm_file)
-{
-	//End of translation
-	fprintf(asm_file, "(END)\n"
-					  "\t@END\n"
 					  "\t0;JMP\n\n");
 }
 
@@ -399,7 +391,6 @@ int translate_vm(char *input_path, char* output_path)
 								__func__, __FILE__, __LINE__);
 			}
 	
-			add_preamble(asm_file);
 			int rc = translate_vm_file(vm_file, asm_file);
 			if(rc)
 				fprintf(stderr, "%s: failed to translate '%s' at %s, line %d\n",
@@ -451,9 +442,7 @@ int translate_vm(char *input_path, char* output_path)
 			if(!err)
 			{
 				char vm_file_path[PATH_MAX]; 
-				
-				add_preamble(asm_file);
-
+			
 				//Generate startup code
 				fprintf(asm_file, "\t@256\n"
 								  "\tD=A\n"
