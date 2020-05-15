@@ -1,0 +1,33 @@
+/** Represents a tetris block*/
+class Block {
+    /** The x,y cooridnates of the top left corner of an
+        imaginary rectangle that circumscribes the block 
+    */
+    field int x, y;
+
+    /** Individual cell width */
+    field int cell_width;
+
+    /** Represents the profile of a block as an array of line segments.
+        The starting point of each profile is relative to the block origin.
+    */
+    field Array left_profile;
+    field Array top_profile;
+    field Array right_profile;
+    field Array bottom_profile;
+
+    static int n_vert_cells;
+    static int n_hor_cells;
+    
+    function Block createLBlock(int origin_x, int origin_y, int cell_width) {
+        let x = origin_x;
+        let y = origin_y;
+        let type = block_type;
+        let cell_width = cell_width;
+        let n_vert_cells = 3;
+        let n_hor_cells = 3;
+
+        //todo: fill block profiles
+        return this;
+    }
+}
