@@ -1,0 +1,33 @@
+/** Represents either a vertical or horizontal line segment.
+    The starting point is the top point in the case of vertical line segment
+    while it is the left point in the case of horizontal line segment
+*/
+class LineSegment{    
+    /** x coordinate of the starting point */
+    field int x;
+    
+    /** y coordinate of the starting point */
+    field int y;
+    
+    /** Length of the line segment */
+    field int len;
+    
+    /** Weather the line segment is vertical or horizontal.
+        false for horizontal, true for vertical */
+    field boolean orientation;
+    
+    constructor LineSegment new(int coord_x, int coord_y, int len, boolean orientation) {
+        let x = coord_x;
+        let y = coord_y;
+        let len = len;
+        let orientation = orientation;
+
+        return this;
+    }
+   
+   /** Accessors. */
+   method int getX() { return x; }
+   method int getY() { return y; }
+   method int getLen() { return len; }
+   method int getOrientation() { return orientation; }
+}
