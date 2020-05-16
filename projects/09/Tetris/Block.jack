@@ -28,7 +28,23 @@ class Block {
         do draw();
         return this;
     }
-    
+   
+    /** Desposes this block */
+    method void despose() {
+        var int i;
+        var Square cell;
+
+        let i = 0;
+        while (~(i = n_cells)) {
+            let cell = cells[i];
+            do cell.despose();
+            let i = i + 1;
+        }
+
+        do Memory.deAllock(this);
+        return;
+    }
+
     /** Draws the block */
     method void draw() {
         var int i;
@@ -36,7 +52,7 @@ class Block {
 
         let i = 0;
         while (~(i = n_cells)) {
-            let cell = cells[0];
+            let cell = cells[i];
             do cell.draw();
             let i = i + 1;
         }
