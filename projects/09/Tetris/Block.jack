@@ -5,29 +5,42 @@ class Block {
     */
     field int x, y;
 
-    /** Individual cell width */
-    field int cell_width;
+    /** The number of cells in the block */
+    field int n_cells;
 
-    /** Represents the profile of a block as an array of line segments.
-        The starting point of each profile is relative to the block origin.
-    */
-    field Array left_profile;
-    field Array top_profile;
-    field Array right_profile;
-    field Array bottom_profile;
+    /** Individual cell size */
+    field int cell_size;
 
-    static int n_vert_cells;
-    static int n_hor_cells;
-    
-    function Block createLBlock(int origin_x, int origin_y, int cell_width) {
+    /** An array of the cells that define the block */
+    field Array cells;
+  
+    constructor Block newLBlock(int origin_x, int origin_y, int cell_size) {
         let x = origin_x;
         let y = origin_y;
-        let type = block_type;
-        let cell_width = cell_width;
-        let n_vert_cells = 3;
-        let n_hor_cells = 3;
-
-        //todo: fill block profiles
+        let n_cells = 4;
+        let cell_size = cell_size;
+        let cells = Array.new(n_cells);
+        let cells[0] = Square.new(x, y, cell_size);
+        let cells[1] = Square.new(x, y + cell_size, cell_size);
+        let cells[2] = Square.new(x, y + (2 * cell_size), cell_size);
+        let cells[3] = Square.new(x + cell_size, y + (2 * cell_size), cell_size);
+            
+        do draw();
         return this;
+    }
+    
+    /** Draws the block */
+    method void draw() {
+        var int i;
+        var Square cell;
+
+        let i = 0;
+        while (~(i = n_cells)) {
+            let cell = cells[0];
+            do cell.draw();
+            let i = i + 1;
+        }
+        
+        return;
     }
 }
