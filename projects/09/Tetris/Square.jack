@@ -88,19 +88,23 @@ class Square {
     */
     method void rotC90(int origin_x, int origin_y) {
         var int x1, y1;
-        let x1 = y;
-        let y1 = -x;
+        let x1 = origin_y - y;
+        let y1 = -(origin_x - x);
 
-        if (((x1 + origin_x) < 0) | ((x1 + origin_x + size) > 512)){
+        if (((x1 + origin_x) < 0) | ((x1 + origin_x + size) > 511)){
             return; 
         }
         
-        if (((y1 + origin_y) < 0) | ((y1 + origin_y + size) > 256)){
+        if (((y1 + origin_y) < 0) | ((y1 + origin_y + size) > 255)){
             return; 
         }
 
-        let x = x1;
-        let y = y1;
+        do erase();
+        
+        let x = x1 + origin_x;
+        let y = y1 + origin_y;
+
+        do draw();
 
         return;
     }
@@ -112,20 +116,24 @@ class Square {
     */
     method void rotA90(int origin_x, int origin_y) {
         var int x1, y1;
-        let x1 = -y;
-        let y1 = x;
+        let x1 = -(origin_y - y);
+        let y1 = origin_x - x;
 
-        if (((x1 + origin_x) < 0) | ((x1 + origin_x + size) > 512)){
+        if (((x1 + origin_x) < 1) | ((x1 + origin_x + size) > 511)){
             return; 
         }
         
-        if (((y1 + origin_y) < 0) | ((y1 + origin_y + size) > 256)){
+        if (((y1 + origin_y) < 1) | ((y1 + origin_y + size) > 255)){
             return; 
         }
 
-        let x = x1;
-        let y = y1;
+        do erase();
+        
+        let x = x1 + origin_x;
+        let y = y1 + origin_y;
 
+        do draw();
+        
         return;
     }
 }
