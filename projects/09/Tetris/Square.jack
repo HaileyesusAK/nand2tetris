@@ -1,0 +1,131 @@
+/** Implements a square to be used as a tetris block component */
+class Square {
+
+    field int x, y; // screen location of the square's top-left corner
+    field int size; // length of this square, in pixels
+
+    /** Constructs a new square with a given location and size. */
+    constructor Square new(int Ax, int Ay, int Asize) {
+        let x = Ax;
+        let y = Ay;
+        let size = Asize;
+        do draw();
+        return this;
+    }
+
+    /** Disposes this square. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Draws the square on the screen. */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+        return;
+    }
+
+    /** Erases the square from the screen. */
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+        return;
+    }
+
+    /** Moves the square up by 2 pixels. */
+    method void moveUp() {
+        if (y > 1) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+            let y = y - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+        }
+        return;
+    }
+
+    /** Moves the square down by 2 pixels. */
+    method void moveDown() {
+        if ((y + size) < 254) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + size, y + 1);
+            let y = y + 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+        }
+        return;
+    }
+
+    /** Moves the square left by 2 pixels. */
+    method void moveLeft() {
+        if (x > 1) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+            let x = x - 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + 1, y + size);
+        }
+        return;
+    }
+
+    /** Moves the square right by 2 pixels. */
+    method void moveRight() {
+        if ((x + size) < 510) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + 1, y + size);
+            let x = x + 2;
+            do Screen.setColor(true);
+            do Screen.drawRectangle((x + size) - 1, y, x + size, y + size);
+        }
+        return;
+    }
+
+    /** Rotate the square clockwise around the given coordinate by 90.
+        (x')   (0  1)   (x)
+        (  ) = (    ) * ( )
+        (y')   (-1 0)   (y)
+    */
+    method void rotC90(int origin_x, int origin_y) {
+        var int x1, y1;
+        let x1 = y;
+        let y1 = -x;
+
+        if (((x1 + origin_x) < 0) | ((x1 + origin_x + size) > 512)){
+            return; 
+        }
+        
+        if (((y1 + origin_y) < 0) | ((y1 + origin_y + size) > 256)){
+            return; 
+        }
+
+        let x = x1;
+        let y = y1;
+
+        return;
+    }
+    
+    /** Rotate the square anticlockwise around the given coordinate by 90.
+        (x')   (0 -1)   (x)
+        (  ) = (    ) * ( )
+        (y')   (1  0)   (y)
+    */
+    method void rotA90(int origin_x, int origin_y) {
+        var int x1, y1;
+        let x1 = -y;
+        let y1 = x;
+
+        if (((x1 + origin_x) < 0) | ((x1 + origin_x + size) > 512)){
+            return; 
+        }
+        
+        if (((y1 + origin_y) < 0) | ((y1 + origin_y + size) > 256)){
+            return; 
+        }
+
+        let x = x1;
+        let y = y1;
+
+        return;
+    }
+}
