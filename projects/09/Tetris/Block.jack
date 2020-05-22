@@ -11,10 +11,18 @@ class Block {
     /** Individual cell size */
     field int cell_size;
 
+    /** Block type.
+        1: L
+        2: ⅃
+        3: ⅂
+    */
+    field int type;
+
     /** An array of the cells that define the block */
     field Array cells;
   
     constructor Block newLBlock(int origin_x, int origin_y, int cell_size) {
+        let type = 1;
         let x = origin_x;
         let y = origin_y;
         let n_cells = 4;
@@ -28,7 +36,29 @@ class Block {
         do draw();
         return this;
     }
-   
+
+    /** Return the height of the block in pixels */
+    method int get_height() 
+    { 
+        var int t;
+        let t = type;
+
+        if((t=1) | (t=2) | (t=3)) { return 3 * cell_size;}
+
+        return 0;
+    }
+    
+    /** Return the width of the block in pixels */
+    method int get_width() 
+    { 
+        var int t;
+        let t = type;
+
+        if((t=1) | (t=2) | (t=3)) { return 2 * cell_size;}
+        
+        return 0;
+    }
+
     /** Desposes this block */
     method void dispose() {
         var int i;
