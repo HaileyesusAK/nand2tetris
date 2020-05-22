@@ -30,14 +30,14 @@ class Block {
     }
    
     /** Desposes this block */
-    method void despose() {
+    method void dispose() {
         var int i;
         var Square cell;
 
         let i = 0;
         while (~(i = n_cells)) {
             let cell = cells[i];
-            do cell.despose();
+            do cell.dispose();
             let i = i + 1;
         }
 
@@ -50,13 +50,107 @@ class Block {
         var int i;
         var Square cell;
 
-        let i = 0;
-        while (~(i = n_cells)) {
+        let i = (n_cells - 1);
+        while (~(i = -1)) {
             let cell = cells[i];
             do cell.draw();
+            let i = i - 1;
+        }
+        
+        return;
+    }
+    
+    method void move_left()
+    {
+        var int i;
+        var Square cell;
+        var Array sorted_cells;
+
+        let sorted_cells = Block.sort_cells(cells, n_cells, 1);
+        
+        let i = 0;
+        while (~(i = n_cells)) {
+            let cell = sorted_cells[i];
+            do cell.moveLeft();
             let i = i + 1;
         }
         
         return;
+    }
+
+    method void move_down()
+    {
+        var int i;
+        var Square cell;
+        var Array sorted_cells;
+
+        let sorted_cells = Block.sort_cells(cells, n_cells, 2);
+        
+        do Output.moveCursor(22, 0);
+        let i = (n_cells - 1);
+        while (~(i = -1)) {
+            let cell = sorted_cells[i];
+            do cell.moveDown();
+            let i = i - 1;
+        }
+        
+        return;
+    }
+
+    method void move_right()
+    {
+        var int i;
+        var Square cell;
+        var Array sorted_cells;
+
+        let sorted_cells = Block.sort_cells(cells, n_cells, 1);
+        let i = n_cells - 1;
+        while (~(i = -1)) {
+            let cell = cells[i];// sorted_cells[i];
+            do cell.moveRight();
+            let i = i - 1;
+        }
+        return;
+    }
+    
+    /** Sorts an array of cells in ascending order.
+        If key = 1, sort by x coordinate; else if key = 2, sort by y coordinate */
+    function Array sort_cells(Array cells, int len, int key) {
+        var int i, j, k, min;
+        var Square cell, temp;
+
+        while (~(i = len)) {
+            let cell = cells[i];
+            let k = i;
+            let j = i + 1; 
+            
+            if (key = 1) { let min = cell.getX(); }
+            else { let min = cell.getY(); }
+
+            while(~(j = len)) {
+                let cell = cells[j];
+                if ((key = 1) & (cell.getX() < min)) {
+                    let min = cell.getX();
+                    let k = j;
+                }
+                else {
+                    if ((key = 2) & (cell.getY() < min)) {
+                        let min = cell.getY();
+                        let k = j;
+                    }
+                }
+                let j = j + 1;
+            }
+            
+            if (~(k = i)) {
+                let temp = cells[i];
+                let cells[i] = cells[k];
+                let cells[k] = temp;
+            }
+
+            let i = i + 1;
+        }
+
+        return cells;
     }
 }
