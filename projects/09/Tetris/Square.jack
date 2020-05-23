@@ -141,4 +141,20 @@ class Square {
         
         return;
     }
+   
+    /** Shift the square by the given offset */
+    method void shift(int offset_x, int offset_y) {
+        var int x1, y1;
+        let x1 = x + offset_x;
+        let y1 = y + offset_y;
+        
+        if((x1 < 0) | (x1 > 511)) { return; }
+        
+        if((y1 < 0) | (y1 > 255)) { return; }
+
+        let x = x1;
+        let y = y1;
+
+        return;
+    }
 }
