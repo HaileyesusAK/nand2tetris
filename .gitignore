@@ -3,3 +3,4 @@ tools/bin/
 *.o
 *.swo
 *.swp
+*tester
