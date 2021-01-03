@@ -1,6 +1,10 @@
 tools/bin/
 *.out
+*.dat
 *.o
+*.a
 *.swo
 *.swp
 *tester
+*.out
+*Tetris*

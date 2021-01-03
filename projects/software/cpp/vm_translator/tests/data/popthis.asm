@@ -1,0 +1,14 @@
+	@5
+	D=A
+	@THIS
+	M=D+M
+	@SP
+	AM=M-1
+	D=M
+	@THIS
+	A=M
+	M=D
+	@5
+	D=A
+	@THIS
+	M=M-D

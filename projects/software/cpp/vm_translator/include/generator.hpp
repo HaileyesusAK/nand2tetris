@@ -1,6 +1,7 @@
 #ifndef __VM_TRANSLATOR__
 #define __VM_TRANSLATOR__
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -9,7 +10,7 @@
 struct Segment;
 
 using AsmInst = std::vector<std::string>;
-using StackCodeMap = std::unordered_map<std::string, const Segment&>; 
+using StackCodeMap = std::unordered_map<std::string, std::unique_ptr<Segment>>; 
 static std::string currentFncName;  //Used as a label when creating one or jumping to it 
 enum class AluOperator {
     MINUS,
@@ -22,6 +23,12 @@ enum class RelOperator {
     EQ,
     GT,
     LT
+};
+
+struct Generator {
+    virtual AsmInst generate() const;
+    virtual AsmInst generate(const std::string& arg) const;
+    virtual AsmInst generate(const std::string& arg, uint16_t idx) const;
 };
 
 struct Segment {
@@ -90,12 +97,6 @@ struct PointerSegment: FixedSegment {
     public:
     AsmInst push(uint16_t idx) const;
     AsmInst pop(uint16_t idx) const;
-};
-
-struct Generator {
-    virtual AsmInst generate() const;
-    virtual AsmInst generate(const std::string& arg) const;
-    virtual AsmInst generate(const std::string& arg, uint16_t idx) const;
 };
 
 struct StackPushGenerator: Generator {
@@ -180,6 +181,14 @@ struct LtGenerator: Generator {
 };
 
 struct GtGenerator: Generator {
+    AsmInst generate();
+};
+
+struct NotGenerator: Generator {
+    AsmInst generate();
+};
+
+struct NegGenerator: Generator {
     AsmInst generate();
 };
 

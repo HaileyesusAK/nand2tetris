@@ -1,0 +1,14 @@
+	@5
+	D=A
+	@LCL
+	M=D+M
+	@SP
+	AM=M-1
+	D=M
+	@LCL
+	A=M
+	M=D
+	@5
+	D=A
+	@LCL
+	M=M-D

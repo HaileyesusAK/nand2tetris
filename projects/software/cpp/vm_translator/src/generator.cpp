@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "vm_translator.hpp"
+#include "generator.hpp"
 
 /************************** Segment **********************/
 AsmInst Segment::push(const AsmInst &prePush) const {
@@ -140,13 +140,13 @@ AsmInst Generator::generate(const std::string& arg, uint16_t idx) const { return
 
 /******************* StackPushGenerator ****************/
 AsmInst StackPushGenerator::generate(const std::string& segment, uint16_t idx) const {
-        return map.at(segment).push(idx);
+        return map.at(segment).get()->push(idx);
 }
 /********************************************************/
 
 /******************* StackPopGenerator ****************/
 AsmInst StackPopGenerator::generate(const std::string& segment, uint16_t idx) const {
-        return map.at(segment).pop(idx);
+        return map.at(segment).get()->pop(idx);
 }
 /********************************************************/
 
@@ -328,14 +328,14 @@ AsmInst OrGenerator::generate() { return ArithmeticGenerator::generate(AluOperat
 /********************** EqGenerator ********************/ 
 AsmInst EqGenerator::generate() {
     static AsmInst insts {
-        //Pop stack tops (y, then x) and do x = x - y
-        "@SP", "AM=M-1", "D=M", "@SP", "M=M-1", "@SP", "M=M-D",
+        //Take the difference of the numbers on the stack, ie. x-y
+        "@SP", "AM=M-1", "D=M", "A=A-1", "M=M-D",
         
-        //If the x - y is zero, all bits in M are set to one;
-        //otherwise, the bits are set to zero, i.e., M = ~(M | -M)
-        "D=-M", "D=D|M", "M=!D",
+        //If x - y = 0, then it is true; therefore take boolean negation.
+        "D=-M", "D=D|M", "D=!D", "@32768", "D=D&A",
 
-        "@SP", "M=M+1"
+        //Push the result back onto the stack
+        "@SP", "A=M-1" "M=D"
     };
     return insts;
 }
@@ -344,14 +344,15 @@ AsmInst EqGenerator::generate() {
 /*********************** LtGenerator ********************/ 
 AsmInst LtGenerator::generate() {
     static AsmInst insts {
-        //Pop stack tops (y, then x) and do x = x - y
-        "@SP", "AM=M-1", "D=M", "@SP", "M=M-1", "@SP", "M=M-D",
+        //Take the difference of the numbers on the stack, ie. x-y
+        "@SP", "AM=M-1", "D=M", "A=A-1", "D=M-D",
         
-        //If the x - y < 0, the first bit of the difference is 1,
+        //If x - y < 0, the first bit of the difference is 1,
         //and (x-y) & 0x8000 is different from zero.
-        "D=M-D", "A=32768", "D=D&A", "@SP" "M=D",
-
-        "@SP", "M=M+1"
+        "@32768", "D=D&A",
+        
+        //Push the result back onto the stack
+        "@SP" "A=M-1", "M=D",
     };
     return insts;
 }
@@ -360,15 +361,42 @@ AsmInst LtGenerator::generate() {
 /*********************** GtGenerator ********************/ 
 AsmInst GtGenerator::generate() { 
     static AsmInst insts {
-        //Pop stack tops (y, then x) and do x = x - y
-        "@SP", "AM=M-1", "D=M", "@SP", "M=M-1", "@SP", "M=M-D",
-        
-        //If the x - y > 0, the first bit of the difference is 0,
-        //and -(x-y) & 0x8000 is different from zero.
-        "D=D-M", "A=32768", "D=D&A", "@SP" "M=D",
+        //Take the difference of the numbers on the stack, ie. y-x
+        "@SP", "AM=M-1", "D=M", "A=A-1", "D=D-M",
 
-        "@SP", "M=M+1"
+        //If the y - x < 0, the first bit of the difference is 1,
+        //and (y-x) & 0x8000 is different from zero.
+        "@32768", "D=D&A",
+        
+        //Push the result back onto the stack
+        "@SP" "A=M-1", "M=D",
     };
+    return insts;
+}
+/********************************************************/
+
+/*********************** NotGenerator *******************/ 
+AsmInst NotGenerator::generate() {
+    static AsmInst insts {
+    //Activate stack top element
+    "@SP", "A=M-1",
+
+    //The logical-or of a non-zero number and its negative always begins with 1.
+    //Complementing it and taking logical-and with 0x8000 will make it either 0
+    //or 0x8000 if the number is either non-zero or zero, respectively.
+    
+    "D=-M", "D=D|M", "D=!D", "@32768", "D=D&A",
+    
+    //Push the result back onto the stack
+    "@SP", "A=M-1" "M=D"
+    };
+    return insts;
+}
+/********************************************************/
+
+/*********************** NegGenerator *******************/ 
+AsmInst NegGenerator::generate() {
+    static AsmInst insts {"@SP", "A=M-1", "M=-M"};
     return insts;
 }
 /********************************************************/
