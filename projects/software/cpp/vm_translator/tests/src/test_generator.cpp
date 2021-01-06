@@ -134,3 +134,9 @@ TEST_CASE("Test CallGenerator", "[call]") {
     auto insts = generator.generate("fibo", 2);
     REQUIRE(test("../data/call", insts).second == 0);
 }
+
+TEST_CASE("Test RetGenerator", "[ret]") {
+    RetGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/ret", insts).second == 0);
+}
