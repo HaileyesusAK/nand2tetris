@@ -80,3 +80,15 @@ TEST_CASE("Test LtGenerator", "[lt]") {
     auto insts = generator.generate();
     REQUIRE(test("../data/lt", insts).second == 0);
 }
+
+TEST_CASE("Test GtGenerator", "[gt]") {
+    GtGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/gt", insts).second == 0);
+}
+
+TEST_CASE("Test NegGenerator", "[neg]") {
+    NegGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/neg", insts).second == 0);
+}
