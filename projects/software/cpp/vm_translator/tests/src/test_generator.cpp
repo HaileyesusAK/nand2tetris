@@ -110,3 +110,15 @@ TEST_CASE("Test OrGenerator", "[or]") {
     auto insts = generator.generate();
     REQUIRE(test("../data/or", insts).second == 0);
 }
+
+TEST_CASE("Test AddGenerator", "[add]") {
+    AddGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/add", insts).second == 0);
+}
+
+TEST_CASE("Test SubGenerator", "[sub]") {
+    SubGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/sub", insts).second == 0);
+}
