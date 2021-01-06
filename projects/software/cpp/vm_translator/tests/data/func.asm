@@ -1,0 +1,26 @@
+(fibo)
+	@LCL
+	D=M
+	@i
+	M=D
+	@2
+	D=D+A
+	@n
+	M=D
+(fibo_SET_LCL)
+	@n
+	D=M
+	@i
+	D=M-D
+	@fibo_SET_LCL_END
+	D;JGE
+	@i
+	A=M
+	M=0
+	@i
+	M=M+1
+	@SP
+	M=M+1
+	@fibo_SET_LCL
+	0;JMP
+(fibo_SET_LCL_END)

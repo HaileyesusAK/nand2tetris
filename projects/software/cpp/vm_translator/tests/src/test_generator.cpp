@@ -122,3 +122,9 @@ TEST_CASE("Test SubGenerator", "[sub]") {
     auto insts = generator.generate();
     REQUIRE(test("../data/sub", insts).second == 0);
 }
+
+TEST_CASE("Test FunctionGenerator", "[function]") {
+    FunctionGenerator generator;
+    auto insts = generator.generate("fibo", 2);
+    REQUIRE(test("../data/func", insts).second == 0);
+}
