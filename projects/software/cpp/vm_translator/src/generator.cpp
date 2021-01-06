@@ -332,10 +332,10 @@ AsmInst EqGenerator::generate() {
         "@SP", "AM=M-1", "D=M", "A=A-1", "M=M-D",
         
         //If x - y = 0, then it is true; therefore take boolean negation.
-        "D=-M", "D=D|M", "D=!D", "@32768", "D=D&A",
+        "D=-M", "D=D|M", "D=!D", "@16384", "D=D&A",
 
         //Push the result back onto the stack
-        "@SP", "A=M-1" "M=D"
+        "@SP", "A=M-1", "M=D"
     };
     return insts;
 }
@@ -349,7 +349,7 @@ AsmInst LtGenerator::generate() {
         
         //If x - y < 0, the first bit of the difference is 1,
         //and (x-y) & 0x8000 is different from zero.
-        "@32768", "D=D&A",
+        "@16384", "D=D&A",
         
         //Push the result back onto the stack
         "@SP" "A=M-1", "M=D",
@@ -385,7 +385,7 @@ AsmInst NotGenerator::generate() {
     //Complementing it and taking logical-and with 0x8000 will make it either 0
     //or 0x8000 if the number is either non-zero or zero, respectively.
     
-    "D=-M", "D=D|M", "D=!D", "@32768", "D=D&A",
+    "D=-M", "D=D|M", "D=!D", "@16384", "D=D&A",
     
     //Push the result back onto the stack
     "@SP", "A=M-1" "M=D"
