@@ -226,7 +226,8 @@ AsmInst CallGenerator::generate(const std::string& fName, uint16_t nArgs) {
 
     AsmInst insts {
         //Setup ARG for the callee
-        "@" + CallGenerator::ARG_START, "D=A", "@" + nArgs, "D=D+A", "@SP", "D=M-D",
+        "@" + std::to_string(CallGenerator::ARG_START),
+        "D=A", "@" + std::to_string(nArgs), "D=D+A", "@SP", "D=M-D",
         "@ARG", "M=D",
 
         //Setup LCL for the callee
@@ -264,7 +265,8 @@ AsmInst RetGenerator::generate() {
         "@LCL", "D=M", "@frame", "M=D",
 
         //Save the return address in a variable
-        "@" + CallGenerator::ARG_START, "D=A", "@frame", "A=M-D", "D=M", "@ret", "M=D",
+        "@" + std::to_string(CallGenerator::ARG_START),
+        "D=A", "@frame", "A=M-D", "D=M", "@ret", "M=D",
 
         //Return value to the caller
         "@SP", "A=M-1", "D=M", "@ARG", "A=M", "M=D",
