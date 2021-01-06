@@ -352,7 +352,7 @@ AsmInst LtGenerator::generate() {
         "@16384", "D=D&A",
         
         //Push the result back onto the stack
-        "@SP" "A=M-1", "M=D",
+        "@SP", "A=M-1", "M=D",
     };
     return insts;
 }
@@ -369,7 +369,7 @@ AsmInst GtGenerator::generate() {
         "@32768", "D=D&A",
         
         //Push the result back onto the stack
-        "@SP" "A=M-1", "M=D",
+        "@SP", "A=M-1", "M=D",
     };
     return insts;
 }

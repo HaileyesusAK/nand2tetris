@@ -69,8 +69,14 @@ TEST_CASE("Test stack operations", "[stack]") {
     REQUIRE(test_pop(stackMap, "this", IDX).second == 0);
 }
 
-TEST_CASE("Test relation operations", "[eq]") {
+TEST_CASE("Test EqGenerator", "[eq]") {
     EqGenerator generator;
     auto insts = generator.generate();
     REQUIRE(test("../data/eq", insts).second == 0);
+}
+
+TEST_CASE("Test LtGenerator", "[lt]") {
+    LtGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/lt", insts).second == 0);
 }
