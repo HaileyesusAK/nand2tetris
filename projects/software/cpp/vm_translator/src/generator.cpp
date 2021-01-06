@@ -366,7 +366,7 @@ AsmInst GtGenerator::generate() {
 
         //If the y - x < 0, the first bit of the difference is 1,
         //and (y-x) & 0x8000 is different from zero.
-        "@32768", "D=D&A",
+        "@16384", "D=D&A",
         
         //Push the result back onto the stack
         "@SP", "A=M-1", "M=D",
@@ -388,7 +388,7 @@ AsmInst NotGenerator::generate() {
     "D=-M", "D=D|M", "D=!D", "@16384", "D=D&A",
     
     //Push the result back onto the stack
-    "@SP", "A=M-1" "M=D"
+    "@SP", "A=M-1", "M=D"
     };
     return insts;
 }

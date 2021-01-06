@@ -92,3 +92,9 @@ TEST_CASE("Test NegGenerator", "[neg]") {
     auto insts = generator.generate();
     REQUIRE(test("../data/neg", insts).second == 0);
 }
+
+TEST_CASE("Test NotGenerator", "[not]") {
+    NotGenerator generator;
+    auto insts = generator.generate();
+    REQUIRE(test("../data/not", insts).second == 0);
+}
