@@ -3,7 +3,7 @@ output-file not.out,
 compare-to not.cmp,
 output-list RAM[0]%D2.6.2 RAM[256]%D2.6.2;
 
-// Test NOT on zero
+// Test NOT on false 
 set RAM[256] 0,     // Reset stack top
 set RAM[0] 257,     // Set stack top pointer
 repeat 20 {
@@ -11,16 +11,7 @@ repeat 20 {
 }
 output;
 
-// Test NOT on positive number 
-set PC 0;
-set RAM[256] 1,     // Reset stack top
-set RAM[0] 257,     // Set stack top pointer
-repeat 20 {
-  ticktock;
-}
-output;
-
-// Test NOT on negative number 
+// Test NOT on true 
 set PC 0;
 set RAM[256] -1,     // Reset stack top
 set RAM[0] 257,     // Set stack top pointer

@@ -320,81 +320,47 @@ AsmInst ArithmeticGenerator::generate(const AluOperator& op) {
 
     return insts;
 }
-/********************************************************/
 
 AsmInst AddGenerator::generate() { return ArithmeticGenerator::generate(AluOperator::PLUS); }
 AsmInst SubGenerator::generate() { return ArithmeticGenerator::generate(AluOperator::MINUS); }
 AsmInst AndGenerator::generate() { return ArithmeticGenerator::generate(AluOperator::AND); }
 AsmInst OrGenerator::generate() { return ArithmeticGenerator::generate(AluOperator::OR); }
-
-/********************** EqGenerator ********************/ 
-AsmInst EqGenerator::generate() {
-    static AsmInst insts {
-        //Take the difference of the numbers on the stack, ie. x-y
-        "@SP", "AM=M-1", "D=M", "A=A-1", "M=M-D",
-        
-        //If x - y = 0, then it is true; therefore take boolean negation.
-        "D=-M", "D=D|M", "D=!D", "@16384", "D=D&A",
-
-        //Push the result back onto the stack
-        "@SP", "A=M-1", "M=D"
-    };
-    return insts;
-}
 /********************************************************/
 
-/*********************** LtGenerator ********************/ 
-AsmInst LtGenerator::generate() {
-    static AsmInst insts {
-        //Take the difference of the numbers on the stack, ie. x-y
-        "@SP", "AM=M-1", "D=M", "A=A-1", "D=M-D",
-        
-        //If x - y < 0, the first bit of the difference is 1,
-        //and (x-y) & 0x8000 is different from zero.
-        "@16384", "D=D&A",
-        
-        //Push the result back onto the stack
-        "@SP", "A=M-1", "M=D",
-    };
-    return insts;
-}
-/********************************************************/
+/********************** RelGenerator ******************/
+AsmInst RelGenerator::generate(RelOperator op) {
+    static uint64_t i = 1;
+    std::string jmpInst;
+    std::string endLabel("END_REL_OP_" + std::to_string(i++));
 
-/*********************** GtGenerator ********************/ 
-AsmInst GtGenerator::generate() { 
-    static AsmInst insts {
-        //Take the difference of the numbers on the stack, ie. y-x
-        "@SP", "AM=M-1", "D=M", "A=A-1", "D=D-M",
+    switch(op) {
+        case RelOperator::EQ:
+            jmpInst = "D;JEQ"; break;
 
-        //If the y - x < 0, the first bit of the difference is 1,
-        //and (y-x) & 0x8000 is different from zero.
-        "@16384", "D=D&A",
-        
-        //Push the result back onto the stack
-        "@SP", "A=M-1", "M=D",
+        case RelOperator::LT:
+            jmpInst = "D;JLT"; break;
+
+        case RelOperator::GT:
+            jmpInst = "D;JGT"; break;
+    }
+
+    return {
+        "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D", "M=-1",
+        "@" + endLabel, jmpInst, "@SP", "A=M-1", "M=0", "(" + endLabel + ")"
     };
-    return insts;
 }
+
+AsmInst EqGenerator::generate() { return RelGenerator::generate(RelOperator::EQ); }
+AsmInst LtGenerator::generate() { return RelGenerator::generate(RelOperator::LT); }
+AsmInst GtGenerator::generate() { return RelGenerator::generate(RelOperator::GT); }
 /********************************************************/
 
 /*********************** NotGenerator *******************/ 
 AsmInst NotGenerator::generate() {
-    static AsmInst insts {
-    //Activate stack top element
-    "@SP", "A=M-1",
-
-    //The logical-or of a non-zero number and its negative always begins with 1.
-    //Complementing it and taking logical-and with 0x8000 will make it either 0
-    //or 0x8000 if the number is either non-zero or zero, respectively.
-    
-    "D=-M", "D=D|M", "D=!D", "@16384", "D=D&A",
-    
-    //Push the result back onto the stack
-    "@SP", "A=M-1", "M=D"
-    };
+    static AsmInst insts {"@SP", "A=M-1", "M=!M"};
     return insts;
 }
-/********************************************************/
+/******************************************************/
 
 /*********************** NegGenerator *******************/ 
 AsmInst NegGenerator::generate() {

@@ -1,10 +1,13 @@
 	@SP
 	AM=M-1
 	D=M
-	A=A-1
-	D=D-M
-	@16384
-	D=D&A
 	@SP
 	A=M-1
-	M=D
+	D=M-D
+	M=-1
+	@END_REL_OP_3
+	D;JGT
+	@SP
+	A=M-1
+	M=0
+(END_REL_OP_3)

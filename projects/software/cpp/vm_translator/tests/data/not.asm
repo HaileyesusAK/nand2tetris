@@ -1,10 +1,3 @@
 	@SP
 	A=M-1
-	D=-M
-	D=D|M
-	D=!D
-	@16384
-	D=D&A
-	@SP
-	A=M-1
-	M=D
+	M=!M

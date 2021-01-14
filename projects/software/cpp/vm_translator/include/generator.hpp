@@ -172,15 +172,19 @@ struct OrGenerator: ArithmeticGenerator {
     AsmInst generate();
 };
 
-struct EqGenerator: Generator {
+struct RelGenerator: Generator {
+    AsmInst generate(RelOperator op);
+};
+
+struct EqGenerator: RelGenerator {
     AsmInst generate();
 };
 
-struct LtGenerator: Generator {
+struct LtGenerator: RelGenerator {
     AsmInst generate();
 };
 
-struct GtGenerator: Generator {
+struct GtGenerator: RelGenerator {
     AsmInst generate();
 };
 
