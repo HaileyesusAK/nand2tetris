@@ -147,12 +147,7 @@ struct IfGotoGenerator: Generator {
 
 struct ArithmeticGenerator: Generator {
     private:
-        std::unordered_map<AluOperator, std::string> opMap{
-            {AluOperator::MINUS, "-"},
-            {AluOperator::PLUS, "+"},
-            {AluOperator::OR, "|"},
-            {AluOperator::AND, "&"} 
-        };
+    static const std::unordered_map<AluOperator, std::string>& getOperatorMap();
 
     public:
     AsmInst generate(const AluOperator& op);

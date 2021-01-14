@@ -51,7 +51,7 @@ AsmInst StaticSegment::pop(uint16_t idx) const {
 /*********************************************************/
 
 /************************* ConstantSegment ***************/
-AsmInst ConstantSegment:: push(uint16_t value) const {
+AsmInst ConstantSegment::push(uint16_t value) const {
     AsmInst insts {
         "@" + std::to_string(value),
         "D=A"
@@ -345,9 +345,20 @@ AsmInst IfGotoGenerator::generate(const std::string& funcName, const std::string
 /********************************************************/
 
 /***************** ArithmeticGenerator ******************/ 
+const std::unordered_map<AluOperator, std::string>& ArithmeticGenerator::getOperatorMap() {
+    static std::unordered_map<AluOperator, std::string> opMap{
+        {AluOperator::MINUS, "-"},
+        {AluOperator::PLUS, "+"},
+        {AluOperator::OR, "|"},
+        {AluOperator::AND, "&"} 
+    };
+
+    return opMap;
+}
+
 AsmInst ArithmeticGenerator::generate(const AluOperator& op) {
     AsmInst insts {"@SP", "AM=M-1", "D=M", "@SP", "A=M-1"};
-    auto c = this->opMap.at(op);
+    auto c = ArithmeticGenerator::getOperatorMap().at(op);
     if(op == AluOperator::MINUS)
         insts.push_back("M=M-D");
     else
