@@ -27,11 +27,15 @@ AsmInst Segment::pop(const AsmInst &postPop) const {
 AsmInst Segment::pop(uint16_t idx) const { return {}; }
 /*********************************************************/
 
-
 /*********************** StaticSegment *******************/
+
+void StaticSegment::setFileName(const std::string fileName) {
+    this->fileName = fileName;
+}
+
 AsmInst StaticSegment::push(uint16_t idx) const {
     AsmInst insts {
-        "@" + this->fileName + "." + std::to_string(idx),
+        "@" + fileName + "." + std::to_string(idx),
         "D=M"
     };
     return Segment::push(insts);
@@ -39,7 +43,7 @@ AsmInst StaticSegment::push(uint16_t idx) const {
 
 AsmInst StaticSegment::pop(uint16_t idx) const {
     AsmInst insts {
-        "@" + this->fileName + "." + std::to_string(idx),
+        "@" + fileName + "." + std::to_string(idx),
         "M=D"
     };
     return Segment::pop(insts);

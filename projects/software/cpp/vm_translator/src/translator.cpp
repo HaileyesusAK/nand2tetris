@@ -9,14 +9,17 @@ VmTranslator::VmTranslator(const std::string& inFileName) {
     this->inFile = std::ifstream(inFileName);    
 
     StackCodeMap stackMap;
-    stackMap["argument"] = std::unique_ptr<Segment>(new ArgumentSegment());
-    stackMap["constant"] = std::unique_ptr<Segment>(new ConstantSegment());
-    stackMap["local"] = std::unique_ptr<Segment>(new LocalSegment());
-    stackMap["pointer"] = std::unique_ptr<Segment>(new PointerSegment());
-    stackMap["static"] = std::unique_ptr<Segment>(new StaticSegment(inFileName));
-    stackMap["temp"] = std::unique_ptr<Segment>(new TempSegment());
-    stackMap["that"] = std::unique_ptr<Segment>(new ThatSegment());
-    stackMap["this"] = std::unique_ptr<Segment>(new ThisSegment());
+    stackMap["argument"] = std::shared_ptr<Segment>(new ArgumentSegment());
+    stackMap["constant"] = std::shared_ptr<Segment>(new ConstantSegment());
+    stackMap["local"] = std::shared_ptr<Segment>(new LocalSegment());
+    stackMap["pointer"] = std::shared_ptr<Segment>(new PointerSegment());
+    stackMap["static"] = std::shared_ptr<Segment>(new StaticSegment());
+    stackMap["temp"] = std::shared_ptr<Segment>(new TempSegment());
+    stackMap["that"] = std::shared_ptr<Segment>(new ThatSegment());
+    stackMap["this"] = std::shared_ptr<Segment>(new ThisSegment());
+    
+    auto staticSegment = std::static_pointer_cast<StaticSegment>(stackMap["static"]);
+    staticSegment->setFileName(inFileName);
 
     this->generator["add"] = std::unique_ptr<Generator>(new AddGenerator());
     this->generator["and"] = std::unique_ptr<Generator>(new AndGenerator());

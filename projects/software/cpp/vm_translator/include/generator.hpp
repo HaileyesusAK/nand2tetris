@@ -42,11 +42,13 @@ struct Segment {
 };
 
 struct StaticSegment: Segment {
+    private:
     std::string fileName;
-    StaticSegment(const std::string& _fileName):fileName(_fileName){}
 
+    public:
     AsmInst push(uint16_t idx) const;
     AsmInst pop(uint16_t idx) const;
+    void setFileName(const std::string fileName);
 };
 
 struct ConstantSegment: Segment {

@@ -45,11 +45,13 @@ TEST_CASE("Test stack operations", "[stack]") {
     stackMap["constant"] = std::shared_ptr<Segment>(new ConstantSegment());
     stackMap["local"] = std::shared_ptr<Segment>(new LocalSegment());
     stackMap["pointer"] = std::shared_ptr<Segment>(new PointerSegment());
-    stackMap["static"] = std::shared_ptr<Segment>(new StaticSegment("test.vm"));
+    stackMap["static"] = std::shared_ptr<Segment>(new StaticSegment());
     stackMap["temp"] = std::shared_ptr<Segment>(new TempSegment());
     stackMap["that"] = std::shared_ptr<Segment>(new ThatSegment());
     stackMap["this"] = std::shared_ptr<Segment>(new ThisSegment());
 
+    auto staticSegment = std::static_pointer_cast<StaticSegment>(stackMap["static"]);
+    staticSegment->setFileName("test.vm");
 
     const uint16_t IDX = 5;
     REQUIRE(test_push(stackMap, "argument", IDX).second == 0);
