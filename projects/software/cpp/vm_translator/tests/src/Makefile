@@ -18,4 +18,5 @@ $(APP): $(OBJS)
 
 clean:
 	rm -rf *.o
+	rm -rf ../data/*.out
 	rm -rf $(APP)

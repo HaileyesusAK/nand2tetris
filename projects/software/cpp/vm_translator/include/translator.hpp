@@ -1,22 +1,28 @@
 #ifndef __TRANSLATOR_H__
 #define __TRANSLATOR_H__
 
-#include <fstream>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "generator.hpp"
 
-using GeneratorMap = std::unordered_map<std::string, std::unique_ptr<Generator>>;
+enum class Command {
+    PUSH, POP, ADD, SUB, AND, OR, LT, GT, EQ, NEG, NOT,
+    FUNCTION, CALL, RET, LABEL, GOTO, IF_GOTO
+};
+
+using CommandMap = std::unordered_map<std::string, Command>;
+using GeneratorMap = std::unordered_map<std::string, std::shared_ptr<Generator>>;
 
 class VmTranslator {
     private:
+        CommandMap commandMap;
         GeneratorMap generator;
-        std::ifstream inFile; 
-
     public:
-        VmTranslator(const std::string& inFileName);
-        AsmInst translate();
+        VmTranslator();
+        AsmInst translate(const std::string& fileName);
+        AsmInst translate(const std::vector<std::string>& parameters);
 };
 
 #endif
