@@ -26,9 +26,9 @@ enum class RelOperator {
 };
 
 struct Generator {
-    virtual AsmInst generate() const;
-    virtual AsmInst generate(const std::string& arg) const;
-    virtual AsmInst generate(const std::string& arg, uint16_t idx) const;
+    virtual AsmInst generate();
+    virtual AsmInst generate(const std::string& arg);
+    virtual AsmInst generate(const std::string& arg, uint16_t idx);
 };
 
 struct Segment {
@@ -118,7 +118,7 @@ struct StackPopGenerator: Generator {
 };
 
 struct FunctionGenerator: Generator {
-    AsmInst generate(const std::string& fName, uint16_t nLocals) const;
+    AsmInst generate(const std::string& fName, uint16_t nLocals);
 };
 
 struct CallGenerator: Generator {

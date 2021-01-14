@@ -15,6 +15,7 @@ AsmInst Segment::push(const AsmInst &prePush) const {
     std::copy(this->pushD.begin(), this->pushD.end(), std::back_inserter(insts));
     return insts;
 }
+
 AsmInst Segment::pop(const AsmInst &postPop) const {
     AsmInst insts;
 
@@ -22,6 +23,7 @@ AsmInst Segment::pop(const AsmInst &postPop) const {
     std::copy(postPop.begin(), postPop.end(), std::back_inserter(insts));
     return insts;
 }
+
 AsmInst Segment::pop(uint16_t idx) const { return {}; }
 /*********************************************************/
 
@@ -133,9 +135,9 @@ AsmInst PointerSegment::pop(uint16_t idx) const {
 /********************************************************/
 
 /*********************** Generator *********************/
-AsmInst Generator::generate() const { return {}; }
-AsmInst Generator::generate(const std::string& arg) const { return {}; }
-AsmInst Generator::generate(const std::string& arg, uint16_t idx) const { return {}; }
+AsmInst Generator::generate() { return {}; }
+AsmInst Generator::generate(const std::string& arg) { return {}; }
+AsmInst Generator::generate(const std::string& arg, uint16_t idx) { return {}; }
 /********************************************************/
 
 /******************* StackPushGenerator ****************/
@@ -151,7 +153,7 @@ AsmInst StackPopGenerator::generate(const std::string& segment, uint16_t idx) co
 /********************************************************/
 
 /******************* FunctionGenerator ****************/
-AsmInst FunctionGenerator::generate(const std::string& fName, uint16_t nLocals) const {
+AsmInst FunctionGenerator::generate(const std::string& fName, uint16_t nLocals){
     /*   
         create a label (f_name)
         push constant 0 n_locals times
