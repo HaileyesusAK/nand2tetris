@@ -27,13 +27,13 @@ static pair<string, int> test(const string& filename, const AsmInst& insts) {
 }
 
 static pair<string, int> test_push(const StackCodeMap& stackMap, const string& segment, uint16_t idx) {
-    auto insts = stackMap.at(segment).get()->push(idx);
+    auto insts = stackMap.at(segment)->push(idx);
     string filename(string("../data/push") + segment);
     return test(filename, insts);
 }
 
 static pair<string, int> test_pop(const StackCodeMap& stackMap, const string& segment, uint16_t idx) {
-    auto insts = stackMap.at(segment).get()->pop(idx);
+    auto insts = stackMap.at(segment)->pop(idx);
     string filename(string("../data/pop") + segment);
     return test(filename, insts);
 }
@@ -41,14 +41,15 @@ static pair<string, int> test_pop(const StackCodeMap& stackMap, const string& se
 TEST_CASE("Test stack operations", "[stack]") {
 
     StackCodeMap stackMap;
-    stackMap["argument"] = std::unique_ptr<Segment>(new ArgumentSegment());
-    stackMap["constant"] = std::unique_ptr<Segment>(new ConstantSegment());
-    stackMap["local"] = std::unique_ptr<Segment>(new LocalSegment());
-    stackMap["pointer"] = std::unique_ptr<Segment>(new PointerSegment());
-    stackMap["static"] = std::unique_ptr<Segment>(new StaticSegment("test.vm"));
-    stackMap["temp"] = std::unique_ptr<Segment>(new TempSegment());
-    stackMap["that"] = std::unique_ptr<Segment>(new ThatSegment());
-    stackMap["this"] = std::unique_ptr<Segment>(new ThisSegment());
+    stackMap["argument"] = std::shared_ptr<Segment>(new ArgumentSegment());
+    stackMap["constant"] = std::shared_ptr<Segment>(new ConstantSegment());
+    stackMap["local"] = std::shared_ptr<Segment>(new LocalSegment());
+    stackMap["pointer"] = std::shared_ptr<Segment>(new PointerSegment());
+    stackMap["static"] = std::shared_ptr<Segment>(new StaticSegment("test.vm"));
+    stackMap["temp"] = std::shared_ptr<Segment>(new TempSegment());
+    stackMap["that"] = std::shared_ptr<Segment>(new ThatSegment());
+    stackMap["this"] = std::shared_ptr<Segment>(new ThisSegment());
+
 
     const uint16_t IDX = 5;
     REQUIRE(test_push(stackMap, "argument", IDX).second == 0);

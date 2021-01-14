@@ -10,7 +10,7 @@
 struct Segment;
 
 using AsmInst = std::vector<std::string>;
-using StackCodeMap = std::unordered_map<std::string, std::unique_ptr<Segment>>; 
+using StackCodeMap = std::unordered_map<std::string, std::shared_ptr<Segment>>; 
 enum class AluOperator {
     MINUS,
     PLUS,
