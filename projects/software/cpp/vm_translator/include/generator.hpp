@@ -101,22 +101,22 @@ struct PointerSegment: FixedSegment {
     AsmInst pop(uint16_t idx) const;
 };
 
-struct StackPushGenerator: Generator {
+struct StackGenerator: Generator {
     private:
-    const StackCodeMap& map;
+    static const StackCodeMap& getGeneratorMap();
 
     public:
-    StackPushGenerator(const StackCodeMap& _map): map(_map) {}
-    AsmInst generate(const std::string& segment, uint16_t idx) const;
+    static void setStaticFileName(const std::string& fileName);
+    AsmInst push(const std::string& segment, uint16_t idx);
+    AsmInst pop(const std::string& segment, uint16_t idx);
 };
 
-struct StackPopGenerator: Generator {
-    private:
-    const StackCodeMap& map;
+struct StackPushGenerator: StackGenerator {
+    AsmInst generate(const std::string& segment, uint16_t idx);
+};
 
-    public:
-    StackPopGenerator(const StackCodeMap& _map): map(_map) {}
-    AsmInst generate(const std::string& segment, uint16_t idx) const;
+struct StackPopGenerator: StackGenerator {
+    AsmInst generate(const std::string& segment, uint16_t idx);
 };
 
 struct FunctionGenerator: Generator {

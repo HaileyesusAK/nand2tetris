@@ -145,15 +145,47 @@ AsmInst Generator::generate(const std::string& arg, uint16_t idx) { return {}; }
 AsmInst Generator::generate(const std::string& arg1, const std::string& arg2) { return {}; }
 /********************************************************/
 
+/************************** Stack ***********************/
+const StackCodeMap& StackGenerator::getGeneratorMap() {
+    static StackCodeMap stackMap {
+        {"argument", std::make_shared<ArgumentSegment>()},
+        {"constant", std::make_shared<ConstantSegment>()},
+        {"local", std::make_shared<LocalSegment>()},
+        {"pointer", std::make_shared<PointerSegment>()},
+        {"static", std::make_shared<StaticSegment>()},
+        {"temp", std::make_shared<TempSegment>()},
+        {"that", std::make_shared<ThatSegment>()},
+        {"this", std::make_shared<ThisSegment>()},
+    };
+
+    return stackMap;
+}
+
+void StackGenerator::setStaticFileName(const std::string& fileName) {
+    auto segment = std::static_pointer_cast<StaticSegment>(StackGenerator::getGeneratorMap().at("static"));
+    segment->setFileName(fileName);
+}
+
+AsmInst StackGenerator::push(const std::string& segment, uint16_t idx) {
+    auto generator = StackGenerator::getGeneratorMap().at(segment);
+    return generator->push(idx);
+}
+
+AsmInst StackGenerator::pop(const std::string& segment, uint16_t idx) {
+    auto generator = StackGenerator::getGeneratorMap().at(segment);
+    return generator->pop(idx);
+}
+/********************************************************/
+
 /******************* StackPushGenerator ****************/
-AsmInst StackPushGenerator::generate(const std::string& segment, uint16_t idx) const {
-        return map.at(segment).get()->push(idx);
+AsmInst StackPushGenerator::generate(const std::string& segment, uint16_t idx) {
+        return StackGenerator::push(segment, idx);
 }
 /********************************************************/
 
 /******************* StackPopGenerator ****************/
-AsmInst StackPopGenerator::generate(const std::string& segment, uint16_t idx) const {
-        return map.at(segment).get()->pop(idx);
+AsmInst StackPopGenerator::generate(const std::string& segment, uint16_t idx){
+        return StackGenerator::pop(segment, idx);
 }
 /********************************************************/
 
