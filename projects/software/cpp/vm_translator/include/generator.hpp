@@ -11,7 +11,6 @@ struct Segment;
 
 using AsmInst = std::vector<std::string>;
 using StackCodeMap = std::unordered_map<std::string, std::unique_ptr<Segment>>; 
-static std::string currentFncName;  //Used as a label when creating one or jumping to it 
 enum class AluOperator {
     MINUS,
     PLUS,
@@ -29,6 +28,7 @@ struct Generator {
     virtual AsmInst generate();
     virtual AsmInst generate(const std::string& arg);
     virtual AsmInst generate(const std::string& arg, uint16_t idx);
+    virtual AsmInst generate(const std::string& arg1, const std::string& arg2);
 };
 
 struct Segment {
@@ -132,15 +132,15 @@ struct RetGenerator: Generator {
 };
 
 struct LabelGenerator: Generator {
-    AsmInst generate(const std::string& label);
+    AsmInst generate(const std::string& funcName, const std::string& label);
 };
 
 struct GotoGenerator: Generator {
-    AsmInst generate(const std::string& label);
+    AsmInst generate(const std::string& funcName, const std::string& label);
 };
 
 struct IfGotoGenerator: Generator {
-    AsmInst generate(const std::string& label);
+    AsmInst generate(const std::string& funcName, const std::string& label);
 };
 
 struct ArithmeticGenerator: Generator {

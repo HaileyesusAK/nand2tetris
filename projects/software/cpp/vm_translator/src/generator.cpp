@@ -138,6 +138,7 @@ AsmInst PointerSegment::pop(uint16_t idx) const {
 AsmInst Generator::generate() { return {}; }
 AsmInst Generator::generate(const std::string& arg) { return {}; }
 AsmInst Generator::generate(const std::string& arg, uint16_t idx) { return {}; }
+AsmInst Generator::generate(const std::string& arg1, const std::string& arg2) { return {}; }
 /********************************************************/
 
 /******************* StackPushGenerator ****************/
@@ -160,10 +161,6 @@ AsmInst FunctionGenerator::generate(const std::string& fName, uint16_t nLocals){
     */
     std::string loop = fName + std::string("_SET_LCL");
     std::string end = fName + std::string("_SET_LCL_END");
-    
-    //Save the function's name. It will be used as a prefix for labels referenced from within.
-    //TODO: This approach won't work when parallelizing the code generation
-    currentFncName = fName;
     
     AsmInst funcInsts {
         // Label the function's starting point
@@ -294,20 +291,20 @@ AsmInst RetGenerator::generate() {
 /********************************************************/
 
 /********************* LabelGenerator *******************/ 
-AsmInst LabelGenerator::generate(const std::string& label) {
-    return {"(" + currentFncName + "$" + label + ")"};
+AsmInst LabelGenerator::generate(const std::string& funcName, const std::string& label) {
+    return {"(" + funcName + "$" + label + ")"};
 }
 /********************************************************/
 
 /********************** GotoGenerator *******************/ 
-AsmInst GotoGenerator::generate(const std::string& label) {
-    return {"@" + currentFncName + "$" + label, "0;JMP"};
+AsmInst GotoGenerator::generate(const std::string& funcName, const std::string& label) {
+    return {"@" + funcName + "$" + label, "0;JMP"};
 }
 /********************************************************/
 
 /********************* IfGotoGenerator ******************/ 
-AsmInst IfGotoGenerator::generate(const std::string& label) {
-    return { "@SP", "AM=M-1", "D=M", "@" + currentFncName + "$" + label, "D;JNE"};
+AsmInst IfGotoGenerator::generate(const std::string& funcName, const std::string& label) {
+    return { "@SP", "AM=M-1", "D=M", "@" + funcName + "$" + label, "D;JNE"};
 }
 /********************************************************/
 
