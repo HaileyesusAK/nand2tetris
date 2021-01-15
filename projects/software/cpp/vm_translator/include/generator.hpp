@@ -129,7 +129,7 @@ struct CallGenerator: Generator {
     AsmInst generate(const std::string& fName, uint16_t nArgs);
 };
 
-struct RetGenerator: Generator {
+struct ReturnGenerator: Generator {
     AsmInst generate();
 };
 

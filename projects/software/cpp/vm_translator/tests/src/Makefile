@@ -3,8 +3,8 @@ INCLUDE = -I ../../include
 LDFLAGS = ../../src/libvmtranslator.a
 CPPFLAGS = -g -Wall --std=c++11
 
-OBJS=test_generator.o utils.o
-APP=test_generator
+OBJS=test_generator.o test_translator.o utils.o
+APP=tester
 
 .cpp.o:
 	@echo "Compiling" $< "..."

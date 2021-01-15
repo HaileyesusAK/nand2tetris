@@ -120,8 +120,8 @@ TEST_CASE("Test CallGenerator", "[call]") {
     REQUIRE(test("../data/call", insts).second == 0);
 }
 
-TEST_CASE("Test RetGenerator", "[ret]") {
-    RetGenerator generator;
+TEST_CASE("Test ReturnGenerator", "[ret]") {
+    ReturnGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/ret", insts).second == 0);
+    REQUIRE(test("../data/return", insts).second == 0);
 }

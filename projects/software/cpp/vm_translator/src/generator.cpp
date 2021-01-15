@@ -281,8 +281,8 @@ AsmInst CallGenerator::generate(const std::string& fName, uint16_t nArgs) {
 }
 /********************************************************/
 
-/**************** RetGenerator **************************/
-AsmInst RetGenerator::generate() {
+/**************** ReturnGenerator ***********************/
+AsmInst ReturnGenerator::generate() {
     /*
         frame = LCL
         ret = *(frame - 5)

@@ -1,6 +1,6 @@
-load ret.asm,
-output-file ret.out,
-compare-to ret.cmp,
+load return.asm,
+output-file return.out,
+compare-to return.cmp,
 output-list RAM[0]%D2.6.2 RAM[1]%D2.6.2 RAM[2]%D2.6.2 RAM[3]%D2.6.2 RAM[4]%D2.6.2; 
 
 set RAM[0] 300,     // Set stack top pointer

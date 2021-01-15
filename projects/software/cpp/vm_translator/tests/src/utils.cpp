@@ -20,8 +20,8 @@ std::pair<std::string, int> execute(const std::string& c) {
     return std::make_pair(result, pclose(pipe));
 }
 
-void saveAsm(const AsmInst& insts, const std::string& filename) {
-    std::ofstream outFile(std::string("../data/") + filename);
+void saveAsm(const AsmInst& insts, const std::string& filePath) {
+    std::ofstream outFile(filePath);
 
     for(auto& inst: insts) {
         if(inst.front() == '(')

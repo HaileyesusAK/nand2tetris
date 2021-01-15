@@ -25,7 +25,7 @@ VmTranslator::VmTranslator(): commandMap {{"push", Command::PUSH}, {"pop", Comma
                                           {"lt", Command::LT}, {"gt", Command::GT}, {"eq", Command::EQ},
                                           {"neg", Command::NEG}, {"not", Command::NOT},
                                           {"call", Command::CALL}, {"function", Command::FUNCTION},
-                                          {"ret", Command::RET}, {"label", Command::LABEL},
+                                          {"return", Command::RET}, {"label", Command::LABEL},
                                           {"goto", Command::GOTO}, {"or", Command::OR},
                                           {"and", Command::AND}, {"if-goto", Command::IF_GOTO}},
 
@@ -42,6 +42,8 @@ VmTranslator::VmTranslator(): commandMap {{"push", Command::PUSH}, {"pop", Comma
                                           {"push", std::make_shared<StackPushGenerator>()},
                                           {"if-goto", std::make_shared<IfGotoGenerator>()},
                                           {"goto", std::make_shared<GotoGenerator>()},
+                                          {"call", std::make_shared<CallGenerator>()},
+                                          {"return", std::make_shared<ReturnGenerator>()},
                                           {"label", std::make_shared<LabelGenerator>()}}{}
 
 AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
