@@ -8,24 +8,6 @@
 
 using namespace std;
 
-static void saveAsm(const AsmInst& insts, const string& filename) {
-    ofstream outFile(string("../data/") + filename);
-
-    for(auto& inst: insts) {
-        if(inst.front() == '(')
-            outFile << inst << endl;
-        else
-            outFile << "\t" << inst << endl;
-    }
-}
-
-static pair<string, int> test(const string& filename, const AsmInst& insts) {
-    string asmFile = filename + ".asm";
-    saveAsm(insts, asmFile);
-    string tstFile = filename + ".tst";
-    return execute(string("CPUEmulator ") + tstFile);
-}
-
 static pair<string, int> test_push(const StackCodeMap& stackMap, const string& segment, uint16_t idx) {
     auto insts = stackMap.at(segment)->push(idx);
     string filename(string("../data/push") + segment);
