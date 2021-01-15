@@ -103,10 +103,18 @@ AsmInst VmTranslator::translate(const std::string& fileName) {
     if(!inFile.is_open())
         throw std::runtime_error(std::strerror(errno) + std::string(": ") + fileName);
 
+
+    const auto pos = fileName.find_last_of("/");
+    std::string staticFileName;
+    if(pos != std::string::npos)
+        staticFileName = fileName.substr(pos+1);
+    else
+        staticFileName = fileName;
+
     AsmInst instructions;
     std::string line, s;
     std::vector<std::string> parameters;
-    StackGenerator::setStaticFileName(fileName);
+    StackGenerator::setStaticFileName(staticFileName);
 
     while(std::getline(inFile, s)) {
         std::string line(s.substr(0, s.find_first_of('/')));
