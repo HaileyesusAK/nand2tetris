@@ -3,7 +3,6 @@
 #include <cerrno>
 #include <memory>
 #include <regex>
-#include <stack>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -46,21 +45,19 @@ VmTranslator::VmTranslator(): commandMap {{"push", Command::PUSH}, {"pop", Comma
                                           {"if-goto", std::make_shared<IfGotoGenerator>()},
                                           {"goto", std::make_shared<GotoGenerator>()},
                                           {"call", std::make_shared<CallGenerator>()},
+                                          {"function", std::make_shared<FunctionGenerator>()},
                                           {"return", std::make_shared<ReturnGenerator>()},
                                           {"label", std::make_shared<LabelGenerator>()}}{}
 
 AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
     AsmInst insts;
-    std::string funcName;
-    std::stack<std::string> callStack;
     auto cmd = parameters.at(0);
     auto code_generator = generator.at(cmd);
 
     switch(commandMap.at(cmd)) {
         case Command::FUNCTION:
         {
-            callStack.push(parameters.at(1));
-            auto funcName = callStack.top();
+            funcName = parameters.at(1);
             auto nLocals = static_cast<uint16_t>(std::stoul(parameters.at(2)));
             insts = code_generator->generate(funcName, nLocals);
         }
@@ -76,10 +73,7 @@ AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
         case Command::LABEL:
         case Command::GOTO:
         case Command::IF_GOTO:
-        {
-            auto funcName = callStack.top();
             insts = code_generator->generate(funcName, parameters.at(1));
-        }
         break;
 
         case Command::PUSH:
@@ -91,7 +85,6 @@ AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
         break;
 
         case Command::RET:
-            callStack.pop();
             insts = code_generator->generate();
         break;
 
