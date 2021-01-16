@@ -33,9 +33,3 @@ void saveAsm(const AsmInst& insts, const fs::path& path) {
             outFile << "\t" << inst << std::endl;
     }
 }
-
-std::pair<std::string, int> test(fs::path path, const AsmInst& insts) {
-    saveAsm(insts, path.replace_extension(".asm"));
-    std::string tstFile(path.replace_extension(".tst").string());
-    return execute(std::string("CPUEmulator ") + tstFile);
-}

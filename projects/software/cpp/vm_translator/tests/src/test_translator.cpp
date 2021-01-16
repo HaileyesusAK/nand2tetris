@@ -12,9 +12,11 @@ using namespace std;
 namespace fs = std::filesystem;
 static const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
 
-static void test_vm_translator(VmTranslator& translator, const fs::path& path) {
-    auto insts = translator.translate(path);
-    REQUIRE(test(path, insts).second == 0);
+static void test_vm_translator(VmTranslator& translator, fs::path path) {
+    translator.translate(path);
+    std::string tstFile(path.replace_extension(".tst").string());
+    auto result = execute(std::string("CPUEmulator ") + tstFile);
+    REQUIRE(result.second == 0);
 }
 
 TEST_CASE("Test VmTranslator", "[Single File]") {

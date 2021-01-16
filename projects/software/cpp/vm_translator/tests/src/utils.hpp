@@ -10,6 +10,5 @@ namespace fs = std::filesystem;
 
 std::pair<std::string, int> execute(const std::string& cmd);
 void saveAsm(const AsmInst& insts, const fs::path& path);
-std::pair<std::string, int> test(fs::path path, const AsmInst& insts);
 
 #endif

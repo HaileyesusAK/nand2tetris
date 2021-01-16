@@ -12,6 +12,12 @@ namespace fs = std::filesystem;
 
 static const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
 
+std::pair<std::string, int> test(fs::path path, const AsmInst& insts) {
+    saveAsm(insts, path.replace_extension(".asm"));
+    std::string tstFile(path.replace_extension(".tst").string());
+    return execute(std::string("CPUEmulator ") + tstFile);
+}
+
 static pair<string, int> test_push(const StackCodeMap& stackMap, const string& segment, uint16_t idx) {
     auto insts = stackMap.at(segment)->push(idx);
     string filename(string("../data/push") + segment);
@@ -23,6 +29,7 @@ static pair<string, int> test_pop(const StackCodeMap& stackMap, const string& se
     string filename(string("../data/pop") + segment);
     return test(filename, insts);
 }
+
 
 TEST_CASE("Test stack operations", "[stack]") {
 

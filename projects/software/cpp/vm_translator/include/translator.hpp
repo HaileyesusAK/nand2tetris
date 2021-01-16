@@ -21,9 +21,10 @@ class VmTranslator {
     private:
         CommandMap commandMap;
         GeneratorMap generator;
+        void saveAsm(const AsmInst& insts, fs::path path);
     public:
         VmTranslator();
-        AsmInst translate(const fs::path& path);
+        void translate(const fs::path& path);
         AsmInst translate(const std::vector<std::string>& parameters);
 };
 

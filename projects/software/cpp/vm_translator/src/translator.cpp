@@ -103,7 +103,7 @@ AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
     return insts;
 }
 
-AsmInst VmTranslator::translate(const fs::path& filePath) {
+void VmTranslator::translate(const fs::path& filePath) {
     std::ifstream inFile(filePath);
     if(!inFile.is_open())
         throw std::runtime_error(std::strerror(errno) + std::string(": ") + filePath.string());
@@ -125,5 +125,17 @@ AsmInst VmTranslator::translate(const fs::path& filePath) {
         std::copy(insts.begin(), insts.end(), std::back_inserter(instructions));
     }
 
-    return instructions;
+    saveAsm(instructions, filePath);
+}
+
+void VmTranslator::saveAsm(const AsmInst& insts, fs::path path) {
+    path.replace_extension(".asm");
+    std::ofstream file(path.string());
+
+    for(const auto& inst: insts) {
+        if(inst.front() != '/' && inst.front() != '(')
+            file << "\t" << inst << std::endl;
+        else
+            file << inst << std::endl;
+    }
 }
