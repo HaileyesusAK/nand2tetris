@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <cerrno>
 #include <memory>
@@ -9,6 +10,8 @@
 #include <vector>
 #include "generator.hpp"
 #include "translator.hpp"
+
+namespace fs = std::filesystem;
 
 std::vector<std::string> split(const std::string& s) {
     std::vector<std::string> words;
@@ -100,23 +103,15 @@ AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
     return insts;
 }
 
-AsmInst VmTranslator::translate(const std::string& fileName) {
-    std::ifstream inFile(fileName);
+AsmInst VmTranslator::translate(const fs::path& filePath) {
+    std::ifstream inFile(filePath);
     if(!inFile.is_open())
-        throw std::runtime_error(std::strerror(errno) + std::string(": ") + fileName);
-
-
-    const auto pos = fileName.find_last_of("/");
-    std::string staticFileName;
-    if(pos != std::string::npos)
-        staticFileName = fileName.substr(pos+1);
-    else
-        staticFileName = fileName;
+        throw std::runtime_error(std::strerror(errno) + std::string(": ") + filePath.string());
 
     AsmInst instructions;
     std::string line, s;
     std::vector<std::string> parameters;
-    StackGenerator::setStaticFileName(staticFileName);
+    StackGenerator::setStaticFileName(filePath.filename());
 
     while(std::getline(inFile, s)) {
         std::string line(s.substr(0, s.find_first_of('/')));

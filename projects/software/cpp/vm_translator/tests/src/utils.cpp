@@ -1,9 +1,12 @@
 #include <array>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <utility>
 #include "utils.hpp"
+
+namespace fs = std::filesystem;
 
 std::pair<std::string, int> execute(const std::string& c) {
     std::array<char, 128> buffer;
@@ -20,8 +23,8 @@ std::pair<std::string, int> execute(const std::string& c) {
     return std::make_pair(result, pclose(pipe));
 }
 
-void saveAsm(const AsmInst& insts, const std::string& filePath) {
-    std::ofstream outFile(filePath);
+void saveAsm(const AsmInst& insts, const fs::path& path) {
+    std::ofstream outFile(path);
 
     for(auto& inst: insts) {
         if(inst.front() == '(')
@@ -31,9 +34,8 @@ void saveAsm(const AsmInst& insts, const std::string& filePath) {
     }
 }
 
-std::pair<std::string, int> test(const std::string& filename, const AsmInst& insts) {
-    std::string asmFile = filename + ".asm";
-    saveAsm(insts, asmFile);
-    std::string tstFile = filename + ".tst";
+std::pair<std::string, int> test(fs::path path, const AsmInst& insts) {
+    saveAsm(insts, path.replace_extension(".asm"));
+    std::string tstFile(path.replace_extension(".tst").string());
     return execute(std::string("CPUEmulator ") + tstFile);
 }

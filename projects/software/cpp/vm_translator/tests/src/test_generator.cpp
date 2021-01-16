@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_MAIN
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -7,6 +8,9 @@
 #include "catch.hpp"
 
 using namespace std;
+namespace fs = std::filesystem;
+
+static const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
 
 static pair<string, int> test_push(const StackCodeMap& stackMap, const string& segment, uint16_t idx) {
     auto insts = stackMap.at(segment)->push(idx);
@@ -57,71 +61,71 @@ TEST_CASE("Test stack operations", "[stack]") {
 TEST_CASE("Test EqGenerator", "[eq]") {
     EqGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/eq", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "eq", insts).second == 0);
 }
 
 TEST_CASE("Test LtGenerator", "[lt]") {
     LtGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/lt", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "lt", insts).second == 0);
 }
 
 TEST_CASE("Test GtGenerator", "[gt]") {
     GtGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/gt", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "gt", insts).second == 0);
 }
 
 TEST_CASE("Test NegGenerator", "[neg]") {
     NegGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/neg", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "neg", insts).second == 0);
 }
 
 TEST_CASE("Test NotGenerator", "[not]") {
     NotGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/not", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "not", insts).second == 0);
 }
 
 TEST_CASE("Test AndGenerator", "[and]") {
     AndGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/and", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "and", insts).second == 0);
 }
 
 TEST_CASE("Test OrGenerator", "[or]") {
     OrGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/or", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "or", insts).second == 0);
 }
 
 TEST_CASE("Test AddGenerator", "[add]") {
     AddGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/add", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "add", insts).second == 0);
 }
 
 TEST_CASE("Test SubGenerator", "[sub]") {
     SubGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/sub", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "sub", insts).second == 0);
 }
 
 TEST_CASE("Test FunctionGenerator", "[function]") {
     FunctionGenerator generator;
     auto insts = generator.generate("fibo", 2);
-    REQUIRE(test("../data/func", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "func", insts).second == 0);
 }
 
 TEST_CASE("Test CallGenerator", "[call]") {
     CallGenerator generator;
     auto insts = generator.generate("fibo", 2);
-    REQUIRE(test("../data/call", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "call", insts).second == 0);
 }
 
 TEST_CASE("Test ReturnGenerator", "[ret]") {
     ReturnGenerator generator;
     auto insts = generator.generate();
-    REQUIRE(test("../data/return", insts).second == 0);
+    REQUIRE(test(DATA_DIR / "return", insts).second == 0);
 }

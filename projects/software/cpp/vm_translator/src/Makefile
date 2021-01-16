@@ -1,6 +1,6 @@
 CC = g++
 INCLUDE = ../include
-CPPFLAGS += -g -Wall --std=c++11
+CPPFLAGS += -g -Wall --std=c++17
 LIB = libvmtranslator.a
 OBJS = generator.o translator.o
 

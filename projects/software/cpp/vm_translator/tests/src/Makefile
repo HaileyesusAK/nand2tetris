@@ -1,7 +1,7 @@
 CC = g++
 INCLUDE = -I ../../include
 LDFLAGS = ../../src/libvmtranslator.a
-CPPFLAGS = -g -Wall --std=c++11
+CPPFLAGS = -g -Wall --std=c++17
 
 OBJS=test_generator.o test_translator.o utils.o
 APP=tester
