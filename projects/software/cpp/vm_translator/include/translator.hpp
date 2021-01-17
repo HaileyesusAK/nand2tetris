@@ -23,10 +23,12 @@ class VmTranslator {
         GeneratorMap generator;
         std::string funcName;
         void saveAsm(const AsmInst& insts, fs::path path);
+        AsmInst translate_file(const fs::path& path);
+        AsmInst translate(const std::vector<std::string>& parameters);
+
     public:
         VmTranslator();
         void translate(const fs::path& path);
-        AsmInst translate(const std::vector<std::string>& parameters);
 };
 
 #endif

@@ -96,7 +96,7 @@ AsmInst VmTranslator::translate(const std::vector<std::string>& parameters) {
     return insts;
 }
 
-void VmTranslator::translate(const fs::path& filePath) {
+AsmInst VmTranslator::translate_file(const fs::path& filePath) {
     std::ifstream inFile(filePath);
     if(!inFile.is_open())
         throw std::runtime_error(std::strerror(errno) + std::string(": ") + filePath.string());
@@ -118,10 +118,13 @@ void VmTranslator::translate(const fs::path& filePath) {
         std::copy(insts.begin(), insts.end(), std::back_inserter(instructions));
     }
 
-    saveAsm(instructions, filePath);
+    return instructions;
 }
 
 void VmTranslator::saveAsm(const AsmInst& insts, fs::path path) {
+    if(fs::is_directory(path))
+        path = path / path.filename();
+
     path.replace_extension(".asm");
     std::ofstream file(path.string());
 
@@ -131,4 +134,40 @@ void VmTranslator::saveAsm(const AsmInst& insts, fs::path path) {
         else
             file << inst << std::endl;
     }
+}
+
+void VmTranslator::translate(const fs::path& path) {
+    std::vector<fs::path> paths;
+    AsmInst insts;
+    Generator generator;
+
+    if(fs::is_directory(path)) {
+        auto dir_iter = fs::directory_iterator(path);
+        auto dir_end = fs::directory_iterator();
+        
+        auto vm_filter = [](const fs::path& path) {
+            return !fs::is_directory(path) && path.extension() == ".vm";
+        };
+        std::copy_if(dir_iter, dir_end, back_inserter(paths), vm_filter);
+
+        // Add bootstrap code
+        for(auto& inst: generator.generateBootstrap())
+            insts.push_back(inst);
+        
+    }
+    else {
+        paths.push_back(path);
+    }
+    
+    for(auto& path: paths) {
+        for(auto& inst: translate_file(path)) {
+            insts.push_back(inst);
+        }
+    }
+
+    // Add closing code
+    for(auto& inst: generator.generateClose())
+        insts.push_back(inst);
+
+    saveAsm(insts, path);
 }

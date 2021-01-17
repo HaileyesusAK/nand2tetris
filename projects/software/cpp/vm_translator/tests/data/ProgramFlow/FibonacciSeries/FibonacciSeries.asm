@@ -245,3 +245,6 @@
 	0;JMP
 //label END_PROGRAM
 ($END_PROGRAM)
+(END)
+	@END
+	0; JMP

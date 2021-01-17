@@ -7,6 +7,29 @@
 #include <vector>
 #include "generator.hpp"
 
+/*********************** Generator *********************/
+AsmInst Generator::generate() { return {}; }
+
+AsmInst Generator::generate(const std::string& arg) { return {}; }
+
+AsmInst Generator::generate(const std::string& arg, uint16_t idx) { return {}; }
+
+AsmInst Generator::generate(const std::string& arg1, const std::string& arg2) { return {}; }
+
+AsmInst Generator::generateBootstrap() {
+    AsmInst insts {
+        "@261", "D=A", "@SP", "M=D",    //256 + 5, 5
+        "@Sys.init", "0;JMP"
+    };
+
+    return insts;
+}
+
+AsmInst Generator::generateClose() {
+    return {"(END)", "@END", "0; JMP"};
+}
+/********************************************************/
+
 /************************** Segment **********************/
 AsmInst Segment::push(const AsmInst &prePush) const {
     AsmInst insts;
@@ -138,13 +161,6 @@ AsmInst PointerSegment::pop(uint16_t idx) const {
 }
 /********************************************************/
 
-/*********************** Generator *********************/
-AsmInst Generator::generate() { return {}; }
-AsmInst Generator::generate(const std::string& arg) { return {}; }
-AsmInst Generator::generate(const std::string& arg, uint16_t idx) { return {}; }
-AsmInst Generator::generate(const std::string& arg1, const std::string& arg2) { return {}; }
-/********************************************************/
-
 /************************** Stack ***********************/
 const StackCodeMap& StackGenerator::getGeneratorMap() {
     static StackCodeMap stackMap {
@@ -224,7 +240,6 @@ AsmInst FunctionGenerator::generate(const std::string& fName, uint16_t nLocals){
     return funcInsts; 
 }
 /********************************************************/
-
 
 /****************** CallGenerator ***********************/
 const std::vector<std::string>& CallGenerator::getSegments() {

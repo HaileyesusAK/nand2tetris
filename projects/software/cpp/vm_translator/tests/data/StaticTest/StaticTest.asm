@@ -78,3 +78,6 @@
 	@SP
 	A=M-1
 	M=D+M
+(END)
+	@END
+	0; JMP

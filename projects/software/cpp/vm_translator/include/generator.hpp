@@ -29,6 +29,8 @@ struct Generator {
     virtual AsmInst generate(const std::string& arg);
     virtual AsmInst generate(const std::string& arg, uint16_t idx);
     virtual AsmInst generate(const std::string& arg1, const std::string& arg2);
+    virtual AsmInst generateBootstrap() final;
+    virtual AsmInst generateClose() final;
 };
 
 struct Segment {

@@ -136,3 +136,6 @@
 	M=D
 	@SP
 	M=M+1
+(END)
+	@END
+	0; JMP
