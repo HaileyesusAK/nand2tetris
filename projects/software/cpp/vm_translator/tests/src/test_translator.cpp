@@ -19,13 +19,14 @@ static void test_vm_translator(VmTranslator& translator, fs::path path) {
     REQUIRE(result.second == 0);
 }
 
-TEST_CASE("Test VmTranslator", "[Single File]") {
+TEST_CASE("Translate a File", "[Single File]") {
     VmTranslator translator;
     test_vm_translator(translator, DATA_DIR / "StackTest/StackTest.vm");
     test_vm_translator(translator, DATA_DIR / "BasicTest/BasicTest.vm");
     test_vm_translator(translator, DATA_DIR / "PointerTest/PointerTest.vm");
     test_vm_translator(translator, DATA_DIR / "SimpleAdd/SimpleAdd.vm");
     test_vm_translator(translator, DATA_DIR / "StaticTest/StaticTest.vm");
-    //test_vm_translator(translator, "../data/FunctionCalls/SimpleFunction/SimpleFunction");
+    test_vm_translator(translator, DATA_DIR / "ProgramFlow/BasicLoop/BasicLoop.vm");
+    test_vm_translator(translator, DATA_DIR / "ProgramFlow/FibonacciSeries/FibonacciSeries.vm");
+    test_vm_translator(translator, DATA_DIR / "FunctionCalls/SimpleFunction/SimpleFunction.vm");
 }
-

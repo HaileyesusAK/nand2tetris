@@ -1,0 +1,141 @@
+//function SimpleFunction.test 2
+(SimpleFunction.test)
+	@LCL
+	D=M
+	@i
+	M=D
+	@2
+	D=D+A
+	@n
+	M=D
+(SimpleFunction.test_SET_LCL)
+	@n
+	D=M
+	@i
+	D=M-D
+	@SimpleFunction.test_SET_LCL_END
+	D;JGE
+	@i
+	A=M
+	M=0
+	@i
+	M=M+1
+	@SP
+	M=M+1
+	@SimpleFunction.test_SET_LCL
+	0;JMP
+(SimpleFunction.test_SET_LCL_END)
+//push local 0
+	@0
+	D=A
+	@LCL
+	A=D+M
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//push local 1
+	@1
+	D=A
+	@LCL
+	A=D+M
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//add
+	@SP
+	AM=M-1
+	D=M
+	@SP
+	A=M-1
+	M=D+M
+//not
+	@SP
+	A=M-1
+	M=!M
+//push argument 0
+	@0
+	D=A
+	@ARG
+	A=D+M
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//add
+	@SP
+	AM=M-1
+	D=M
+	@SP
+	A=M-1
+	M=D+M
+//push argument 1
+	@1
+	D=A
+	@ARG
+	A=D+M
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//sub
+	@SP
+	AM=M-1
+	D=M
+	@SP
+	A=M-1
+	M=M-D
+//return
+	@LCL
+	D=M
+	@frame
+	M=D
+	@5
+	D=A
+	@frame
+	A=M-D
+	D=M
+	@ret
+	M=D
+	@SP
+	A=M-1
+	D=M
+	@ARG
+	A=M
+	M=D
+	@ARG
+	D=M+1
+	@SP
+	M=D
+	@frame
+	AM=M-1
+	D=M
+	@THAT
+	M=D
+	@frame
+	AM=M-1
+	D=M
+	@THIS
+	M=D
+	@frame
+	AM=M-1
+	D=M
+	@ARG
+	M=D
+	@frame
+	AM=M-1
+	D=M
+	@LCL
+	M=D
+	@ret
+	A=M
+	0;JMP
