@@ -110,3 +110,48 @@ void Tokenizer::tokenize(std::ifstream& file) {
         }
     }
 }
+
+void printXml(const std::string& tag, const std::string& value) {
+    std::cout << "<" << tag << "> " << value << " </" << tag << ">" << std::endl;
+}
+
+void Tokenizer::printTokens() {
+    std::string value;
+
+    while(hasNext()) {
+        Token token = getNext();
+        value = token.value;
+        if(token.type == TokenType::STRING) {
+            value.erase(0,1);
+            value.pop_back();
+        }
+
+        switch(token.type) {
+            case TokenType::INTEGER:
+                printXml("integerConstant", value);
+            break;
+
+            case TokenType::STRING:
+                printXml("stringConstant", value); 
+            break;
+
+            case TokenType::KEYWORD:
+                printXml("keyword", value);
+            break;
+
+            case TokenType::IDENTIFIER:
+                printXml("identifier", value);
+            break;
+
+            case TokenType::UNKNOWN:
+                printXml("unknown", value);
+            break;
+
+            default:
+                printXml("symbol", value);
+            break;
+        };
+    }
+
+    it = tokens.begin();
+}

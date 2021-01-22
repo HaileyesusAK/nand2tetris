@@ -30,6 +30,7 @@ class Tokenizer {
     Tokenizer(const fs::path& jackPath);
     Token getNext();
     bool hasNext();
+    void printTokens();
 };
 
 #endif
