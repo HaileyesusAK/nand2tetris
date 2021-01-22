@@ -20,4 +20,4 @@ $(APP): $(OBJS)
 
 clean:
 	rm -rf *.o
-	rm -rf $(LIB)
+	rm -rf $(APP)
