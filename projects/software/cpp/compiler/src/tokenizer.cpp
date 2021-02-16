@@ -76,7 +76,7 @@ void Tokenizer::tokenize(std::ifstream& file) {
     auto isSymbol = [&symbolMap](const std::string& s) {return symbolMap.count(s);};
     auto isString = [](const std::string& s) {return std::regex_match(s, std::regex("\"[^\"]*\""));};
     auto isIdentifier = [](const std::string& s){
-        return std::regex_match(s, std::regex("[0-9a-zA-Z_]\\w*"));
+        return std::regex_match(s, std::regex("[a-zA-Z_]\\w*"));
     };
     auto isInteger = [](const std::string& s) {
         auto m = std::regex_match(s, std::regex("\\d{1,5}"));
@@ -115,6 +115,8 @@ void printXml(const std::string& tag, const std::string& value) {
     std::cout << "<" << tag << "> " << value << " </" << tag << ">" << std::endl;
 }
 
+
+
 void Tokenizer::printTokens() {
     std::string value;
 
@@ -122,6 +124,7 @@ void Tokenizer::printTokens() {
         Token token = getNext();
         value = token.value;
         if(token.type == TokenType::STRING) {
+            // Remove the quotes before generating the xml
             value.erase(0,1);
             value.pop_back();
         }
@@ -129,27 +132,27 @@ void Tokenizer::printTokens() {
         switch(token.type) {
             case TokenType::INTEGER:
                 printXml("integerConstant", value);
-            break;
+            	break;
 
             case TokenType::STRING:
                 printXml("stringConstant", value); 
-            break;
+            	break;
 
             case TokenType::KEYWORD:
                 printXml("keyword", value);
-            break;
+            	break;
 
             case TokenType::IDENTIFIER:
                 printXml("identifier", value);
-            break;
+            	break;
 
             case TokenType::UNKNOWN:
                 printXml("unknown", value);
-            break;
+            	break;
 
             default:
                 printXml("symbol", value);
-            break;
+            	break;
         };
     }
 
