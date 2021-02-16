@@ -25,12 +25,15 @@ class Tokenizer {
     std::vector<Token> tokens;
     std::vector<Token>::iterator it;
     void tokenize(std::ifstream&);
+    void writeOpeningTag(const std::string&, std::ostream&);
+    void writeClosingTag(const std::string&, std::ostream&);
+    void writeXml(const std::string&, const std::string&, std::ostream& output_stream);
 
     public:
     Tokenizer(const fs::path& jackPath);
     Token getNext();
     bool hasNext();
-    void printTokens();
+    void writeXml(std::ostream& output_stream);
 };
 
 #endif

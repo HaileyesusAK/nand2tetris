@@ -111,50 +111,66 @@ void Tokenizer::tokenize(std::ifstream& file) {
     }
 }
 
-void printXml(const std::string& tag, const std::string& value) {
-    std::cout << "<" << tag << "> " << value << " </" << tag << ">" << std::endl;
+void Tokenizer::writeOpeningTag(const std::string& tag, std::ostream& output_stream) 
+{
+    output_stream << "<" << tag << ">";
 }
 
+void Tokenizer::writeClosingTag(const std::string& tag, std::ostream& output_stream) 
+{
+    output_stream << "</" << tag << ">";
+}
 
+void Tokenizer::writeXml(const std::string& tag, const std::string& text, std::ostream& output_stream)
+{
+    writeOpeningTag(tag, output_stream);
+    output_stream << " " << text << " ";
+    writeClosingTag(tag, output_stream);
+    output_stream << "\n";
+}
 
-void Tokenizer::printTokens() {
-    std::string value;
+void Tokenizer::writeXml(std::ostream& output_stream) {
+    std::string tag, text;
+    writeOpeningTag("tokens", output_stream); 
+    output_stream << "\n";
 
     while(hasNext()) {
         Token token = getNext();
-        value = token.value;
+        text = token.value;
         if(token.type == TokenType::STRING) {
             // Remove the quotes before generating the xml
-            value.erase(0,1);
-            value.pop_back();
+            text.erase(0,1);
+            text.pop_back();
         }
 
         switch(token.type) {
             case TokenType::INTEGER:
-                printXml("integerConstant", value);
+                tag ="integerConstant";
             	break;
 
             case TokenType::STRING:
-                printXml("stringConstant", value); 
+                tag ="stringConstant";
             	break;
 
             case TokenType::KEYWORD:
-                printXml("keyword", value);
+                tag ="keyword";
             	break;
 
             case TokenType::IDENTIFIER:
-                printXml("identifier", value);
+                tag ="identifier";
             	break;
 
             case TokenType::UNKNOWN:
-                printXml("unknown", value);
+                tag ="unknown";
             	break;
 
             default:
-                printXml("symbol", value);
+                tag ="symbol";
             	break;
         };
+        writeXml(tag, text, output_stream);
     }
 
+    writeClosingTag("tokens", output_stream); 
     it = tokens.begin();
 }
