@@ -1,0 +1,12 @@
+<class>
+    <keyword> class </keyword>
+    <identifier> Circle </identifier>
+    <symbol> { </symbol>
+    <classVarDec>
+        <keyword> field </keyword>
+        <keyword> int </keyword>
+        <identifier> radius </identifier>
+        <symbol> ; </symbol>
+    </classVarDec>
+    <symbol> } </symbol>
+</class>

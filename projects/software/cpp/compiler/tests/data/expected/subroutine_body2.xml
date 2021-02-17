@@ -1,0 +1,10 @@
+<subroutineBody>
+    <symbol> { </symbol>
+    <varDec>
+        <keyword> var </keyword>
+        <keyword> int </keyword>
+        <identifier> a </identifier>
+        <symbol> ; </symbol>
+    </varDec>
+    <symbol> } </symbol>
+</subroutineBody>

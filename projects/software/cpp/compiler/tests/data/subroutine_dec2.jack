@@ -1,0 +1,1 @@
+method boolean is_unit_circle() { return r = 1; }

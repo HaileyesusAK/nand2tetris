@@ -1,0 +1,5 @@
+class Circle {
+	method boolean is_unit_cirlce() {
+		return radius = 1;
+	}
+}

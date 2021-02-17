@@ -1,0 +1,19 @@
+<term>
+    <symbol> ~ </symbol>
+    <term>
+        <symbol> ( </symbol>
+        <expression>
+            <term>
+                <symbol> - </symbol>
+                <term>
+                    <integerConstant> 5 </integerConstant>
+                </term>
+            </term>
+            <symbol> &gt; </symbol>
+            <term>
+                <integerConstant> 6 </integerConstant>
+            </term>
+        </expression>
+        <symbol> ) </symbol>
+    </term>
+</term>

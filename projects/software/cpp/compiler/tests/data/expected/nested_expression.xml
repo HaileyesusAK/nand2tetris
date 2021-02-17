@@ -1,0 +1,45 @@
+<expression>
+    <term>
+        <symbol> ( </symbol>
+        <expression>
+            <term>
+                <symbol> ( </symbol>
+                <expression>
+                    <term>
+                        <keyword> true </keyword>
+                    </term>
+                    <symbol> | </symbol>
+                    <term>
+                        <keyword> false </keyword>
+                    </term>
+                </expression>
+                <symbol> ) </symbol>
+            </term>
+            <symbol> &amp; </symbol>
+            <term>
+                <symbol> ( </symbol>
+                <expression>
+                    <term>
+                        <integerConstant> 5 </integerConstant>
+                    </term>
+                    <symbol> &gt; </symbol>
+                    <term>
+                        <symbol> ( </symbol>
+                        <expression>
+                            <term>
+                                <integerConstant> 12 </integerConstant>
+                            </term>
+                            <symbol> / </symbol>
+                            <term>
+                                <integerConstant> 6 </integerConstant>
+                            </term>
+                        </expression>
+                        <symbol> ) </symbol>
+                    </term>
+                </expression>
+                <symbol> ) </symbol>
+            </term>
+        </expression>
+        <symbol> ) </symbol>
+    </term>
+</expression>

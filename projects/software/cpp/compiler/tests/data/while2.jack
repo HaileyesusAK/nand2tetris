@@ -1,0 +1,7 @@
+while (a > 9) {
+    let a = a - 1;
+    while(true) {
+        do calc(3, 4);
+        return;
+    }
+}

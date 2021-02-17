@@ -1,0 +1,7 @@
+{
+	var boolean a;
+	let a = false;
+	while(~a) {
+		let a = true;
+	}
+}

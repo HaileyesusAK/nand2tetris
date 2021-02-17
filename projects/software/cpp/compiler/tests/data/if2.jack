@@ -1,0 +1,11 @@
+if (~true) {
+	let a = 10;
+	while (a > 0) {
+		do cmp(a, b);
+		let a = a - 1;
+	}
+}
+else {
+	do cmp(a, b);
+	return a + b;
+}

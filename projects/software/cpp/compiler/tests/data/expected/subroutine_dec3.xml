@@ -1,0 +1,11 @@
+<subroutineDec>
+    <keyword> function </keyword>
+    <keyword> void </keyword>
+    <identifier> no_op </identifier>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <subroutineBody>
+        <symbol> { </symbol>
+        <symbol> } </symbol>
+    </subroutineBody>
+</subroutineDec>

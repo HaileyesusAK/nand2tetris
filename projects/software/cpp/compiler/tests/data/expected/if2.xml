@@ -1,0 +1,119 @@
+<ifStatement>
+    <keyword> if </keyword>
+    <symbol> ( </symbol>
+    <expression>
+        <term>
+            <symbol> ~ </symbol>
+            <term>
+                <keyword> true </keyword>
+            </term>
+        </term>
+    </expression>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <statements>
+        <letStatment>
+            <keyword> let </keyword>
+            <identifier> a </identifier>
+            <symbol> = </symbol>
+            <expression>
+                <term>
+                    <integerConstant> 10 </integerConstant>
+                </term>
+            </expression>
+            <symbol> ; </symbol>
+        </letStatement>
+        <whileStatement>
+            <keyword> while </keyword>
+            <symbol> ( </symbol>
+            <expression>
+                <term>
+                    <identifier> a </identifier>
+                </term>
+                <symbol> &gt; </symbol>
+                <term>
+                    <integerConstant> 0 </integerConstant>
+                </term>
+            </expression>
+            <symbol> ) </symbol>
+            <symbol> { </symbol>
+            <statements>
+                <doStatment>
+                    <keyword> do </keyword>
+                    <identifier> cmp </identifier>
+                    <symbol> ( </symbol>
+                    <expressionList>
+                        <expression>
+                            <term>
+                                <identifier> a </identifier>
+                            </term>
+                        </expression>
+                        <symbol> , </symbol>
+                        <expression>
+                            <term>
+                                <identifier> b </identifier>
+                            </term>
+                        </expression>
+                    </expressionList>
+                    <symbol> ) </symbol>
+                    <symbol> ; </symbol>
+                </doStatment>
+                <letStatment>
+                    <keyword> let </keyword>
+                    <identifier> a </identifier>
+                    <symbol> = </symbol>
+                    <expression>
+                        <term>
+                            <identifier> a </identifier>
+                        </term>
+                        <symbol> - </symbol>
+                        <term>
+                            <integerConstant> 1 </integerConstant>
+                        </term>
+                    </expression>
+                    <symbol> ; </symbol>
+                </letStatement>
+            </statements>
+            <symbol> } </symbol>
+        </whileStatement>
+    </statements>
+    <symbol> } </symbol>
+    <keyword> else </keyword>
+    <symbol> { </symbol>
+    <statements>
+        <doStatment>
+            <keyword> do </keyword>
+            <identifier> cmp </identifier>
+            <symbol> ( </symbol>
+            <expressionList>
+                <expression>
+                    <term>
+                        <identifier> a </identifier>
+                    </term>
+                </expression>
+                <symbol> , </symbol>
+                <expression>
+                    <term>
+                        <identifier> b </identifier>
+                    </term>
+                </expression>
+            </expressionList>
+            <symbol> ) </symbol>
+            <symbol> ; </symbol>
+        </doStatment>
+        <returnStatement>
+            <keyword> return </keyword>
+            <expression>
+                <term>
+                    <identifier> a </identifier>
+                </term>
+                <symbol> + </symbol>
+                <term>
+                    <identifier> b </identifier>
+                </term>
+            </expression>
+            <symbol> ; </symbol>
+        </returnStatement>
+    </statements>
+    <symbol> } </symbol>
+</ifStatement>

@@ -1,0 +1,8 @@
+<varDec>
+    <keyword> var </keyword>
+    <keyword> int </keyword>
+    <identifier> height </identifier>
+    <symbol> , </symbol>
+    <identifier> weight </identifier>
+    <symbol> ; </symbol>
+</varDec>

@@ -1,0 +1,11 @@
+<returnStatement>
+    <keyword> return </keyword>
+    <expression>
+        <term>
+            <identifier> calc </identifier>
+            <symbol> ( </symbol>
+            <symbol> ) </symbol>
+        </term>
+    </expression>
+    <symbol> ; </symbol>
+</returnStatement>

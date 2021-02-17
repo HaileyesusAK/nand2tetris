@@ -1,0 +1,7 @@
+<parameterList>
+    <keyword> int </keyword>
+    <identifier> a </identifier>
+    <symbol> , </symbol>
+    <identifier> Point </identifier>
+    <identifier> p </identifier>
+</parameterList>

@@ -1,0 +1,15 @@
+<whileStatement>
+    <keyword> while </keyword>
+    <symbol> ( </symbol>
+    <expression>
+        <term>
+            <symbol> ~ </symbol>
+            <term>
+                <integerConstant> 0 </integerConstant>
+            </term>
+        </term>
+    </expression>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <symbol> } </symbol>
+</whileStatement>

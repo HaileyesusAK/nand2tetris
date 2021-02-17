@@ -1,0 +1,22 @@
+<term>
+    <identifier> calc_index </identifier>
+    <symbol> ( </symbol>
+    <expressionList>
+        <expression>
+            <term>
+                <identifier> bmi </identifier>
+            </term>
+        </expression>
+        <symbol> , </symbol>
+        <expression>
+            <term>
+                <integerConstant> 12 </integerConstant>
+            </term>
+            <symbol> * </symbol>
+            <term>
+                <integerConstant> 6 </integerConstant>
+            </term>
+        </expression>
+    </expressionList>
+    <symbol> ) </symbol>
+</term>

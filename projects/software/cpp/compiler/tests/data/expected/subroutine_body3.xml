@@ -1,0 +1,15 @@
+<subroutineBody>
+    <symbol> { </symbol>
+    <statements>
+        <doStatment>
+            <keyword> do </keyword>
+            <identifier> rect </identifier>
+            <symbol> . </symbol>
+            <identifier> perimeter </identifier>
+            <symbol> ( </symbol>
+            <symbol> ) </symbol>
+            <symbol> ; </symbol>
+        </doStatment>
+    </statements>
+    <symbol> } </symbol>
+</subroutineBody>

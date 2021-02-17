@@ -1,0 +1,10 @@
+<classVarDec>
+    <keyword> field </keyword>
+    <identifier> Circle </identifier>
+    <identifier> c1 </identifier>
+    <symbol> , </symbol>
+    <identifier> c2 </identifier>
+    <symbol> , </symbol>
+    <identifier> c3 </identifier>
+    <symbol> ; </symbol>
+</classVarDec>

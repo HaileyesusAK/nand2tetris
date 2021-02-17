@@ -3,31 +3,47 @@
 #include <string>
 #include <cerrno>
 #include <stdexcept>
-#include "tokenizer.hpp"
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <cerrno>
 #include <stdexcept>
 
+#include "analyzer.hpp"
+
 using namespace std;
+
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cout << "Usage: " << argv[0] << " <input file> <output_file>\n";
+    if (argc != 2) {
+        cout << "Usage: " << argv[0] << " <input path>" << endl;
         return -1;
     }
 
-    Tokenizer tokenizer {argv[1]};
-    std::ofstream output_file {argv[2]};
-    if(!output_file.is_open())
-        throw std::runtime_error(std::strerror(errno) + std::string(": ") + argv[2]);
-    tokenizer.writeXml(output_file);
+	fs::path path {argv[1]};
+	if(!fs::exists(path))
+		throw std::runtime_error(path.string() + " doesn't exist.");
+	
+	auto is_dir = fs::is_directory(path);
+	auto is_reg = fs::is_regular_file(path);
 
-    /*
-    while(tokenizer.hasNext()) {
-        Token token = tokenizer.getNext();
-        std::cout << "(" << token.lineNo << "," << token.columnNo << ")\t" << token.value << std::endl;
-    }
-    */
+	if((is_reg && path.extension() != ".jack") || (!is_reg && !is_dir)) 
+		throw std::runtime_error(path.string() + " must be a Jack file or a directory.");
+
+	std::vector<fs::path> pathes;
+	if(fs::is_regular_file(path)) {
+		pathes.push_back(path);
+	}
+	else {
+		for(auto& p: fs::directory_iterator(path)) {
+			if(p.path().extension() == ".jack")
+				pathes.push_back(p.path());
+		}
+	}
+	
+	for(auto& path: pathes) {
+		auto analyzer = Analyzer(path, 4);
+		analyzer.generateXml();
+	}	
+
     return 0;
 }

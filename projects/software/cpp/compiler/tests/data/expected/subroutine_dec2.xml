@@ -1,0 +1,26 @@
+<subroutineDec>
+    <keyword> method </keyword>
+    <keyword> boolean </keyword>
+    <identifier> is_unit_circle </identifier>
+    <symbol> ( </symbol>
+    <symbol> ) </symbol>
+    <subroutineBody>
+        <symbol> { </symbol>
+        <statements>
+            <returnStatement>
+                <keyword> return </keyword>
+                <expression>
+                    <term>
+                        <identifier> r </identifier>
+                    </term>
+                    <symbol> = </symbol>
+                    <term>
+                        <integerConstant> 1 </integerConstant>
+                    </term>
+                </expression>
+                <symbol> ; </symbol>
+            </returnStatement>
+        </statements>
+        <symbol> } </symbol>
+    </subroutineBody>
+</subroutineDec>

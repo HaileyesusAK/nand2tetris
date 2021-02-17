@@ -1,0 +1,10 @@
+<term>
+    <identifier> Point </identifier>
+    <symbol> [ </symbol>
+    <expression>
+        <term>
+            <integerConstant> 3 </integerConstant>
+        </term>
+    </expression>
+    <symbol> ] </symbol>
+</term>

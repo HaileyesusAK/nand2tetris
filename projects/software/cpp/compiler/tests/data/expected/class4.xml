@@ -1,0 +1,38 @@
+<class>
+    <keyword> class </keyword>
+    <identifier> Circle </identifier>
+    <symbol> { </symbol>
+    <classVarDec>
+        <keyword> field </keyword>
+        <keyword> int </keyword>
+        <identifier> radius </identifier>
+        <symbol> ; </symbol>
+    </classVarDec>
+    <subroutineDec>
+        <keyword> method </keyword>
+        <keyword> int </keyword>
+        <identifier> diameter </identifier>
+        <symbol> ( </symbol>
+        <symbol> ) </symbol>
+        <subroutineBody>
+            <symbol> { </symbol>
+            <statements>
+                <returnStatement>
+                    <keyword> return </keyword>
+                    <expression>
+                        <term>
+                            <integerConstant> 2 </integerConstant>
+                        </term>
+                        <symbol> * </symbol>
+                        <term>
+                            <identifier> radius </identifier>
+                        </term>
+                    </expression>
+                    <symbol> ; </symbol>
+                </returnStatement>
+            </statements>
+            <symbol> } </symbol>
+        </subroutineBody>
+    </subroutineDec>
+    <symbol> } </symbol>
+</class>

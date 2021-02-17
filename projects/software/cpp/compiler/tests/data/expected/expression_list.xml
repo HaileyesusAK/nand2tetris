@@ -1,0 +1,31 @@
+<expressionList>
+    <expression>
+        <term>
+            <identifier> bmi </identifier>
+        </term>
+    </expression>
+    <symbol> , </symbol>
+    <expression>
+        <term>
+            <integerConstant> 12 </integerConstant>
+        </term>
+        <symbol> / </symbol>
+        <term>
+            <integerConstant> 6 </integerConstant>
+        </term>
+    </expression>
+    <symbol> , </symbol>
+    <expression>
+        <term>
+            <identifier> age </identifier>
+        </term>
+        <symbol> - </symbol>
+        <term>
+            <identifier> height </identifier>
+        </term>
+        <symbol> * </symbol>
+        <term>
+            <identifier> factor </identifier>
+        </term>
+    </expression>
+</expressionList>

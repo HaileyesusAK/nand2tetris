@@ -1,0 +1,22 @@
+<letStatment>
+    <keyword> let </keyword>
+    <identifier> Point </identifier>
+    <symbol> [ </symbol>
+    <expression>
+        <term>
+            <identifier> x </identifier>
+        </term>
+    </expression>
+    <symbol> ] </symbol>
+    <symbol> = </symbol>
+    <expression>
+        <term>
+            <integerConstant> 45 </integerConstant>
+        </term>
+        <symbol> + </symbol>
+        <term>
+            <identifier> y </identifier>
+        </term>
+    </expression>
+    <symbol> ; </symbol>
+</letStatement>

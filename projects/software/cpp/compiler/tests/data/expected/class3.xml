@@ -1,0 +1,32 @@
+<class>
+    <keyword> class </keyword>
+    <identifier> Circle </identifier>
+    <symbol> { </symbol>
+    <subroutineDec>
+        <keyword> method </keyword>
+        <keyword> boolean </keyword>
+        <identifier> is_unit_cirlce </identifier>
+        <symbol> ( </symbol>
+        <symbol> ) </symbol>
+        <subroutineBody>
+            <symbol> { </symbol>
+            <statements>
+                <returnStatement>
+                    <keyword> return </keyword>
+                    <expression>
+                        <term>
+                            <identifier> radius </identifier>
+                        </term>
+                        <symbol> = </symbol>
+                        <term>
+                            <integerConstant> 1 </integerConstant>
+                        </term>
+                    </expression>
+                    <symbol> ; </symbol>
+                </returnStatement>
+            </statements>
+            <symbol> } </symbol>
+        </subroutineBody>
+    </subroutineDec>
+    <symbol> } </symbol>
+</class>

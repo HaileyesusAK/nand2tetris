@@ -1,0 +1,13 @@
+<term>
+    <symbol> ( </symbol>
+    <expression>
+        <term>
+            <keyword> false </keyword>
+        </term>
+        <symbol> &amp; </symbol>
+        <term>
+            <keyword> true </keyword>
+        </term>
+    </expression>
+    <symbol> ) </symbol>
+</term>

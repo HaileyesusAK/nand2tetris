@@ -1,0 +1,51 @@
+<subroutineBody>
+    <symbol> { </symbol>
+    <varDec>
+        <keyword> var </keyword>
+        <keyword> boolean </keyword>
+        <identifier> a </identifier>
+        <symbol> ; </symbol>
+    </varDec>
+    <statements>
+        <letStatment>
+            <keyword> let </keyword>
+            <identifier> a </identifier>
+            <symbol> = </symbol>
+            <expression>
+                <term>
+                    <keyword> false </keyword>
+                </term>
+            </expression>
+            <symbol> ; </symbol>
+        </letStatement>
+        <whileStatement>
+            <keyword> while </keyword>
+            <symbol> ( </symbol>
+            <expression>
+                <term>
+                    <symbol> ~ </symbol>
+                    <term>
+                        <identifier> a </identifier>
+                    </term>
+                </term>
+            </expression>
+            <symbol> ) </symbol>
+            <symbol> { </symbol>
+            <statements>
+                <letStatment>
+                    <keyword> let </keyword>
+                    <identifier> a </identifier>
+                    <symbol> = </symbol>
+                    <expression>
+                        <term>
+                            <keyword> true </keyword>
+                        </term>
+                    </expression>
+                    <symbol> ; </symbol>
+                </letStatement>
+            </statements>
+            <symbol> } </symbol>
+        </whileStatement>
+    </statements>
+    <symbol> } </symbol>
+</subroutineBody>

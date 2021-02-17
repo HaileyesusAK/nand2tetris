@@ -1,0 +1,22 @@
+<identifier> square </identifier>
+<symbol> . </symbol>
+<identifier> area </identifier>
+<symbol> ( </symbol>
+<expressionList>
+    <expression>
+        <term>
+            <identifier> a </identifier>
+        </term>
+    </expression>
+    <symbol> , </symbol>
+    <expression>
+        <term>
+            <identifier> b </identifier>
+        </term>
+        <symbol> + </symbol>
+        <term>
+            <integerConstant> 3 </integerConstant>
+        </term>
+    </expression>
+</expressionList>
+<symbol> ) </symbol>

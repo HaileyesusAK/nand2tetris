@@ -1,0 +1,11 @@
+<letStatment>
+    <keyword> let </keyword>
+    <identifier> age </identifier>
+    <symbol> = </symbol>
+    <expression>
+        <term>
+            <integerConstant> 12 </integerConstant>
+        </term>
+    </expression>
+    <symbol> ; </symbol>
+</letStatement>

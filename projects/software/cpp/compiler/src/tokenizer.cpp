@@ -1,15 +1,14 @@
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <cerrno>
-#include <stdexcept>
 #include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 #include <regex>
 #include <unordered_set>
-#include <unordered_map>
 #include "tokenizer.hpp"
 
-using Set = std::unordered_set<std::string>;
 
 Tokenizer::Tokenizer(const fs::path& jackPath) {
     std::ifstream file(jackPath);
@@ -20,178 +19,123 @@ Tokenizer::Tokenizer(const fs::path& jackPath) {
     it = tokens.begin();
 }
 
-bool Tokenizer::hasNext() { return it != tokens.end(); }
-Token Tokenizer::getNext() { return *it++; }
+const Set& Tokenizer::getSymbols() {
+    static Set symbols {"{", "}", "(", ")", "[", "]", ".", ",", ";", "+", "-",
+						"*", "/", "&", "|", "<", ">", "=", "_", "~"};
+    return symbols;
+}
+
+const Set& Tokenizer::getKeyWords() {
+    static Set keywords {"class", "constructor", "function", "method", "field", "static",
+        "var", "int", "char", "boolean", "void", "true", "false", "null", "this", "let",
+        "do", "if", "else", "while", "return"
+    };
+
+    return keywords;
+}
+
+TokenType Tokenizer::getTokenType(const std::string& token) {
+    TokenType tokenType;
+    static Set symbols = Tokenizer::getSymbols();
+    static Set keywords = Tokenizer::getKeyWords();
+
+    static auto isKeyword = [](const std::string& s) {
+        return keywords.count(s);
+    };
+
+    static auto isSymbol = [](const std::string& s) {
+        return symbols.count(s);
+    };
+
+    static auto isString = [](const std::string& s) {
+        return std::regex_match(s, std::regex("\"[^\"]*\""));
+    };
+
+    static auto isIdentifier = [](const std::string& s){
+        return std::regex_match(s, std::regex("[a-zA-Z_]\\w*"));
+    };
+
+    static auto isInteger = [](const std::string& s) {
+        auto m = std::regex_match(s, std::regex("\\d{1,5}"));
+        return m && std::stoul(s) < 32767;
+    };
+
+    if(isKeyword(token))
+        tokenType= TokenType::KEYWORD;
+    else if(isSymbol(token))
+        tokenType = TokenType::SYMBOL;
+    else if(isString(token))
+        tokenType = TokenType::STRING;
+    else if(isIdentifier(token))
+        tokenType = TokenType::IDENTIFIER;
+    else if(isInteger(token))
+        tokenType = TokenType::INTEGER;
+    else
+        tokenType = TokenType::UNKNOWN;
+
+    return tokenType;
+}
 
 void Tokenizer::tokenize(std::ifstream& file) {
-    std::unordered_map<std::string, TokenType> symbolMap {
-        {"{", TokenType::LEFT_BRACE},
-        {"}", TokenType::RIGHT_BRACE},
-        {"(", TokenType::LEFT_PAREN},
-        {")", TokenType::RIGHT_PAREN},
-        {"[", TokenType::LEFT_BRACKET},
-        {"]", TokenType::RIGHT_BRACKET},
-        {".", TokenType::DOT},
-        {",", TokenType::COMMA},
-        {";", TokenType::SEMICOLON},
-        {"+", TokenType::PLUS},
-        {"-", TokenType::MINUS},
-        {"*", TokenType::MULT},
-        {"/", TokenType::DIV},
-        {"&", TokenType::AND},
-        {"|", TokenType::BAR},
-        {"<", TokenType::LEFT_ANGLE_BRACKET},
-        {">", TokenType::RIGHT_ANGLE_BRACKET},
-        {"=", TokenType::EQUAL},
-        {"_", TokenType::UNDER_SCORE}
-    };
-
-    Set keywords {"class", "constructor", "function", "method", "field", "static", "var",
-        "int", "char", "boolean", "void", "true", "false", "null", "this", "let", "do",
-        "if", "else", "while", "return"
-    };
-
+    Set symbols = Tokenizer::getSymbols();
+    Set keywords = Tokenizer::getKeyWords();
     std::string tokenPattern {"(\"[^\"]*\")|(\\w+)"};
 
-    // These symbols needs to be escaped since they have special meaning in std::regex
+    // These symbols need to be escaped since they have special meaning in std::regex
     Set escapedSybmols {"{", "}", "(", ")", "[", "]", ".", "+", "*", "|"};
     for(const auto& symbol : escapedSybmols)
         tokenPattern += "|(\\" + symbol + ")";
 
-    for(const auto& symbol : symbolMap) {
-        if(escapedSybmols.count(symbol.first))
+    for(const auto& symbol : symbols) {
+        if(escapedSybmols.count(symbol))
             continue;
 
-        tokenPattern += "|(" + symbol.first + ")";
+        tokenPattern += "|(" + symbol + ")";
     }
     tokenPattern += "|([^\\s*]+?)";
 
     std::regex tokenRegex(tokenPattern);
     std::sregex_iterator end;
-    Token token, prevToken;
+    Token token;
+	std::string prevTokenVal;
     std::string line;
     uint32_t lineNo = 0;
-    bool underCommentSec;
+    bool underCommentSec = false;
 
-    auto isKeyword = [&keywords](const std::string& s) {return keywords.count(s);};
-    auto isSymbol = [&symbolMap](const std::string& s) {return symbolMap.count(s);};
-    auto isString = [](const std::string& s) {return std::regex_match(s, std::regex("\"[^\"]*\""));};
-    auto isIdentifier = [](const std::string& s){
-        return std::regex_match(s, std::regex("[a-zA-Z_]\\w*"));
-    };
-    auto isInteger = [](const std::string& s) {
-        auto m = std::regex_match(s, std::regex("\\d{1,5}"));
-        return m && std::stoul(s) < 32767;
-    };
-
-    underCommentSec = false;
     while(std::getline(file, line)) {
         ++lineNo;
         std::sregex_iterator pos {line.begin(), line.end(), tokenRegex};
 
-        prevToken.type = TokenType::UNKNOWN;
+        prevTokenVal = "";
         while(pos != end) {
             auto value = pos->str();
             token.value = value;
             token.lineNo = lineNo;
             token.columnNo = pos->position();
-
-            if(isKeyword(value))
-                token.type= TokenType::KEYWORD;
-            else if(isSymbol(value))
-                token.type = symbolMap[value];
-            else if(isString(value))
-                token.type = TokenType::STRING;
-            else if(isIdentifier(value))
-                token.type = TokenType::IDENTIFIER;
-            else if(isInteger(value))
-                token.type = TokenType::INTEGER;
-            else
-                token.type = TokenType::UNKNOWN;
+            token.type = getTokenType(value);
 
             if(!underCommentSec) {
-                if(token.type == TokenType::DIV && prevToken.type == TokenType::DIV) {
+				if(token.value == "/" && prevTokenVal == "/") {
+                    //A line comment
                     tokens.pop_back();
                     break; //Ignore the rest of the line
-                }
-                else if(token.type == TokenType::MULT && prevToken.type == TokenType::DIV) {
+				}
+				else if(token.value == "*" && prevTokenVal == "/") {
+                    //Entering a multiline comment section
                     tokens.pop_back();
                     underCommentSec = true;
-                }
-                else {
+				}
+				else {
                     tokens.push_back(token);
-                }
+				}
             }
-            else if(token.type == TokenType::DIV && prevToken.type == TokenType::MULT) {//Check if multiline comment is closing
+			else if(token.value == "/" && prevTokenVal == "*") {
+                //Closing a multiline comment section
                 underCommentSec = false;
             }
 
             pos++;
-            prevToken = token;
+            prevTokenVal = token.value;
         }
     }
-}
-
-void Tokenizer::writeOpeningTag(const std::string& tag, std::ostream& output_stream)
-{
-    output_stream << "<" << tag << ">";
-}
-
-void Tokenizer::writeClosingTag(const std::string& tag, std::ostream& output_stream)
-{
-    output_stream << "</" << tag << ">";
-}
-
-void Tokenizer::writeXml(const std::string& tag, const std::string& text, std::ostream& output_stream)
-{
-    writeOpeningTag(tag, output_stream);
-    output_stream << " " << text << " ";
-    writeClosingTag(tag, output_stream);
-    output_stream << "\n";
-}
-
-void Tokenizer::writeXml(std::ostream& output_stream) {
-    std::string tag, text;
-    writeOpeningTag("tokens", output_stream);
-    output_stream << "\n";
-
-    while(hasNext()) {
-        Token token = getNext();
-        text = token.value;
-        if(token.type == TokenType::STRING) {
-            // Remove the quotes before generating the xml
-            text.erase(0,1);
-            text.pop_back();
-        }
-
-        switch(token.type) {
-            case TokenType::INTEGER:
-                tag ="integerConstant";
-            	break;
-
-            case TokenType::STRING:
-                tag ="stringConstant";
-            	break;
-
-            case TokenType::KEYWORD:
-                tag ="keyword";
-            	break;
-
-            case TokenType::IDENTIFIER:
-                tag ="identifier";
-            	break;
-
-            case TokenType::UNKNOWN:
-                tag ="unknown";
-            	break;
-
-            default:
-                tag ="symbol";
-            	break;
-        };
-        writeXml(tag, text, output_stream);
-    }
-
-    writeClosingTag("tokens", output_stream);
-    it = tokens.begin();
 }

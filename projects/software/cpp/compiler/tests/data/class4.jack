@@ -1,0 +1,6 @@
+class Circle {
+	field int radius;
+	method int diameter() {
+		return 2 * radius;	
+	}
+}

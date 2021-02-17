@@ -1,0 +1,13 @@
+<expression>
+    <term>
+        <integerConstant> 12 </integerConstant>
+    </term>
+    <symbol> + </symbol>
+    <term>
+        <identifier> age </identifier>
+    </term>
+    <symbol> * </symbol>
+    <term>
+        <identifier> height </identifier>
+    </term>
+</expression>

@@ -5,35 +5,39 @@
 #include <fstream>
 #include <iterator>
 #include <string>
+#include <vector>
+#include <unordered_set>
 
 namespace fs = std::filesystem;
 
-enum class TokenType {
-    KEYWORD, LEFT_BRACE, RIGHT_BRACE, LEFT_PAREN, RIGHT_PAREN, LEFT_BRACKET, RIGHT_BRACKET,
-    DOT, COMMA, SEMICOLON, PLUS, MINUS, MULT, DIV, AND, BAR, LEFT_ANGLE_BRACKET,
-    RIGHT_ANGLE_BRACKET, EQUAL, UNDER_SCORE, STRING, INTEGER, IDENTIFIER, UNKNOWN
-};
+enum class TokenType {IDENTIFIER, INTEGER, KEYWORD, SYMBOL, STRING, UNKNOWN};
 
 struct Token {
     TokenType type;
     std::string value;
     uint32_t lineNo;
     uint32_t columnNo;
+	friend bool operator==(const Token& lhs, const Token& rhs) {
+		return lhs.type == rhs.type && lhs.value == rhs.value;
+	}
 };
+
+using Set = std::unordered_set<std::string>;
 
 class Tokenizer {
     std::vector<Token> tokens;
     std::vector<Token>::iterator it;
     void tokenize(std::ifstream&);
-    void writeOpeningTag(const std::string&, std::ostream&);
-    void writeClosingTag(const std::string&, std::ostream&);
-    void writeXml(const std::string&, const std::string&, std::ostream& output_stream);
+    static TokenType getTokenType(const std::string& token);
+    static const Set& getSymbols();
+    static const Set& getKeyWords();
 
     public:
+	Tokenizer(){}
     Tokenizer(const fs::path& jackPath);
-    Token getNext();
-    bool hasNext();
-    void writeXml(std::ostream& output_stream);
+	Token getNext() { return *it++; }
+	void putBack() { --it; }
+	bool hasNext() { return it != tokens.end(); }
 };
 
 #endif

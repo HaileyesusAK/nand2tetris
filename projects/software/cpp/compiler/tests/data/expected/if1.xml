@@ -1,0 +1,16 @@
+<ifStatement>
+    <keyword> if </keyword>
+    <symbol> ( </symbol>
+    <expression>
+        <term>
+            <identifier> a </identifier>
+        </term>
+        <symbol> &lt; </symbol>
+        <term>
+            <integerConstant> 9 </integerConstant>
+        </term>
+    </expression>
+    <symbol> ) </symbol>
+    <symbol> { </symbol>
+    <symbol> } </symbol>
+</ifStatement>
