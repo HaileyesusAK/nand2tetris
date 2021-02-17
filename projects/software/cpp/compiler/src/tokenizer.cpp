@@ -68,9 +68,10 @@ void Tokenizer::tokenize(std::ifstream& file) {
 
     std::regex tokenRegex(tokenPattern);
     std::sregex_iterator end;
-    Token token;
+    Token token, prevToken;
     std::string line;
     uint32_t lineNo = 0;
+    bool underCommentSec;
 
     auto isKeyword = [&keywords](const std::string& s) {return keywords.count(s);};
     auto isSymbol = [&symbolMap](const std::string& s) {return symbolMap.count(s);};
@@ -83,9 +84,12 @@ void Tokenizer::tokenize(std::ifstream& file) {
         return m && std::stoul(s) < 32767;
     };
 
+    underCommentSec = false;
     while(std::getline(file, line)) {
         ++lineNo;
         std::sregex_iterator pos {line.begin(), line.end(), tokenRegex};
+
+        prevToken.type = TokenType::UNKNOWN;
         while(pos != end) {
             auto value = pos->str();
             token.value = value;
@@ -105,18 +109,35 @@ void Tokenizer::tokenize(std::ifstream& file) {
             else
                 token.type = TokenType::UNKNOWN;
 
-            tokens.push_back(token);
+            if(!underCommentSec) {
+                if(token.type == TokenType::DIV && prevToken.type == TokenType::DIV) {
+                    tokens.pop_back();
+                    break; //Ignore the rest of the line
+                }
+                else if(token.type == TokenType::MULT && prevToken.type == TokenType::DIV) {
+                    tokens.pop_back();
+                    underCommentSec = true;
+                }
+                else {
+                    tokens.push_back(token);
+                }
+            }
+            else if(token.type == TokenType::DIV && prevToken.type == TokenType::MULT) {//Check if multiline comment is closing
+                underCommentSec = false;
+            }
+
             pos++;
+            prevToken = token;
         }
     }
 }
 
-void Tokenizer::writeOpeningTag(const std::string& tag, std::ostream& output_stream) 
+void Tokenizer::writeOpeningTag(const std::string& tag, std::ostream& output_stream)
 {
     output_stream << "<" << tag << ">";
 }
 
-void Tokenizer::writeClosingTag(const std::string& tag, std::ostream& output_stream) 
+void Tokenizer::writeClosingTag(const std::string& tag, std::ostream& output_stream)
 {
     output_stream << "</" << tag << ">";
 }
@@ -131,7 +152,7 @@ void Tokenizer::writeXml(const std::string& tag, const std::string& text, std::o
 
 void Tokenizer::writeXml(std::ostream& output_stream) {
     std::string tag, text;
-    writeOpeningTag("tokens", output_stream); 
+    writeOpeningTag("tokens", output_stream);
     output_stream << "\n";
 
     while(hasNext()) {
@@ -171,6 +192,6 @@ void Tokenizer::writeXml(std::ostream& output_stream) {
         writeXml(tag, text, output_stream);
     }
 
-    writeClosingTag("tokens", output_stream); 
+    writeClosingTag("tokens", output_stream);
     it = tokens.begin();
 }
