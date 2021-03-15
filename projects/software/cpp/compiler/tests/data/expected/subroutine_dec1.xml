@@ -7,7 +7,7 @@
     <subroutineBody>
         <symbol> { </symbol>
         <statements>
-            <letStatment>
+            <letStatement>
                 <keyword> let </keyword>
                 <identifier> r </identifier>
                 <symbol> = </symbol>

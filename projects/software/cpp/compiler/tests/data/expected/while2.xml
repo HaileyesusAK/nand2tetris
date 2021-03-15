@@ -13,7 +13,7 @@
     <symbol> ) </symbol>
     <symbol> { </symbol>
     <statements>
-        <letStatment>
+        <letStatement>
             <keyword> let </keyword>
             <identifier> a </identifier>
             <symbol> = </symbol>

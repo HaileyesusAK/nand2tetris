@@ -459,7 +459,7 @@ void Analyzer::genTerm() {
 	varName		 : identifier
 */
 void Analyzer::genLetStatement() {
-	printLine("<letStatment>");
+	printLine("<letStatement>");
     Set keywords {"let"};
 
 	++level;
