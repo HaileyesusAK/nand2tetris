@@ -8,3 +8,4 @@ tools/bin/
 *tester
 *.out
 *Tetris*
+projects/software/cpp/compiler/tests/data/*.xml
