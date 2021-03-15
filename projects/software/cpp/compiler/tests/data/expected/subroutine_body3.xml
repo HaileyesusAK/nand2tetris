@@ -1,7 +1,7 @@
 <subroutineBody>
     <symbol> { </symbol>
     <statements>
-        <doStatment>
+        <doStatement>
             <keyword> do </keyword>
             <identifier> rect </identifier>
             <symbol> . </symbol>
@@ -9,7 +9,7 @@
             <symbol> ( </symbol>
             <symbol> ) </symbol>
             <symbol> ; </symbol>
-        </doStatment>
+        </doStatement>
     </statements>
     <symbol> } </symbol>
 </subroutineBody>

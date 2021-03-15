@@ -38,7 +38,7 @@
             <symbol> ) </symbol>
             <symbol> { </symbol>
             <statements>
-                <doStatment>
+                <doStatement>
                     <keyword> do </keyword>
                     <identifier> cmp </identifier>
                     <symbol> ( </symbol>
@@ -57,7 +57,7 @@
                     </expressionList>
                     <symbol> ) </symbol>
                     <symbol> ; </symbol>
-                </doStatment>
+                </doStatement>
                 <letStatement>
                     <keyword> let </keyword>
                     <identifier> a </identifier>
@@ -81,7 +81,7 @@
     <keyword> else </keyword>
     <symbol> { </symbol>
     <statements>
-        <doStatment>
+        <doStatement>
             <keyword> do </keyword>
             <identifier> cmp </identifier>
             <symbol> ( </symbol>
@@ -100,7 +100,7 @@
             </expressionList>
             <symbol> ) </symbol>
             <symbol> ; </symbol>
-        </doStatment>
+        </doStatement>
         <returnStatement>
             <keyword> return </keyword>
             <expression>

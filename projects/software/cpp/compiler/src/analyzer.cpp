@@ -506,7 +506,7 @@ void Analyzer::genDoStatement() {
     Set keywords {"do"};
     std::string s(";");
 
-	printLine("<doStatment>");
+	printLine("<doStatement>");
     ++level;
 
     genKeyWord(keywords);
@@ -514,7 +514,7 @@ void Analyzer::genDoStatement() {
     genSymbol(s);
 
     --level;
-	printLine("</doStatment>");
+	printLine("</doStatement>");
 }
 
 /*

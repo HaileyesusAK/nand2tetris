@@ -39,7 +39,7 @@
             <symbol> ) </symbol>
             <symbol> { </symbol>
             <statements>
-                <doStatment>
+                <doStatement>
                     <keyword> do </keyword>
                     <identifier> calc </identifier>
                     <symbol> ( </symbol>
@@ -58,7 +58,7 @@
                     </expressionList>
                     <symbol> ) </symbol>
                     <symbol> ; </symbol>
-                </doStatment>
+                </doStatement>
                 <returnStatement>
                     <keyword> return </keyword>
                     <symbol> ; </symbol>

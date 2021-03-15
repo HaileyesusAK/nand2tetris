@@ -1,7 +1,7 @@
-<doStatment>
+<doStatement>
     <keyword> do </keyword>
     <identifier> call </identifier>
     <symbol> ( </symbol>
     <symbol> ) </symbol>
     <symbol> ; </symbol>
-</doStatment>
+</doStatement>
