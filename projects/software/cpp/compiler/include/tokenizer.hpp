@@ -28,6 +28,7 @@ class Tokenizer {
     std::vector<Token> tokens;
     std::vector<Token>::iterator it;
     void tokenize(std::ifstream&);
+	std::vector<std::string> inputLines;
     static TokenType getTokenType(const std::string& token);
     static const Set& getSymbols();
     static const Set& getKeyWords();
@@ -38,6 +39,7 @@ class Tokenizer {
 	Token getNext() { return *it++; }
 	void putBack() { --it; }
 	bool hasNext() { return it != tokens.end(); }
+	std::string getLine(size_t lineNo);
 };
 
 #endif

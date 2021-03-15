@@ -103,6 +103,7 @@ void Tokenizer::tokenize(std::ifstream& file) {
     bool underCommentSec = false;
 
     while(std::getline(file, line)) {
+		inputLines.push_back(line);
         ++lineNo;
         std::sregex_iterator pos {line.begin(), line.end(), tokenRegex};
 
@@ -111,7 +112,7 @@ void Tokenizer::tokenize(std::ifstream& file) {
             auto value = pos->str();
             token.value = value;
             token.lineNo = lineNo;
-            token.columnNo = pos->position();
+            token.columnNo = pos->position() + 1;
             token.type = getTokenType(value);
 
             if(!underCommentSec) {
@@ -139,3 +140,5 @@ void Tokenizer::tokenize(std::ifstream& file) {
         }
     }
 }
+
+std::string Tokenizer::getLine(size_t lineNo) { return inputLines.at(lineNo); }
