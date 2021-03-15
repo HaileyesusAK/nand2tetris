@@ -8,5 +8,11 @@
         <identifier> radius </identifier>
         <symbol> ; </symbol>
     </classVarDec>
+    <classVarDec>
+        <keyword> static </keyword>
+        <keyword> int </keyword>
+        <identifier> instances </identifier>
+        <symbol> ; </symbol>
+    </classVarDec>
     <symbol> } </symbol>
 </class>

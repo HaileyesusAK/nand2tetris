@@ -176,22 +176,26 @@ void Analyzer::genClass() {
 	genSymbol(s);
 
 	// generate varDec
-	if(!tokenizer.hasNext())
-		throw std::domain_error("No more tokens");
+	while(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
 		tokenizer.putBack();
 		Set varDecKeywords {"field", "static"};
 		if(varDecKeywords.count(token.value))
 			genClassVarDec();
+		else
+			break;
+	}
 
 	// generate subroutineDec
-	if(!tokenizer.hasNext())
-		throw std::domain_error("No more tokens");
-	token = tokenizer.getNext();
+	while(tokenizer.hasNext()) {
+		auto token = tokenizer.getNext();
 		tokenizer.putBack();
 		Set subroutineDecKeywords {"constructor", "method", "function"};
 		if(subroutineDecKeywords.count(token.value))
 			genSubroutineDec();
+		else
+			break;
+	}
 
 	s = "}";
 	genSymbol(s);
@@ -251,13 +255,17 @@ void Analyzer::genSubroutineBody() {
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
+	while(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
 		if(token.value == "var") {
 			tokenizer.putBack();
 			genVarDec();
 		}
-	else
+		else {
 			tokenizer.putBack();
+			break;
+		}
+	}
 
 	genStatements();
 

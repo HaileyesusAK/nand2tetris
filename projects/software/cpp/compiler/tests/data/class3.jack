@@ -1,4 +1,7 @@
 class Circle {
+	constructor void Circle() {
+		let radius = 1;
+	}
 	method boolean is_unit_cirlce() {
 		return radius = 1;
 	}

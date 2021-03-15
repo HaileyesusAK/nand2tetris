@@ -3,6 +3,30 @@
     <identifier> Circle </identifier>
     <symbol> { </symbol>
     <subroutineDec>
+        <keyword> constructor </keyword>
+        <keyword> void </keyword>
+        <identifier> Circle </identifier>
+        <symbol> ( </symbol>
+        <symbol> ) </symbol>
+        <subroutineBody>
+            <symbol> { </symbol>
+            <statements>
+                <letStatement>
+                    <keyword> let </keyword>
+                    <identifier> radius </identifier>
+                    <symbol> = </symbol>
+                    <expression>
+                        <term>
+                            <integerConstant> 1 </integerConstant>
+                        </term>
+                    </expression>
+                    <symbol> ; </symbol>
+                </letStatement>
+            </statements>
+            <symbol> } </symbol>
+        </subroutineBody>
+    </subroutineDec>
+    <subroutineDec>
         <keyword> method </keyword>
         <keyword> boolean </keyword>
         <identifier> is_unit_cirlce </identifier>

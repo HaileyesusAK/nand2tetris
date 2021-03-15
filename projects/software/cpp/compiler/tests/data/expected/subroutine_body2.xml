@@ -6,5 +6,17 @@
         <identifier> a </identifier>
         <symbol> ; </symbol>
     </varDec>
+    <varDec>
+        <keyword> var </keyword>
+        <keyword> boolean </keyword>
+        <identifier> fixed </identifier>
+        <symbol> ; </symbol>
+    </varDec>
+    <varDec>
+        <keyword> var </keyword>
+        <keyword> char </keyword>
+        <identifier> ch </identifier>
+        <symbol> ; </symbol>
+    </varDec>
     <symbol> } </symbol>
 </subroutineBody>
