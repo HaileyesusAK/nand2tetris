@@ -113,8 +113,11 @@ void Analyzer::genVarDecList() {
 			tokenizer.putBack();
 			break;
 		}
-		else
-			throw std::domain_error("An unexpected token: '" + token.value + "'");
+		else {
+			std::string msg("Unexpected token in variable declaration");
+			appendInputLine(msg, token.lineNo, token.columnNo);
+			throw std::domain_error(msg);
+		}
 	}
 
 	s = ";";
@@ -175,20 +178,20 @@ void Analyzer::genClass() {
 	// generate varDec
 	if(!tokenizer.hasNext())
 		throw std::domain_error("No more tokens");
-	auto token = tokenizer.getNext();
-	tokenizer.putBack();
-	Set varDecKeywords {"field", "static"};
-	if(varDecKeywords.count(token.value))
-		genClassVarDec();
+		auto token = tokenizer.getNext();
+		tokenizer.putBack();
+		Set varDecKeywords {"field", "static"};
+		if(varDecKeywords.count(token.value))
+			genClassVarDec();
 
 	// generate subroutineDec
 	if(!tokenizer.hasNext())
 		throw std::domain_error("No more tokens");
 	token = tokenizer.getNext();
-	tokenizer.putBack();
-	Set subroutineDecKeywords {"constructor", "method", "function"};
-	if(subroutineDecKeywords.count(token.value))
-		genSubroutineDec();
+		tokenizer.putBack();
+		Set subroutineDecKeywords {"constructor", "method", "function"};
+		if(subroutineDecKeywords.count(token.value))
+			genSubroutineDec();
 
 	s = "}";
 	genSymbol(s);
@@ -248,13 +251,13 @@ void Analyzer::genSubroutineBody() {
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
-	auto token = tokenizer.getNext();
-	if(token.value == "var") {
-		tokenizer.putBack();
-		genVarDec();
-	}
+		auto token = tokenizer.getNext();
+		if(token.value == "var") {
+			tokenizer.putBack();
+			genVarDec();
+		}
 	else
-		tokenizer.putBack();
+			tokenizer.putBack();
 
 	genStatements();
 
@@ -442,7 +445,9 @@ void Analyzer::genTerm() {
         --level;
         rewind(prevp);
         tokenizer.putBack();
-		throw std::domain_error("An unexpected token: '" + token.value + "'");
+		std::string msg("Unexpected token");
+		appendInputLine(msg, token.lineNo, token.columnNo);
+		throw std::domain_error(msg);
     }
 
     --level;
@@ -463,7 +468,7 @@ void Analyzer::genLetStatement() {
 	std::string s;
 
 	if(!tokenizer.hasNext())
-		throw std::invalid_argument("Expected either '[' or '=' but found none");
+		throw std::out_of_range("No more tokens");
 
 	auto token = tokenizer.getNext();
 	if(token.value == "[") {
@@ -662,7 +667,9 @@ void Analyzer::genIdentifier() {
 	auto token = tokenizer.getNext();
 	if(token.type != TokenType::IDENTIFIER) {
 		tokenizer.putBack();
-		throw std::domain_error("'" + token.value + "' is not a valid identifier");
+		std::string msg("Invalid identifier");
+		appendInputLine(msg, token.lineNo, token.columnNo);
+		throw std::domain_error(msg);
 	}
 
 	printLine("<identifier> " + token.value + " </identifier>");
@@ -676,7 +683,9 @@ void Analyzer::genType() {
 	Set types {"int", "char", "boolean"};
 	if(token.type != TokenType::IDENTIFIER && !types.count(token.value)) {
 		tokenizer.putBack();
-		throw std::domain_error("'" + token.value + "' is not a valid type");
+		std::string msg("Uknown type");
+		appendInputLine(msg, token.lineNo, token.columnNo);
+		throw std::domain_error(msg);
 	}
 
 	std::string tag = (token.type == TokenType::IDENTIFIER) ? "identifier" : "keyword";
@@ -690,7 +699,9 @@ void Analyzer::genSymbol(const std::string& symbol) {
 	auto token = tokenizer.getNext();
 	if(token.type != TokenType::SYMBOL || token.value != symbol) {
 		tokenizer.putBack();
-		throw std::domain_error("Expected " + symbol + " but found " + token.value);
+		std::string msg("Uknown symbol");
+		appendInputLine(msg, token.lineNo, token.columnNo);
+		throw std::domain_error(msg);
 	}
 
 	printLine("<symbol> " + convertXmlSymbol(symbol) + " </symbol>");
@@ -703,13 +714,25 @@ void Analyzer::genKeyWord(const Set& keywords) {
 	auto token = tokenizer.getNext();
 	if(token.type != TokenType::KEYWORD) {
 		tokenizer.putBack();
-		throw std::domain_error("'" + token.value + "' is not a keyword");
+		std::string msg("Invalid keyword");
+		appendInputLine(msg, token.lineNo, token.columnNo);
+		throw std::domain_error(msg);
 	}
 
 	if(!keywords.count(token.value)) {
 		tokenizer.putBack();
-		throw std::domain_error("'" + token.value + "' is not expected");
+		std::string msg("Unexpected token");
+		appendInputLine(msg, token.lineNo, token.columnNo);
+		throw std::domain_error(msg);
 	}
 
 	printLine("<keyword> " + token.value + " </keyword>");
+}
+
+void Analyzer::appendInputLine(std::string& s, size_t lineNo, size_t columnNo) {
+	std::ostringstream os;
+	os << " at (" << lineNo << ", " << columnNo << ")" << std::endl;
+	os << tokenizer.getLine(lineNo - 1) << std::endl;
+	os << std::setw(columnNo) << std::setfill('-') << "^" << std::endl;
+	s.append(os.str());
 }

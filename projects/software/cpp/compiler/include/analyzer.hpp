@@ -22,6 +22,7 @@ class Analyzer {
 	size_t printLine(const std::string& line);
 	std::string convertXmlSymbol(const std::string& symbol);
     void rewind(size_t pos);
+	void appendInputLine(std::string& s, size_t lineNo, size_t columnNo);
 
 	public:
 	Analyzer(){}
