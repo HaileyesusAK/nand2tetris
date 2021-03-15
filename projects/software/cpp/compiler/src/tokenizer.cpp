@@ -115,6 +115,9 @@ void Tokenizer::tokenize(std::ifstream& file) {
             token.columnNo = pos->position() + 1;
             token.type = getTokenType(value);
 
+            if(token.type == TokenType::STRING) // Strip the enclosing quotes
+                token.value = token.value.substr(1, token.value.size() - 2);
+
             if(!underCommentSec) {
 				if(token.value == "/" && prevTokenVal == "/") {
                     //A line comment
