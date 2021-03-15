@@ -422,3 +422,31 @@ TEST_CASE("Class3", "[genClass]") {
 TEST_CASE("Class4", "[genClass]") {
     REQUIRE(testFile("class4.jack", Generator::CLASS));
 }
+
+TEST_CASE("ArrayTest", "[genClass]") {
+    REQUIRE(testFile("ArrayTest/Main.jack", Generator::CLASS));
+}
+
+TEST_CASE("ExpressionLessSquare Main", "[genClass]") {
+    REQUIRE(testFile("ExpressionLessSquare/Main.jack", Generator::CLASS));
+}
+
+TEST_CASE("ExpressionLessSquare Square", "[genClass]") {
+    REQUIRE(testFile("ExpressionLessSquare/Square.jack", Generator::CLASS));
+}
+
+TEST_CASE("ExpressionLessSquare SquareGame", "[genClass]") {
+    REQUIRE(testFile("ExpressionLessSquare/SquareGame.jack", Generator::CLASS));
+}
+
+TEST_CASE("Square Main", "[genClass]") {
+    REQUIRE(testFile("Square/Main.jack", Generator::CLASS));
+}
+
+TEST_CASE("Square Square", "[genClass]") {
+    REQUIRE(testFile("Square/Square.jack", Generator::CLASS));
+}
+
+TEST_CASE("Square SquareGame", "[genClass]") {
+    REQUIRE(testFile("Square/SquareGame.jack", Generator::CLASS));
+}

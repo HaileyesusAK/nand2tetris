@@ -9,3 +9,6 @@ tools/bin/
 *.out
 *Tetris*
 projects/software/cpp/compiler/tests/data/*.xml
+projects/software/cpp/compiler/tests/data/ArrayTest/*.xml
+projects/software/cpp/compiler/tests/data/ExpressionLessSquare/*.xml
+projects/software/cpp/compiler/tests/data/Square/*.xml
