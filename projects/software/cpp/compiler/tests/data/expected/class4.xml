@@ -13,6 +13,8 @@
         <keyword> int </keyword>
         <identifier> diameter </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>

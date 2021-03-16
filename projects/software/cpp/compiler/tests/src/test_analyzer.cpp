@@ -378,11 +378,6 @@ TEST_CASE("Invalid Parameter", "[genParameter]") {
     REQUIRE_THROWS_AS(testCmd(cmd, expectedOutput, Generator::PARAM), domain_error);
 }
 
-TEST_CASE("Parameter List1", "[genParameterList]") {
-	std::string cmd(""), expectedOutput("");
-    REQUIRE(testCmd(cmd, expectedOutput, Generator::PARAM_LIST));
-}
-
 TEST_CASE("Parameter List2", "[genParameterList]") {
     REQUIRE(testFile("parameter_list.jack", Generator::PARAM_LIST));
 }

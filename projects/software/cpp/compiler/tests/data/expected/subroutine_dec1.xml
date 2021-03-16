@@ -3,6 +3,10 @@
     <keyword> void </keyword>
     <identifier> circle </identifier>
     <symbol> ( </symbol>
+    <parameterList>
+        <keyword> int </keyword>
+        <identifier> radius </identifier>
+    </parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
         <symbol> { </symbol>

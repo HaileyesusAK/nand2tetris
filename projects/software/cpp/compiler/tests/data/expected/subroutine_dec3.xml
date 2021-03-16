@@ -3,6 +3,8 @@
     <keyword> void </keyword>
     <identifier> no_op </identifier>
     <symbol> ( </symbol>
+    <parameterList>
+    </parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
         <symbol> { </symbol>

@@ -72,6 +72,8 @@
                     <keyword> do </keyword>
                     <identifier> draw </identifier>
                     <symbol> ( </symbol>
+                    <expressionList>
+                    </expressionList>
                     <symbol> ) </symbol>
                     <symbol> ; </symbol>
                 </doStatement>
@@ -93,6 +95,8 @@
         <keyword> void </keyword>
         <identifier> dispose </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -126,6 +130,8 @@
         <keyword> void </keyword>
         <identifier> draw </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -193,6 +199,8 @@
         <keyword> void </keyword>
         <identifier> erase </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -260,6 +268,8 @@
         <keyword> void </keyword>
         <identifier> incSize </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -279,6 +289,8 @@
                             <keyword> do </keyword>
                             <identifier> erase </identifier>
                             <symbol> ( </symbol>
+                            <expressionList>
+                            </expressionList>
                             <symbol> ) </symbol>
                             <symbol> ; </symbol>
                         </doStatement>
@@ -297,6 +309,8 @@
                             <keyword> do </keyword>
                             <identifier> draw </identifier>
                             <symbol> ( </symbol>
+                            <expressionList>
+                            </expressionList>
                             <symbol> ) </symbol>
                             <symbol> ; </symbol>
                         </doStatement>
@@ -316,6 +330,8 @@
         <keyword> void </keyword>
         <identifier> decSize </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -335,6 +351,8 @@
                             <keyword> do </keyword>
                             <identifier> erase </identifier>
                             <symbol> ( </symbol>
+                            <expressionList>
+                            </expressionList>
                             <symbol> ) </symbol>
                             <symbol> ; </symbol>
                         </doStatement>
@@ -353,6 +371,8 @@
                             <keyword> do </keyword>
                             <identifier> draw </identifier>
                             <symbol> ( </symbol>
+                            <expressionList>
+                            </expressionList>
                             <symbol> ) </symbol>
                             <symbol> ; </symbol>
                         </doStatement>
@@ -372,6 +392,8 @@
         <keyword> void </keyword>
         <identifier> moveUp </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -514,6 +536,8 @@
         <keyword> void </keyword>
         <identifier> moveDown </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -656,6 +680,8 @@
         <keyword> void </keyword>
         <identifier> moveLeft </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -798,6 +824,8 @@
         <keyword> void </keyword>
         <identifier> moveRight </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>

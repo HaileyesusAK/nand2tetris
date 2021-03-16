@@ -7,6 +7,8 @@
         <keyword> void </keyword>
         <identifier> Circle </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>
@@ -31,6 +33,8 @@
         <keyword> boolean </keyword>
         <identifier> is_unit_cirlce </identifier>
         <symbol> ( </symbol>
+        <parameterList>
+        </parameterList>
         <symbol> ) </symbol>
         <subroutineBody>
             <symbol> { </symbol>

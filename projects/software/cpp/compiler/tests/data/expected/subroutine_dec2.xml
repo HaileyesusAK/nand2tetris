@@ -3,6 +3,8 @@
     <keyword> boolean </keyword>
     <identifier> is_unit_circle </identifier>
     <symbol> ( </symbol>
+    <parameterList>
+    </parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
         <symbol> { </symbol>

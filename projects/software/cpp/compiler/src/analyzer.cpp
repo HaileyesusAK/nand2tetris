@@ -52,37 +52,26 @@ void Analyzer::genParameter() {
 */
 void Analyzer::genParameterList() {
 	if(!tokenizer.hasNext())
-		return;
+		throw std::out_of_range("No more tokens");
 
-	Token token;
-	auto prevp = printLine("<parameterList>");
+	printLine("<parameterList>");
 	++level;
 
-	while(true) {
-		try {
-			genParameter();
+	auto token = tokenizer.getNext();
+	tokenizer.putBack();
+	if(token.value != ")") {
+		genParameter();
+		while(tokenizer.hasNext()) {
+			token = tokenizer.getNext();
+			if(token.value == ",") {
+				printLine("<symbol> , </symbol>");
+				genParameter();
+			}
+			else {
+				tokenizer.putBack();
+				break;
+			}
 		}
-		catch (std::domain_error& e) {
-			--level;
-			rewind(prevp);
-			return;
-		}
-		catch (std::out_of_range& e) {
-			--level;
-			rewind(prevp);
-			return;
-		}
-
-		if(!tokenizer.hasNext())
-			break;
-
-		token = tokenizer.getNext();
-		if(token.value != ",") {
-			tokenizer.putBack();
-			break;
-		}
-
-		printLine("<symbol> , </symbol>");
 	}
 
 	--level;
@@ -203,6 +192,7 @@ void Analyzer::genClass() {
 */
 
 void Analyzer::genSubroutineDec() {
+	Token token;
 	printLine("<subroutineDec>");
 	++level;
 
@@ -249,7 +239,6 @@ void Analyzer::genSubroutineBody() {
 	}
 
 	genStatements();
-
 	genSymbol("}");
 
 	--level;
@@ -277,13 +266,9 @@ void Analyzer::genSubroutineCall() {
     else {
         tokenizer.putBack();
         genSymbol(".");
-
         genIdentifier();
-
         genSymbol("(");
-
         genExpList();
-
         genSymbol(")");
     }
 }
@@ -293,35 +278,30 @@ void Analyzer::genSubroutineCall() {
     expressionList : (expression (',' expression)*)?
 */
 void Analyzer::genExpList() {
-    size_t prevp;
-	try {
-        prevp = printLine("<expressionList>");
-        ++level;
-		genExp();
-	}
-	catch (std::domain_error& exp) {
-        --level;
-        rewind(prevp);
-		return;
-	}
-    catch (std::out_of_range& exp){
-        --level;
-        rewind(prevp);
-        return;
-    }
+	if(!tokenizer.hasNext())
+		throw std::out_of_range("No more tokens");
 
-	Token token;
-	while(tokenizer.hasNext()) {
-		token = tokenizer.getNext();
-		if(token.value == ",") {
-			printLine("<symbol> , </symbol>");
-			genExp();
-		}
-		else {
-			tokenizer.putBack();
-			break;
+    printLine("<expressionList>");
+	++level;
+
+	auto token = tokenizer.getNext();
+	tokenizer.putBack();
+	if(token.value != ")")
+	{
+		genExp();
+		while(tokenizer.hasNext()) {
+			token = tokenizer.getNext();
+			if(token.value == ",") {
+				printLine("<symbol> , </symbol>");
+				genExp();
+			}
+			else {
+				tokenizer.putBack();
+				break;
+			}
 		}
 	}
+
     --level;
     printLine("</expressionList>");
 }
