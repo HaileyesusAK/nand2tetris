@@ -208,12 +208,6 @@ TEST_CASE("Expression", "[genExp]") {
     REQUIRE(testFile("expression.jack", Generator::EXP));
 }
 
-TEST_CASE("Empty Expression List", "[genExpList]") {
-    string cmd("");
-	string expectedOutput = "";
-	REQUIRE(testCmd(cmd, expectedOutput, Generator::EXP_LIST));
-}
-
 TEST_CASE("Multiple Expressions List", "[genExpList]") {
     REQUIRE(testFile("expression_list.jack", Generator::EXP_LIST));
 }
@@ -418,30 +412,18 @@ TEST_CASE("Class4", "[genClass]") {
     REQUIRE(testFile("class4.jack", Generator::CLASS));
 }
 
-TEST_CASE("ArrayTest", "[genClass]") {
-    REQUIRE(testFile("ArrayTest/Main.jack", Generator::CLASS));
-}
-
-TEST_CASE("ExpressionLessSquare Main", "[genClass]") {
-    REQUIRE(testFile("ExpressionLessSquare/Main.jack", Generator::CLASS));
-}
-
-TEST_CASE("ExpressionLessSquare Square", "[genClass]") {
-    REQUIRE(testFile("ExpressionLessSquare/Square.jack", Generator::CLASS));
-}
-
-TEST_CASE("ExpressionLessSquare SquareGame", "[genClass]") {
-    REQUIRE(testFile("ExpressionLessSquare/SquareGame.jack", Generator::CLASS));
+TEST_CASE("ArrayTestMain", "[genClass]") {
+    REQUIRE(testFile("ArrayTestMain.jack", Generator::CLASS));
 }
 
 TEST_CASE("Square Main", "[genClass]") {
-    REQUIRE(testFile("Square/Main.jack", Generator::CLASS));
+    REQUIRE(testFile("SquareMain.jack", Generator::CLASS));
 }
 
-TEST_CASE("Square Square", "[genClass]") {
-    REQUIRE(testFile("Square/Square.jack", Generator::CLASS));
+TEST_CASE("Square", "[genClass]") {
+    REQUIRE(testFile("Square.jack", Generator::CLASS));
 }
 
-TEST_CASE("Square SquareGame", "[genClass]") {
-    REQUIRE(testFile("Square/SquareGame.jack", Generator::CLASS));
+TEST_CASE("SquareGame", "[genClass]") {
+    REQUIRE(testFile("SquareGame.jack", Generator::CLASS));
 }
