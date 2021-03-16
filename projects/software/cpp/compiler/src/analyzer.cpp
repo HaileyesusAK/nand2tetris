@@ -120,20 +120,17 @@ void Analyzer::genVarDecList() {
 		}
 	}
 
-	s = ";";
-	genSymbol(s);
+	genSymbol(";");
 }
 
 /*
 	varDec : 'var' varDecList
 */
 void Analyzer::genVarDec() {
-	Set keywords {"var"};
-
 	printLine("<varDec>");
 	++level;
 
-	genKeyWord(keywords);
+	genKeyWord({"var"});
 	genVarDecList();
 
 	--level;
@@ -146,12 +143,10 @@ void Analyzer::genVarDec() {
 	className	: identifier
 */
 void Analyzer::genClassVarDec() {
-	Set keywords {"static", "field"};
-
 	printLine("<classVarDec>");
 	++level;
 
-	genKeyWord(keywords);
+	genKeyWord({"static", "field"});
 	genVarDecList();
 
 	--level;
@@ -164,16 +159,12 @@ void Analyzer::genClassVarDec() {
 */
 
 void Analyzer::genClass() {
-	Set keywords {"class"};
-
 	printLine("<class>");
 	++level;
 
-	genKeyWord(keywords);
+	genKeyWord({"class"});
 	genIdentifier();
-
-	std::string s("{");
-	genSymbol(s);
+	genSymbol("{");
 
 	// generate varDec
 	while(tokenizer.hasNext()) {
@@ -197,8 +188,7 @@ void Analyzer::genClass() {
 			break;
 	}
 
-	s = "}";
-	genSymbol(s);
+	genSymbol("}");
 
 	--level;
 	printLine("</class>");
@@ -213,29 +203,21 @@ void Analyzer::genClass() {
 */
 
 void Analyzer::genSubroutineDec() {
-	Set keywords {"constructor", "method", "function"};
-	std::string openingTag("subroutineDec");
 	printLine("<subroutineDec>");
 	++level;
 
-	genKeyWord(keywords);
+	genKeyWord({"constructor", "method", "function"});
 	try {
 		genType();
 	}
 	catch (std::domain_error& ex) {
-		Set keywords {"void"};
-		genKeyWord(keywords);
+		genKeyWord({"void"});
 	}
+
 	genIdentifier();
-
-	std::string s("(");
-	genSymbol(s);
-
+	genSymbol("(");
 	genParameterList();
-
-	s = ")";
-	genSymbol(s);
-
+	genSymbol(")");
 	genSubroutineBody();
 
 	--level;
@@ -249,8 +231,7 @@ void Analyzer::genSubroutineBody() {
 	printLine("<subroutineBody>");
 	++level;
 
-	std::string s("{");
-	genSymbol(s);
+	genSymbol("{");
 
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
@@ -269,8 +250,7 @@ void Analyzer::genSubroutineBody() {
 
 	genStatements();
 
-	s = "}";
-	genSymbol(s);
+	genSymbol("}");
 
 	--level;
 	printLine("</subroutineBody>");
@@ -284,8 +264,6 @@ void Analyzer::genSubroutineBody() {
     className      : identifier
 */
 void Analyzer::genSubroutineCall() {
-    std::string s;
-
     genIdentifier();
     if(!tokenizer.hasNext())
         throw std::out_of_range("No more tokens");
@@ -294,23 +272,19 @@ void Analyzer::genSubroutineCall() {
     if(token.value == "(") {
         printLine("<symbol> ( </symbol>");
         genExpList();
-        s = ")";
-        genSymbol(s);
+        genSymbol(")");
     }
     else {
         tokenizer.putBack();
-        s = ".";
-        genSymbol(s);
+        genSymbol(".");
 
         genIdentifier();
 
-        s = "(";
-        genSymbol(s);
+        genSymbol("(");
 
         genExpList();
 
-        s = ")";
-        genSymbol(s);
+        genSymbol(")");
     }
 }
 
@@ -417,23 +391,19 @@ void Analyzer::genTerm() {
 			if(token.value == "[") {
 				printLine("<symbol> [ </symbol>");
 				genExp();
-				std::string s("]");
-				genSymbol(s);
+				genSymbol("]");
 			}
 			else if(token.value == "(") {
 				printLine("<symbol> ( </symbol>");
 				genExpList();
-				std::string s(")");
-				genSymbol(s);
+				genSymbol(")");
 			}
 			else if(token.value == ".") {
 				printLine("<symbol> . </symbol>");
 				genIdentifier();
-				std::string s("(");
-				genSymbol(s);
+				genSymbol("(");
 				genExpList();
-				s = ")";
-				genSymbol(s);
+				genSymbol(")");
 			}
             else
                 tokenizer.putBack();
@@ -442,8 +412,7 @@ void Analyzer::genTerm() {
 	else if(token.value == "(") {
         printLine("<symbol> ( </symbol>");
 		genExp();
-        std::string s(")");
-        genSymbol(s);
+        genSymbol(")");
 	}
 	else if(token.value == "-" || token.value == "~") {
 		printLine("<symbol> " + token.value + " </symbol>");
@@ -468,12 +437,10 @@ void Analyzer::genTerm() {
 */
 void Analyzer::genLetStatement() {
 	printLine("<letStatement>");
-    Set keywords {"let"};
-
 	++level;
-    genKeyWord(keywords);
+
+    genKeyWord({"let"});
 	genIdentifier();
-	std::string s;
 
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
@@ -482,18 +449,15 @@ void Analyzer::genLetStatement() {
 	if(token.value == "[") {
 		printLine("<symbol> [ </symbol>");
 		genExp();
-		s = "]";
-		genSymbol(s);
+		genSymbol("]");
 	}
 	else
 		tokenizer.putBack();
 
-	s = "=";
-	genSymbol(s);
+	genSymbol("=");
 	genExp();
 
-	s = ";";
-	genSymbol(s);
+	genSymbol(";");
 
 	--level;
 	printLine("</letStatement>");
@@ -503,15 +467,12 @@ void Analyzer::genLetStatement() {
     doStatement : 'do' subroutineCall ';'
 */
 void Analyzer::genDoStatement() {
-    Set keywords {"do"};
-    std::string s(";");
-
 	printLine("<doStatement>");
     ++level;
 
-    genKeyWord(keywords);
+    genKeyWord({"do"});
     genSubroutineCall();
-    genSymbol(s);
+    genSymbol(";");
 
     --level;
 	printLine("</doStatement>");
@@ -521,18 +482,15 @@ void Analyzer::genDoStatement() {
     returnStatement : 'return' expression? ';'
 */
 void Analyzer::genReturnStatement() {
-    Set keywords {"return"};
-    std::string s(";");
-
 	printLine("<returnStatement>");
     ++level;
 
-    genKeyWord(keywords);
+    genKeyWord({"return"});
     try {
         genExp();
     }
     catch (std::domain_error& exp) { }
-    genSymbol(s);
+    genSymbol(";");
 
     --level;
 	printLine("</returnStatement>");
@@ -543,42 +501,24 @@ void Analyzer::genReturnStatement() {
                   ('else' '{' statements '}')?
 */
 void Analyzer::genIfStatement() {
-    Set keywords {"if"};
-	std::string s;
-
 	printLine("<ifStatement>");
 	++level;
 
-	genKeyWord(keywords);
-
-	s = "(";
-	genSymbol(s);
-
+	genKeyWord({"if"});
+	genSymbol("(");
 	genExp();
-
-	s = ")";
-	genSymbol(s);
-
-	s = "{";
-	genSymbol(s);
-
+	genSymbol(")");
+	genSymbol("{");
 	genStatements();
-
-	s = "}";
-	genSymbol(s);
+	genSymbol("}");
 
 	if(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
 		if(token.value == "else") {
 			printLine("<keyword> else </keyword>");
-
-			s = "{";
-			genSymbol(s);
-
+			genSymbol("{");
 			genStatements();
-
-			s = "}";
-			genSymbol(s);
+			genSymbol("}");
 		}
 		else
 			tokenizer.putBack();
@@ -592,28 +532,16 @@ void Analyzer::genIfStatement() {
 	whileStatement : 'while' '(' expression ')' '{' statements '}'
 */
 void Analyzer::genWhileStatement() {
-    Set keywords {"while"};
-    std::string s;
-
 	printLine("<whileStatement>");
 	++level;
-    genKeyWord(keywords);
 
-	s = "(";
-	genSymbol(s);
-
+    genKeyWord({"while"});
+	genSymbol("(");
 	genExp();
-
-	s = ")";
-	genSymbol(s);
-
-	s = "{";
-	genSymbol(s);
-
+	genSymbol(")");
+	genSymbol("{");
 	genStatements();
-
-	s = "}";
-	genSymbol(s);
+	genSymbol("}");
 
 	--level;
 	printLine("</whileStatement>");
