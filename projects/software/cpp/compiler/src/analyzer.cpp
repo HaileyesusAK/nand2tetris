@@ -20,19 +20,6 @@ void Analyzer::writeXml() {
 	os << output;
 }
 
-std::string Analyzer::convertXmlSymbol(const std::string& symbol){
-    static std::unordered_map<std::string, std::string> conversionMap {
-        {">", "&gt;"},
-        {"<", "&lt;"},
-        {"&", "&amp;"},
-    };
-
-    if (conversionMap.count(symbol))
-        return conversionMap[symbol];
-    else
-        return symbol;
-}
-
 /*
 	parameter	: (type varName)
 	type		: 'int' | 'char' | 'boolean' | className
@@ -328,7 +315,7 @@ void Analyzer::genExp() {
 	while(tokenizer.hasNext()) {
 		token = tokenizer.getNext();
 		if(ops.count(token.value)) {
-			printLine("<symbol> " + convertXmlSymbol(token.value) + " </symbol>");
+			printLine("<symbol> " + Tokenizer::convertXmlSymbol(token.value) + " </symbol>");
             genTerm();
 		}
 		else {
@@ -620,7 +607,7 @@ void Analyzer::genSymbol(const std::string& symbol) {
 		throw std::domain_error(msg);
 	}
 
-	printLine("<symbol> " + convertXmlSymbol(symbol) + " </symbol>");
+	printLine("<symbol> " + Tokenizer::convertXmlSymbol(symbol) + " </symbol>");
 }
 
 void Analyzer::genKeyWord(const Set& keywords) {
