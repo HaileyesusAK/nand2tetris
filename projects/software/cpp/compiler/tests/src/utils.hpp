@@ -5,8 +5,11 @@
 #include <utility>
 #include "analyzer.hpp"
 
+
 namespace fs = std::filesystem;
-static const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
+
+extern const fs::path DATA_DIR;
+extern const fs::path EXP_DATA_DIR;
 
 bool cmpFiles(const fs::path& p1, const fs::path& p2);
 

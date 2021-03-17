@@ -29,6 +29,7 @@ class Tokenizer {
     std::vector<Token>::iterator it;
     void tokenize(std::ifstream&);
 	std::vector<std::string> inputLines;
+	fs::path outputPath;
     static TokenType getTokenType(const std::string& token);
     static const Set& getSymbols();
     static const Set& getKeyWords();
@@ -40,6 +41,8 @@ class Tokenizer {
 	void putBack() { --it; }
 	bool hasNext() { return it != tokens.end(); }
 	std::string getLine(size_t lineNo);
+	void generateXml();
+	static std::string convertXmlSymbol(const std::string& symbol);
 };
 
 #endif

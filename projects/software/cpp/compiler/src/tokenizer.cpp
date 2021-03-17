@@ -6,17 +6,20 @@
 #include <stdexcept>
 #include <string>
 #include <regex>
+#include <unordered_map>
 #include <unordered_set>
 #include "tokenizer.hpp"
 
 
-Tokenizer::Tokenizer(const fs::path& jackPath) {
+Tokenizer::Tokenizer(const fs::path& jackPath) : outputPath(jackPath) {
     std::ifstream file(jackPath);
     if(!file.is_open())
         throw std::runtime_error(std::strerror(errno) + std::string(": ") + jackPath.string());
 
     tokenize(file);
     it = tokens.begin();
+	outputPath = jackPath.parent_path() / jackPath.stem();
+	outputPath += "T.xml";
 }
 
 const Set& Tokenizer::getSymbols() {
@@ -144,4 +147,37 @@ void Tokenizer::tokenize(std::ifstream& file) {
     }
 }
 
-std::string Tokenizer::getLine(size_t lineNo) { return inputLines.at(lineNo); }
+std::string Tokenizer::getLine(size_t lineNo) {
+	return inputLines.at(lineNo);
+}
+
+std::string Tokenizer::convertXmlSymbol(const std::string& symbol){
+    static std::unordered_map<std::string, std::string> conversionMap {
+        {">", "&gt;"},
+        {"<", "&lt;"},
+        {"&", "&amp;"},
+    };
+
+    if (conversionMap.count(symbol))
+        return conversionMap[symbol];
+    else
+        return symbol;
+}
+void Tokenizer::generateXml() {
+	std::unordered_map<TokenType, std::string> tags {
+		{TokenType::STRING, "stringConstant"},
+		{TokenType::INTEGER, "integerConstant"},
+		{TokenType::IDENTIFIER, "identifier"},
+		{TokenType::KEYWORD, "keyword"},
+		{TokenType::SYMBOL, "symbol"}
+	};
+
+	std::ofstream output(outputPath);
+	output << "<tokens>" << std::endl;
+	for(const auto& token : tokens) {
+		auto tag = tags.at(token.type);
+		auto value = Tokenizer::convertXmlSymbol(token.value);
+		output << "<" << tag << "> " << value << " </" << tag <<">" << std::endl;
+	}
+	output << "</tokens>" << std::endl;
+}

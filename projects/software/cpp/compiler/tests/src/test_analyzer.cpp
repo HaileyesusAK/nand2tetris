@@ -20,8 +20,6 @@ enum class Generator {
 	CLASS_VAR_DEC, CLASS
 };
 
-static const fs::path EXP_DATA_DIR = DATA_DIR / "expected";
-
 Analyzer get_analyzer(const string& cmd) {
 	fs::path jackFile = DATA_DIR / "tmp.jack";
 	ofstream file(jackFile);

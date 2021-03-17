@@ -9,6 +9,9 @@
 
 namespace fs = std::filesystem;
 
+const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
+const fs::path EXP_DATA_DIR = DATA_DIR / "expected";
+
 bool cmpFiles(const fs::path& p1, const fs::path& p2) {
 	std::ifstream file1(p1), file2(p2);
 
