@@ -3,7 +3,7 @@ INCLUDE = ../include
 CPPFLAGS += -Wall --std=c++17
 LIB = libanalyzer.a
 OBJS = tokenizer.o analyzer.o
-APP = Tokenizer
+APP = Analyzer 
 DEBUG = 1
 LDFLAGS = -lstdc++fs
 
@@ -15,12 +15,15 @@ endif
 	@echo "Building" $< "..."
 	$(CC) -c $(CPPFLAGS) -I $(INCLUDE) $<
 
-
 install: $(OBJS)
 	@echo "Installing" $(LIB)
 	ar rc $(LIB) $+
 	ranlib $(LIB)
 
+$(APP): main.o $(OBJS)
+	$(CC) $^ $(LDFLAGS) -o $@
+	
 clean:
 	rm -rf *.o
+	rm -rf $(APP)
 	rm -rf $(LIB)

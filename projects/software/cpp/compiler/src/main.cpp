@@ -41,8 +41,9 @@ int main(int argc, char* argv[]) {
 	}
 	
 	for(auto& path: pathes) {
-		auto analyzer = Analyzer(path, 4);
-		analyzer.generateXml();
+		Analyzer analyzer {path, 4};
+		analyzer.genClass();
+		analyzer.writeXml();
 	}	
 
     return 0;
