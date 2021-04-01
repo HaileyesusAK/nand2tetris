@@ -11,6 +11,14 @@
 
 CodeGenerator::CodeGenerator(const fs::path& _inputPath) : inputPath(_inputPath), tokenizer(_inputPath) { }
 
+void CodeGenerator::generate() {
+	fs::path path(inputPath);
+	path.replace_extension(".vm");
+	std::ofstream os(path);
+	for(const auto& line : output)
+		os << line << std::endl;
+}
+
 /*
     doStatement : 'do' subroutineCall ';'
 */
@@ -561,6 +569,14 @@ Token CodeGenerator::getKeyWord(const Set& keywords) {
 	}
 
 	return token;
+}
+
+const Symbol& CodeGenerator::resolveSymbol(const std::string& name) {
+	try {
+		return subroutineSymbols.at(name);
+	} catch(std::out_of_range& err) {
+		return classSymbols.at(name);
+	}
 }
 
 void CodeGenerator::appendInputLine(std::string& s, size_t lineNo, size_t columnNo) {

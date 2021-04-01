@@ -35,6 +35,7 @@ class CodeGenerator {
 
 	public:
 	CodeGenerator(const fs::path& inputPath);
+	void generate();
 	void genDoStatement();
 	void genClass();
 	void genClassVarDec();
