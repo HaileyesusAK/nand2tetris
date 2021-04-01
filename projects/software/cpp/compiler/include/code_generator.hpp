@@ -25,14 +25,19 @@ class CodeGenerator {
 	Tokenizer tokenizer;
 	SymbolTable classSymbols;
 	SymbolTable subroutineSymbols;
+	uint16_t numClassVars;
+	uint16_t numSubroutineVars;
+
 	const Symbol& resolveSymbol(const std::string& name);
 	std::string getBinOpInst(const std::string& op);
+	void genVarDecList(SymbolTable& symbolTable, const std::string& kind, uint16_t& index);
 	void appendInputLine(std::string& s, size_t lineNo, size_t columnNo);
 
 	public:
 	CodeGenerator(const fs::path& inputPath);
 	void genDoStatement();
 	void genClass();
+	void genClassVarDec();
 	void genIfStatement();
 	void genExp();
 	uint16_t genExpList();
@@ -44,7 +49,7 @@ class CodeGenerator {
 	void genSubroutineBody();
 	void genSubroutineDec();
 	void genSubroutineCall();
-	void genVarDecList(const std::string& segment);
+	void genVarDec();
 	void genWhileStatement();
 	Token getIdentifier();
 	Token getSymbol(const std::string& symbol);

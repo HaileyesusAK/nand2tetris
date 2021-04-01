@@ -37,18 +37,20 @@ void CodeGenerator::genClass() {
 	while(tokenizer.hasNext()) {
 		try {
 			token = getKeyWord(varDecKeywords);
+			tokenizer.putBack();
 		}
 		catch (std::domain_error& err) {
 			break;
 		}
 
-		genVarDecList(token.value);
+		genClassVarDec();
 	}
 
 	// generate subroutineDec
 	while(tokenizer.hasNext()) {
 		try {
 			token = getKeyWord(subroutineDecKeywords);
+			tokenizer.putBack();
 		}
 		catch (std::domain_error& err) {
 			break;
@@ -255,6 +257,7 @@ void CodeGenerator::genStatements() {
 	subroutineBody : ('{' varDec* statements '}')
 */
 void CodeGenerator::genSubroutineBody() {
+	numSubroutineVars = 0;
 	getSymbol("{");
 
 	if(!tokenizer.hasNext())
@@ -262,11 +265,11 @@ void CodeGenerator::genSubroutineBody() {
 
 	while(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
+		tokenizer.putBack();
 		if(token.value == "var") {
-			genVarDecList("local");
+			genVarDec();
 		}
 		else {
-			tokenizer.putBack();
 			break;
 		}
 	}
@@ -317,8 +320,7 @@ void CodeGenerator::genSubroutineCall() {
 	className		: identifier
 */
 void CodeGenerator::genSubroutineDec() {
-	Token token;
-
+	auto keyword = getKeyWord({"constructor", "method", "function"});
 	subroutineSymbols.clear();
 	try {
 		getType();
@@ -327,7 +329,7 @@ void CodeGenerator::genSubroutineDec() {
 		getKeyWord({"void"});
 	}
 
-	token = getIdentifier();
+	auto token = getIdentifier();
 	getSymbol("(");
 	genParameterList();
 	getSymbol(")");
@@ -401,24 +403,45 @@ void CodeGenerator::genTerm() {
 }
 
 /*
+	classVarDec	: (static | field) type varName (',' varName)* ;
+	type		: 'int' | 'char' | 'boolean' | className
+	varName		: identifier
+	className	: identifier
+*/
+void CodeGenerator::genClassVarDec() {
+	auto keyword = getKeyWord({"static", "field"});
+	genVarDecList(classSymbols, keyword.value, numClassVars);
+}
+
+/*
+	varDec	   : var type varName (',' varName)* ;
+	type	   : 'int' | 'char' | 'boolean' | className
+	varName	   : identifier
+	className  : identifier
+*/
+void CodeGenerator::genVarDec() {
+	getKeyWord({"var"});
+	genVarDecList(subroutineSymbols, "local", numSubroutineVars);	
+}
+
+/*
 	varDecList : type varName (',' varName)* ;
 	type	   : 'int' | 'char' | 'boolean' | className
 	varName	   : identifier
 	className  : identifier
 */
-void CodeGenerator::genVarDecList(const std::string& kind) {
-	uint16_t index = 0;
+void CodeGenerator::genVarDecList(SymbolTable& symbolTable, const std::string& kind, uint16_t& index) {
 	Token token;
 	auto type = getType();
 	auto identifier = getIdentifier();
 
-	subroutineSymbols[identifier.value] = {identifier.value, type.value, kind, index};
+	symbolTable[identifier.value] = {identifier.value, type.value, kind, index};
 
 	while(tokenizer.hasNext()) {
 		token = tokenizer.getNext();
 		if(token.value == ",") {
 			identifier = getIdentifier();
-			subroutineSymbols[identifier.value] = {identifier.value, type.value, kind, ++index};
+			symbolTable[identifier.value] = {identifier.value, type.value, kind, ++index};
 		}
 		else if(token.value == ";") {
 			tokenizer.putBack();
@@ -433,7 +456,6 @@ void CodeGenerator::genVarDecList(const std::string& kind) {
 
 	getSymbol(";");
 }
-
 
 void CodeGenerator::genWhileStatement() {
 	static uint32_t i;
