@@ -452,6 +452,7 @@ void CodeGenerator::genWhileStatement() {
 	output.push_back("(" + whileBeginLabel +")");
 	getSymbol("}");
 	output.push_back("(" + whileEndLabel +")");
+	++i;
 }
 
 std::string CodeGenerator::getBinOpInst(const std::string& op) {
