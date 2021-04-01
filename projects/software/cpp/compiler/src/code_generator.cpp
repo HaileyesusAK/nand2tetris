@@ -168,22 +168,23 @@ void CodeGenerator::genLetStatement() {
 		throw std::out_of_range("No more tokens");
 
 	auto symbol = resolveSymbol(identifier.value);
-	output.push_back("push " + symbol.kind + " " + std::to_string(symbol.index));
 
 	auto token = tokenizer.getNext();
 	if(token.value == "[") { // Array element assignment
+		output.push_back("push constant " + std::to_string(symbol.index));
 		genExp();
 		output.push_back("add");	// Add array base address and index expression
 		getSymbol("]");
+		getSymbol("=");
+		genExp();
+		output.push_back("pop that 0"); // Assign the evaluated expression
 	}
-	else
+	else {
 		tokenizer.putBack();
-
-	output.push_back("pop pointer 1"); // Save the variable's or array element's address
-
-	getSymbol("=");
-	genExp();
-	output.push_back("pop that 0"); // Assign the evaluated expression
+		getSymbol("=");
+		genExp();
+		output.push_back("pop " + symbol.kind + " " + std::to_string(symbol.index));
+	}
 	getSymbol(";");
 }
 
@@ -359,7 +360,7 @@ void CodeGenerator::genTerm() {
 	Set keywordConstant {"true", "false", "null", "this"};
 	auto token = tokenizer.getNext();
 	if(token.type == TokenType::INTEGER)
-		output.push_back("push constant " + static_cast<uint16_t>(std::stoul(token.value)));
+		output.push_back("push constant " + token.value);
 	else if(token.type == TokenType::STRING) {
 		//TODO: how to push a string literal
 	}
