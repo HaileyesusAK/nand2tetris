@@ -199,21 +199,21 @@ void CodeGenerator::genParameterList() {
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
+	getSymbol("(");
 	auto token = tokenizer.getNext();
 	tokenizer.putBack();
 	if(token.value != ")") {
-		uint16_t index = 0;
+        uint16_t index = 0;
 		auto type = getType();
 		auto identifier = getIdentifier();
-		subroutineSymbols[identifier.value] = {identifier.value, type.value, "argument", index};
+		subroutineSymbols[identifier.value] = {identifier.value, type.value, "argument", index++};
 
 		while(tokenizer.hasNext()) {
 			token = tokenizer.getNext();
 			if(token.value == ",") {
-				getSymbol(",");
 				type = getType();
 				identifier = getIdentifier();
-				subroutineSymbols[identifier.value] = {identifier.value, type.value, "argument", ++index};
+				subroutineSymbols[identifier.value] = {identifier.value, type.value, "argument", index++};
 			}
 			else {
 				tokenizer.putBack();
@@ -221,6 +221,7 @@ void CodeGenerator::genParameterList() {
 			}
 		}
 	}
+	getSymbol(")");
 }
 
 /*
@@ -339,9 +340,7 @@ void CodeGenerator::genSubroutineDec() {
 	}
 
 	auto token = getIdentifier();
-	getSymbol("(");
 	genParameterList();
-	getSymbol(")");
 	genSubroutineBody();
 }
 
