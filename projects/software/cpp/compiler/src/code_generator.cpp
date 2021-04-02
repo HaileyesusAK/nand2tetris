@@ -444,13 +444,14 @@ void CodeGenerator::genVarDecList(SymbolTable& symbolTable, const std::string& k
 	auto type = getType();
 	auto identifier = getIdentifier();
 
-	symbolTable[identifier.value] = {identifier.value, type.value, kind, index};
+	symbolTable[identifier.value] = {identifier.value, type.value, kind, index++};
 
 	while(tokenizer.hasNext()) {
 		token = tokenizer.getNext();
 		if(token.value == ",") {
+            type = getType();
 			identifier = getIdentifier();
-			symbolTable[identifier.value] = {identifier.value, type.value, kind, ++index};
+			symbolTable[identifier.value] = {identifier.value, type.value, kind, index++};
 		}
 		else if(token.value == ";") {
 			tokenizer.putBack();

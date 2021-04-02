@@ -25,8 +25,8 @@ class CodeGenerator {
 	Tokenizer tokenizer;
 	SymbolTable classSymbols;
 	SymbolTable subroutineSymbols;
-	uint16_t numClassVars;
-	uint16_t numSubroutineVars;
+	uint16_t numClassVars = 0;
+	uint16_t numSubroutineVars = 0;
 
 	const Symbol& resolveSymbol(const std::string& name);
 	std::string getBinOpInst(const std::string& op);
