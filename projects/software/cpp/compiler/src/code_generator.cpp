@@ -171,9 +171,10 @@ void CodeGenerator::genLetStatement() {
 
 	auto token = tokenizer.getNext();
 	if(token.value == "[") { // Array element assignment
-		output.push_back("push constant " + std::to_string(symbol.index));
 		genExp();
+		output.push_back("push "  + symbol.kind + " " + std::to_string(symbol.index));
 		output.push_back("add");	// Add array base address and index expression
+        output.push_back("pop pointer 1");
 		getSymbol("]");
 		getSymbol("=");
 		genExp();
@@ -429,7 +430,7 @@ void CodeGenerator::genClassVarDec() {
 */
 void CodeGenerator::genVarDec() {
 	getKeyWord({"var"});
-	genVarDecList(subroutineSymbols, "local", numSubroutineVars);	
+	genVarDecList(subroutineSymbols, "local", numSubroutineVars);
 }
 
 /*
