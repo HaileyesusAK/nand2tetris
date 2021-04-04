@@ -7,16 +7,14 @@
 #include <unordered_map>
 
 #include "code_generator.hpp"
+#include "symbol_table.hpp"
 #include "tokenizer.hpp"
+#include "vm_writer.hpp"
 
-CodeGenerator::CodeGenerator(const fs::path& _inputPath) : inputPath(_inputPath), tokenizer(_inputPath) { }
+CodeGenerator::CodeGenerator(const fs::path& inputPath) : tokenizer(inputPath), vmWriter(inputPath){ }
 
 void CodeGenerator::generate() {
-	fs::path path(inputPath);
-	path.replace_extension(".vm");
-	std::ofstream os(path);
-	for(const auto& line : output)
-		os << line << std::endl;
+    vmWriter.write();
 }
 
 /*
@@ -39,6 +37,7 @@ void CodeGenerator::genClass() {
 
 	getKeyWord({"class"});
 	auto identifier = getIdentifier();
+    className = identifier.value;
 	getSymbol("{");
 
 	// generate varDec
@@ -83,7 +82,7 @@ void CodeGenerator::genExp() {
 		token = tokenizer.getNext();
 		if(ops.count(token.value)) {
             genTerm();
-			output.push_back(getBinOpInst(token.value));
+            vmWriter.writeArithmetic(getArithCmd(token.value));
 		}
 		else {
 			tokenizer.putBack();
@@ -134,14 +133,14 @@ void CodeGenerator::genIfStatement() {
 	getKeyWord({"if"});
 	getSymbol("(");
 	genExp();
-	output.push_back("neg");	//Easier to work after negating the expression's result
-
+	vmWriter.writeArithmetic(Command::NEG);   //Easier to work after negating the expression's result
+    vmWriter.writeIf(elseLabel);
 	getSymbol(")");
-	output.push_back("if-goto " + elseLabel);
 	getSymbol("{");
 	genStatements();
+    vmWriter.writeGoto(endLabel);
 	getSymbol("}");
-	output.push_back("(" + elseLabel + ")");
+    vmWriter.writeLabel(elseLabel);
 	if(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
 		if(token.value == "else") {
@@ -152,7 +151,7 @@ void CodeGenerator::genIfStatement() {
 		else
 			tokenizer.putBack();
 	}
-	output.push_back("(" + endLabel + ")");
+    vmWriter.writeLabel(endLabel);
 	++i;
 }
 
@@ -167,24 +166,25 @@ void CodeGenerator::genLetStatement() {
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
-	auto symbol = resolveSymbol(identifier.value);
+    SymbolTableEntry symbolEntry = symbolTable.getEntry(identifier.value);
+    Segment segment = kindToSegment(symbolEntry.kind);
 
 	auto token = tokenizer.getNext();
 	if(token.value == "[") { // Array element assignment
 		genExp();
-		output.push_back("push "  + symbol.kind + " " + std::to_string(symbol.index));
-		output.push_back("add");	// Add array base address and index expression
-        output.push_back("pop pointer 1");
+        vmWriter.writePush(segment, symbolEntry.index);
+        vmWriter.writeArithmetic(Command::ADD); // Add array base address and index expression
+        vmWriter.writePop(Segment::POINTER, 1);
 		getSymbol("]");
 		getSymbol("=");
 		genExp();
-		output.push_back("pop that 0"); // Assign the evaluated expression
+        vmWriter.writePop(Segment::THAT, 0); // Assign the evaluated expression
 	}
 	else {
 		tokenizer.putBack();
 		getSymbol("=");
 		genExp();
-		output.push_back("pop " + symbol.kind + " " + std::to_string(symbol.index));
+        vmWriter.writePop(segment, symbolEntry.index);
 	}
 	getSymbol(";");
 }
@@ -204,17 +204,16 @@ void CodeGenerator::genParameterList() {
 	auto token = tokenizer.getNext();
 	tokenizer.putBack();
 	if(token.value != ")") {
-        uint16_t index = 0;
 		auto type = getType();
 		auto identifier = getIdentifier();
-		subroutineSymbols[identifier.value] = {identifier.value, type.value, "argument", index++};
+        symbolTable.insert(identifier.value, type.value, SymbolKind::ARGUMENT);
 
 		while(tokenizer.hasNext()) {
 			token = tokenizer.getNext();
 			if(token.value == ",") {
 				type = getType();
 				identifier = getIdentifier();
-				subroutineSymbols[identifier.value] = {identifier.value, type.value, "argument", index++};
+                symbolTable.insert(identifier.value, type.value, SymbolKind::ARGUMENT);
 			}
 			else {
 				tokenizer.putBack();
@@ -233,8 +232,15 @@ void CodeGenerator::genReturnStatement() {
     try {
         genExp();
     }
-    catch (std::domain_error& exp) { }
+    catch (std::domain_error& exp) {
+		vmWriter.writePop(Segment::CONST, 0);	//value for void return type	
+	}
     getSymbol(";");
+
+	if(currentSubroutineType == SubroutineType::CONSTRUCTOR)
+		vmWriter.writePush(Segment::POINTER, 0);
+
+	vmWriter.writeReturn();
 }
 
 /*
@@ -268,11 +274,7 @@ void CodeGenerator::genStatements() {
 	subroutineBody : ('{' varDec* statements '}')
 */
 void CodeGenerator::genSubroutineBody() {
-	numSubroutineVars = 0;
 	getSymbol("{");
-
-	if(!tokenizer.hasNext())
-		throw std::out_of_range("No more tokens");
 
 	while(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
@@ -300,27 +302,43 @@ void CodeGenerator::genSubroutineCall() {
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
-	std::string methodName;
+	std::string subroutineName, identifier;
 	uint16_t nArgs;
-
     auto token = getIdentifier();
-	methodName = token.value;
+	identifier = token.value;
+
+	if(!tokenizer.hasNext())
+		throw std::out_of_range("No more tokens");
+
     token = tokenizer.getNext();
     if(token.value == "(") {
-        nArgs = genExpList();
-        getSymbol(")");
+		//A call to the current object's method
+		vmWriter.writePush(Segment::POINTER, 0); // push 'this' as the first argument
+        nArgs = genExpList() + 1; // +1 for 'this'
+		subroutineName = className + "." + identifier;
     }
     else {
         tokenizer.putBack();
 		getSymbol(".");
-        token = getIdentifier();
+        auto methodName = getIdentifier().value;
         getSymbol("(");
-        nArgs = genExpList();
-		methodName += "." + token.value;
-        getSymbol(")");
+
+		try {
+			auto symbolEntry = symbolTable.getEntry(identifier);
+			subroutineName = symbolEntry.type + "." + methodName;
+			vmWriter.writePush(Segment::LOCAL, symbolEntry.index);	// push a reference to the object as a first argument
+			nArgs = genExpList() + 1; // +1 for the object pushed as the first argument
+		}
+		catch (std::out_of_range& err) {
+			//At this point 'identifier' is assumed to be a class Name
+			subroutineName = identifier + "." + methodName;
+			nArgs = genExpList();
+		}
     }
 
-	output.push_back("call " + methodName + " " + std::to_string(nArgs));
+	getSymbol(")");
+	//TODO: verify the number and types of the arguments
+    vmWriter.writeCall(subroutineName, nArgs);
 }
 
 /*
@@ -332,16 +350,38 @@ void CodeGenerator::genSubroutineCall() {
 */
 void CodeGenerator::genSubroutineDec() {
 	auto keyword = getKeyWord({"constructor", "method", "function"});
-	subroutineSymbols.clear();
+	Token type;
+	symbolTable.clear(Scope::SUBROUTINE);
 	try {
-		getType();
+		type = getType();
 	}
 	catch (std::domain_error& err) {
-		getKeyWord({"void"});
+		type = getKeyWord({"void"});
 	}
 
 	auto token = getIdentifier();
+    std::string funcName {className + "." + token.value};
 	genParameterList();
+	uint16_t nLocals;
+
+    if(keyword.value == "constructor") {
+        nLocals = symbolTable.count(SymbolKind::FIELD);
+        auto addr = heap.alloc(nLocals);
+        vmWriter.writePush(Segment::CONST, addr);
+        vmWriter.writePop(Segment::POINTER, 0); // Set's the base address of THIS
+		currentSubroutineType = SubroutineType::CONSTRUCTOR;
+    }
+    else if(keyword.value == "function") {
+        nLocals = symbolTable.count(SymbolKind::ARGUMENT);
+		currentSubroutineType = SubroutineType::FUNCTION;
+    }
+    else if(keyword.value == "method") {
+		symbolTable.insert("this", className, SymbolKind::LOCAL);
+        nLocals = symbolTable.count(SymbolKind::ARGUMENT) + 1; // +1 for the object
+		currentSubroutineType = SubroutineType::METHOD;
+    }
+
+	vmWriter.writeFunction(funcName, nLocals);
 	genSubroutineBody();
 }
 
@@ -360,7 +400,7 @@ void CodeGenerator::genTerm() {
 	Set keywordConstant {"true", "false", "null", "this"};
 	auto token = tokenizer.getNext();
 	if(token.type == TokenType::INTEGER)
-		output.push_back("push constant " + token.value);
+        vmWriter.writePush(Segment::CONST, std::stoul(token.value));
 	else if(token.type == TokenType::STRING) {
 		//TODO: how to push a string literal
 	}
@@ -368,27 +408,31 @@ void CodeGenerator::genTerm() {
 		//TODO: how to push a keywordConstant
 	}
 	else if(token.type == TokenType::IDENTIFIER) {
-		const auto& symbol = resolveSymbol(token.value);
+        auto symbolEntry = symbolTable.getEntry(token.value);
+        auto segment = kindToSegment(symbolEntry.kind);
+
 		if(tokenizer.hasNext()) {
 			token = tokenizer.getNext();
 			if(token.value == "[") { // Array evaluation
-				output.push_back("push " + symbol.kind + " " + std::to_string(symbol.index));
+				//TODO: make sure symbolEntry.type == 'Array'
+                vmWriter.writePush(segment, symbolEntry.index);
 				genExp();
-				output.push_back("add");
+                vmWriter.writeArithmetic(Command::ADD);
 				getSymbol("]");
 			}
 			else if(token.value == "(" || token.value == ".") { // Subroutine call
 				tokenizer.putBack(); // Put back the symbol
 				tokenizer.putBack(); // Put back the identifier
+				//TODO: make sure that the subroutine is a non-void-returning subroutine
 				genSubroutineCall();
 			}
             else {
-				output.push_back("push " + symbol.kind + " " + std::to_string(symbol.index));
+                vmWriter.writePush(segment, symbolEntry.index);
                 tokenizer.putBack();
 			}
 		}
 		else {
-			output.push_back("push " + symbol.kind + " " + std::to_string(symbol.index));
+            vmWriter.writePush(segment, symbolEntry.index);
 		}
 	}
 	else if(token.value == "(") {
@@ -397,11 +441,11 @@ void CodeGenerator::genTerm() {
 	}
 	else if(token.value == "-") {
 		genTerm();
-		output.push_back("neg");
+		vmWriter.writeArithmetic(Command::NEG);
 	}
 	else if(token.value == "~") {
 		genTerm();
-		output.push_back("not");
+		vmWriter.writeArithmetic(Command::NOT);
 	}
 	else {
         tokenizer.putBack();
@@ -419,7 +463,10 @@ void CodeGenerator::genTerm() {
 */
 void CodeGenerator::genClassVarDec() {
 	auto keyword = getKeyWord({"static", "field"});
-	genVarDecList(classSymbols, keyword.value, numClassVars);
+    if(keyword.value == "static")
+        genVarDecList(SymbolKind::STATIC);
+    else
+        genVarDecList(SymbolKind::FIELD);
 }
 
 /*
@@ -430,7 +477,7 @@ void CodeGenerator::genClassVarDec() {
 */
 void CodeGenerator::genVarDec() {
 	getKeyWord({"var"});
-	genVarDecList(subroutineSymbols, "local", numSubroutineVars);
+	genVarDecList(SymbolKind::LOCAL);
 }
 
 /*
@@ -439,19 +486,19 @@ void CodeGenerator::genVarDec() {
 	varName	   : identifier
 	className  : identifier
 */
-void CodeGenerator::genVarDecList(SymbolTable& symbolTable, const std::string& kind, uint16_t& index) {
+void CodeGenerator::genVarDecList(const SymbolKind& kind) {
 	Token token;
 	auto type = getType();
 	auto identifier = getIdentifier();
 
-	symbolTable[identifier.value] = {identifier.value, type.value, kind, index++};
+	symbolTable.insert(identifier.value, type.value, kind);
 
 	while(tokenizer.hasNext()) {
 		token = tokenizer.getNext();
 		if(token.value == ",") {
             type = getType();
 			identifier = getIdentifier();
-			symbolTable[identifier.value] = {identifier.value, type.value, kind, index++};
+	        symbolTable.insert(identifier.value, type.value, kind);
 		}
 		else if(token.value == ";") {
 			tokenizer.putBack();
@@ -474,37 +521,33 @@ void CodeGenerator::genWhileStatement() {
 
     getKeyWord({"while"});
 	getSymbol("(");
-	output.push_back("(" + whileBeginLabel + ")");
+    vmWriter.writeLabel(whileBeginLabel);
 	genExp();
-	output.push_back("neg");	//Easier to work after negating the expression's result
+    vmWriter.writeArithmetic(Command::NEG); //Easier to work after negating the expression's result
 	getSymbol(")");
-	output.push_back("if-goto " + whileEndLabel);
+    vmWriter.writeIf(whileEndLabel);
 	getSymbol("{");
 	genStatements();
-	output.push_back("(" + whileBeginLabel +")");
+    vmWriter.writeGoto(whileBeginLabel);
 	getSymbol("}");
-	output.push_back("(" + whileEndLabel +")");
+    vmWriter.writeLabel(whileEndLabel);
 	++i;
 }
 
-std::string CodeGenerator::getBinOpInst(const std::string& op) {
-	static const std::unordered_map<std::string, std::string> opInst {
-		{"+", "add"},
-		{"-", "sub"},
-		{"*", "mul"},
-		{"&", "and"},
-		{"|", "or"},
-		{"<", "lt"},
-		{">", "gt"},
-		{"=", "eq"}
+Command CodeGenerator::getArithCmd(const std::string& op) {
+	static const std::unordered_map<std::string, Command> opInst {
+		{"+", Command::ADD},
+		{"-", Command::SUB},
+		{"&", Command::AND},
+		{"|", Command::OR},
+		{"<", Command::LT},
+		{">", Command::GT},
+		{"=", Command::EQ}
 	};
 
-	if(op == "/") {
-		return ""; //TODO: return commands that implement division
-	}
-	else {
-		return opInst.at(op);
-	}
+    return opInst.at(op);
+
+    //TODO: how to represent mul and div
 }
 
 Token CodeGenerator::getIdentifier() {
@@ -573,18 +616,34 @@ Token CodeGenerator::getKeyWord(const Set& keywords) {
 	return token;
 }
 
-const Symbol& CodeGenerator::resolveSymbol(const std::string& name) {
-	try {
-		return subroutineSymbols.at(name);
-	} catch(std::out_of_range& err) {
-		return classSymbols.at(name);
-	}
-}
-
 void CodeGenerator::appendInputLine(std::string& s, size_t lineNo, size_t columnNo) {
 	std::ostringstream os;
 	os << " at (" << lineNo << ", " << columnNo << ")" << std::endl;
 	os << tokenizer.getLine(lineNo - 1) << std::endl;
 	os << std::setw(columnNo) << std::setfill('-') << "^" << std::endl;
 	s.append(os.str());
+}
+
+Segment CodeGenerator::kindToSegment(const SymbolKind& kind) {
+    Segment segment;
+
+    switch(kind) {
+        case SymbolKind::STATIC:
+            segment = Segment::STATIC;
+        break;
+
+        case SymbolKind::LOCAL:
+            segment = Segment::LOCAL;
+        break;
+
+        case SymbolKind::ARGUMENT:
+            segment = Segment::ARGUMENT;
+        break;
+
+        case SymbolKind::FIELD:
+            segment = Segment::THIS;
+        break;
+    }
+
+    return segment;
 }

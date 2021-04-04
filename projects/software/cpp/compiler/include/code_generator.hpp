@@ -6,32 +6,31 @@
 #include <unordered_map>
 #include <utility>
 
+#include "heap.hpp"
+#include "symbol_table.hpp"
 #include "tokenizer.hpp"
+#include "vm_writer.hpp"
 
 namespace fs = std::filesystem;
 
-struct Symbol {
-	std::string name;
-	std::string type;
-	std::string kind;
-	uint16_t index;
+enum class SubroutineType {
+	CONSTRUCTOR,
+	FUNCTION,
+	METHOD
 };
 
-using SymbolTable = std::unordered_map<std::string, Symbol>;
-
 class CodeGenerator {
-	fs::path inputPath;
-	std::vector<std::string> output;
+    std::string className;
 	Tokenizer tokenizer;
-	SymbolTable classSymbols;
-	SymbolTable subroutineSymbols;
-	uint16_t numClassVars = 0;
-	uint16_t numSubroutineVars = 0;
+    Heap heap;
+	SubroutineType currentSubroutineType;
+    SymbolTable symbolTable;
+    VmWriter vmWriter;
 
-	const Symbol& resolveSymbol(const std::string& name);
-	std::string getBinOpInst(const std::string& op);
-	void genVarDecList(SymbolTable& symbolTable, const std::string& kind, uint16_t& index);
+	Command getArithCmd(const std::string& op);
+	void genVarDecList(const SymbolKind& kind);
 	void appendInputLine(std::string& s, size_t lineNo, size_t columnNo);
+    Segment kindToSegment(const SymbolKind& kind);
 
 	public:
 	CodeGenerator(const fs::path& inputPath);
