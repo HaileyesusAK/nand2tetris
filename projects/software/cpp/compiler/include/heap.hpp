@@ -17,6 +17,7 @@ class Heap {
     std::list<Block> freeBlocks;
 
     public:
+    Heap();
     Heap(uint16_t baseAddr, uint16_t capacity);
     uint16_t alloc(uint16_t numSlots);
     void dealloc(uint16_t addr);
