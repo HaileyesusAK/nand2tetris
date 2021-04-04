@@ -44,9 +44,9 @@ TEST_CASE("Clearing table", "[symbolTable]") {
     REQUIRE(table.count(SymbolKind::FIELD) == 0);
 
     table.insert("x", "int", SymbolKind::STATIC);
-    table.insert("y", "int", SymbolKind::STATIC);
+    table.insert("y", "int", SymbolKind::FIELD);
     table.insert("z", "int", SymbolKind::FIELD);
-    REQUIRE(table.getIndex("z") == 2);
+    REQUIRE(table.getIndex("z") == 1);
 
     table.insert("z", "int", SymbolKind::ARGUMENT);
     table.insert("y", "int", SymbolKind::LOCAL);
@@ -59,7 +59,7 @@ TEST_CASE("Clearing table", "[symbolTable]") {
     table.clear(Scope::SUBROUTINE);
     REQUIRE(table.count(SymbolKind::ARGUMENT) == 0);
     REQUIRE(table.count(SymbolKind::LOCAL) == 0);
-    REQUIRE(table.getIndex("z") == 2);  // varaible index at a class scope
+    REQUIRE(table.getIndex("z") == 1);  // varaible index at a class scope
 
     //Getting info about a non-existent symbol must throw std::out_of_range
     REQUIRE_THROWS_AS(table.getIndex("bogus"), std::out_of_range);

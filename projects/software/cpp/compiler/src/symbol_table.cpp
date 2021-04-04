@@ -4,10 +4,14 @@
 #include "symbol_table.hpp"
 
 void SymbolTable::clear(const Scope& scope) {
-    if(scope == Scope::CLASS)
-        classIndex = 0;
-    else
-        subroutineIndex = 0;
+    if(scope == Scope::CLASS) {
+        staticIndex = 0;
+        fieldIndex = 0;
+    }
+    else {
+        argIndex = 0;
+        lclIndex = 0;
+    }
 
     auto pred = [&scope](const auto& p) { return p.first.second == scope; };
     for (auto it = table.begin(), last = table.end(); it != last; ) {
@@ -50,14 +54,22 @@ void SymbolTable::insert(const std::string& name, const std::string& type, const
 
     switch(kind) {
         case SymbolKind::STATIC:
+            index = staticIndex++;
+            scope = Scope::CLASS;
+        break;
+
         case SymbolKind::FIELD:
-            index = classIndex++;
+            index = fieldIndex++;
             scope = Scope::CLASS;
         break;
 
         case SymbolKind::ARGUMENT:
+            index = argIndex++;
+            scope = Scope::SUBROUTINE;
+        break;
+
         case SymbolKind::LOCAL:
-            index = subroutineIndex++;
+            index = lclIndex++;
             scope = Scope::SUBROUTINE;
         break;
     }

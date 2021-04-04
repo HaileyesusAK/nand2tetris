@@ -36,8 +36,10 @@ struct KeyHash {
 class SymbolTable {
     //std::unordered_map<std::pair<std::string, Scope>, SymbolTableEntry> table;
     std::unordered_map<Key, SymbolTableEntry, KeyHash> table;
-    uint16_t classIndex = 0;
-    uint16_t subroutineIndex = 0;
+    uint16_t staticIndex = 0;
+    uint16_t fieldIndex = 0;
+    uint16_t argIndex = 0;
+    uint16_t lclIndex = 0;
 
     public:
     void clear(const Scope& scope);
