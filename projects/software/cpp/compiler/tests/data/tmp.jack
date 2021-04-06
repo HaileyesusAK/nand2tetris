@@ -1,1 +1,1 @@
-int do
+do Circle.area(1 + (2 * 3));

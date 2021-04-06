@@ -29,6 +29,18 @@ CodeGenerator get_generator(const string& cmd) {
 	return codeGenerator;
 }
 
+bool testFile(const fs::path& path) {
+    fs::path jackFile = DATA_DIR / path;
+    fs::path vmFile(jackFile);
+    vmFile.replace_extension(".vm");
+
+	CodeGenerator codeGenerator {jackFile};
+	codeGenerator.genClass();
+	codeGenerator.generate();
+    fs::path expectedFile = EXP_DATA_DIR / vmFile.filename();
+    return cmpFiles(expectedFile, vmFile);
+}
+
 bool testCmd(const string& cmd, const string& output, const vector<GeneratorType>& instructions) {
 	auto generator = get_generator(cmd);
 	for(const auto& inst : instructions) {
@@ -93,4 +105,15 @@ TEST_CASE("Array assignment") {
                    "push argument 0\npush argument 1\nadd\nnot\n"
                    "pop that 0"};
 	REQUIRE(testCmd(cmd, output, instructions)); 
+}
+
+TEST_CASE("Subroutine call", "[genSubroutineCall]") {
+    string cmd {"do Circle.area(1 + (2 * 3));"};
+	vector<GeneratorType> instructions { GeneratorType::DO };
+	string output {"push constant 1\npush constant 2\npush constant 3\ncall Math.multiply 2\nadd\ncall Circle.area 1"};
+	REQUIRE(testCmd(cmd, output, instructions)); 
+}
+
+TEST_CASE("Seven") {
+    REQUIRE(testFile("Seven.jack"));
 }

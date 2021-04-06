@@ -82,7 +82,10 @@ void CodeGenerator::genExp() {
 		token = tokenizer.getNext();
 		if(ops.count(token.value)) {
             genTerm();
-            vmWriter.writeArithmetic(getArithCmd(token.value));
+			if(token.value == "*" || token.value == "/")
+				vmWriter.writeCall("Math.multiply", 2);
+			else
+				vmWriter.writeArithmetic(getArithCmd(token.value));
 		}
 		else {
 			tokenizer.putBack();
@@ -233,7 +236,7 @@ void CodeGenerator::genReturnStatement() {
         genExp();
     }
     catch (std::domain_error& exp) {
-		vmWriter.writePop(Segment::CONST, 0);	//value for void return type	
+		vmWriter.writePush(Segment::CONST, 0);	//value for void return type	
 	}
     getSymbol(";");
 
@@ -546,8 +549,6 @@ Command CodeGenerator::getArithCmd(const std::string& op) {
 	};
 
     return opInst.at(op);
-
-    //TODO: how to represent mul and div
 }
 
 Token CodeGenerator::getIdentifier() {
