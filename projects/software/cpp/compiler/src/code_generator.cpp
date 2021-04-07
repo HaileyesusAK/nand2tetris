@@ -564,7 +564,6 @@ void CodeGenerator::genVarDecList(const SymbolKind& kind) {
 	while(tokenizer.hasNext()) {
 		token = tokenizer.getNext();
 		if(token.value == ",") {
-            type = getType();
 			identifier = getIdentifier();
 	        symbolTable.insert(identifier.value, type.value, kind);
 		}
