@@ -30,7 +30,7 @@ void VmWriter::writeGoto(const std::string& label) {
 }
 
 void VmWriter::writeIf(const std::string& label) {
-    instructions.push_back("if-goto" + label);
+    instructions.push_back("if-goto " + label);
 }
 
 void VmWriter::writeCall(const std::string& name, uint16_t nArgs) {
