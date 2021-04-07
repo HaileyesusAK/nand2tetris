@@ -4,11 +4,10 @@ CPPFLAGS += -Wall --std=c++17
 LIB = libanalyzer.a
 OBJS = tokenizer.o analyzer.o code_generator.o heap.o symbol_table.o vm_writer.o
 APP = Analyzer 
-DEBUG = 1
 LDFLAGS = -lstdc++fs
 
 ifeq ($(DEBUG), 1)
-CPPFLAGS += -g
+CPPFLAGS += -g -DDEBUG
 endif
 
 .cpp.o:

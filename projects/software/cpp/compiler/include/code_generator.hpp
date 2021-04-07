@@ -31,6 +31,7 @@ class CodeGenerator {
 	void genVarDecList(const SymbolKind& kind);
 	void appendInputLine(std::string& s, size_t lineNo, size_t columnNo);
     Segment kindToSegment(const SymbolKind& kind);
+	void report(const std::string& caller);
 
 	public:
 	CodeGenerator(const fs::path& inputPath);

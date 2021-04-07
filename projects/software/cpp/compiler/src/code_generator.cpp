@@ -21,6 +21,10 @@ void CodeGenerator::generate() {
     doStatement : 'do' subroutineCall ';'
 */
 void CodeGenerator::genDoStatement() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
     getKeyWord({"do"});
     genSubroutineCall();
     getSymbol(";");
@@ -31,6 +35,10 @@ void CodeGenerator::genDoStatement() {
 	className : identifier
 */
 void CodeGenerator::genClass() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	Set varDecKeywords {"field", "static"};
 	Set subroutineDecKeywords {"constructor", "method", "function"};
 	Token token;
@@ -74,6 +82,10 @@ void CodeGenerator::genClass() {
     term       : '+' |  '-' |  '*' |  '/' |  '&' |  '|' |  '<' |  '>' |  '='
 */
 void CodeGenerator::genExp() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	Token token;
 	Set ops {"+", "-", "*", "/", "&", "|", "<", ">", "="};
 
@@ -98,6 +110,10 @@ void CodeGenerator::genExp() {
     expressionList : (expression (',' expression)*)?
 */
 uint16_t CodeGenerator::genExpList() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
@@ -129,6 +145,10 @@ uint16_t CodeGenerator::genExpList() {
                   ('else' '{' statements '}')?
 */
 void CodeGenerator::genIfStatement() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	static uint32_t i;
 	std::string endLabel {"(IF_END_" + std::to_string(i)};
 	std::string elseLabel {"(ELSE_" + std::to_string(i)};
@@ -163,6 +183,10 @@ void CodeGenerator::genIfStatement() {
 	varName		 : identifier
 */
 void CodeGenerator::genLetStatement() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
     getKeyWord({"let"});
 	auto identifier = getIdentifier();
 
@@ -200,6 +224,10 @@ void CodeGenerator::genLetStatement() {
 	varName		  : identifier
 */
 void CodeGenerator::genParameterList() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
@@ -231,6 +259,10 @@ void CodeGenerator::genParameterList() {
     returnStatement : 'return' expression? ';'
 */
 void CodeGenerator::genReturnStatement() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
     getKeyWord({"return"});
     try {
         genExp();
@@ -251,6 +283,10 @@ void CodeGenerator::genReturnStatement() {
     statement  : letStatement | ifStatement | whileStatement | doStatement | returnStatement
 */
 void CodeGenerator::genStatements() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	Token token;
 	std::unordered_map<std::string, void(CodeGenerator::*)()> generatorMap {
 		{"do", &CodeGenerator::genDoStatement},
@@ -277,6 +313,10 @@ void CodeGenerator::genStatements() {
 	subroutineBody : ('{' varDec* statements '}')
 */
 void CodeGenerator::genSubroutineBody() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	getSymbol("{");
 
 	while(tokenizer.hasNext()) {
@@ -302,6 +342,10 @@ void CodeGenerator::genSubroutineBody() {
     className      : identifier
 */
 void CodeGenerator::genSubroutineCall() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
@@ -352,6 +396,10 @@ void CodeGenerator::genSubroutineCall() {
 	className		: identifier
 */
 void CodeGenerator::genSubroutineDec() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	auto keyword = getKeyWord({"constructor", "method", "function"});
 	Token type;
 	symbolTable.clear(Scope::SUBROUTINE);
@@ -397,10 +445,15 @@ void CodeGenerator::genSubroutineDec() {
 	subroutineName	: identifier
 */
 void CodeGenerator::genTerm() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
 	Set keywordConstant {"true", "false", "null", "this"};
+
 	auto token = tokenizer.getNext();
 	if(token.type == TokenType::INTEGER)
         vmWriter.writePush(Segment::CONST, std::stoul(token.value));
@@ -465,6 +518,10 @@ void CodeGenerator::genTerm() {
 	className	: identifier
 */
 void CodeGenerator::genClassVarDec() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	auto keyword = getKeyWord({"static", "field"});
     if(keyword.value == "static")
         genVarDecList(SymbolKind::STATIC);
@@ -479,6 +536,10 @@ void CodeGenerator::genClassVarDec() {
 	className  : identifier
 */
 void CodeGenerator::genVarDec() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	getKeyWord({"var"});
 	genVarDecList(SymbolKind::LOCAL);
 }
@@ -490,6 +551,10 @@ void CodeGenerator::genVarDec() {
 	className  : identifier
 */
 void CodeGenerator::genVarDecList(const SymbolKind& kind) {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	Token token;
 	auto type = getType();
 	auto identifier = getIdentifier();
@@ -518,6 +583,10 @@ void CodeGenerator::genVarDecList(const SymbolKind& kind) {
 }
 
 void CodeGenerator::genWhileStatement() {
+	#ifdef DEBUG
+		report(__PRETTY_FUNCTION__);
+	#endif
+
 	static uint32_t i;
 	std::string whileBeginLabel {"BEGIN_WHILE_" + std::to_string(i)};
 	std::string whileEndLabel {"END_WHILE_" + std::to_string(i)};
@@ -587,7 +656,7 @@ Token CodeGenerator::getSymbol(const std::string& symbol) {
 	auto token = tokenizer.getNext();
 	if(token.type != TokenType::SYMBOL || token.value != symbol) {
 		tokenizer.putBack();
-		std::string msg("Uknown symbol");
+		std::string msg("expected '" + symbol + "' but found '" + token.value + "'");
 		appendInputLine(msg, token.lineNo, token.columnNo);
 		throw std::domain_error(msg);
 	}
@@ -647,4 +716,15 @@ Segment CodeGenerator::kindToSegment(const SymbolKind& kind) {
     }
 
     return segment;
+}
+
+void CodeGenerator::report(const std::string& caller) {
+	std::cout << "Called " << caller;
+	if(tokenizer.hasNext()) {
+		auto token = tokenizer.getNext();
+		tokenizer.putBack();
+		std::cout << " with token " << token << std::endl;
+	}
+	else
+		std::cout << std::endl;
 }
