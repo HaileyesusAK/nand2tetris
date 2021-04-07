@@ -150,8 +150,8 @@ void CodeGenerator::genIfStatement() {
 	#endif
 
 	static uint32_t i;
-	std::string endLabel {"(IF_END_" + std::to_string(i)};
-	std::string elseLabel {"(ELSE_" + std::to_string(i)};
+	std::string endLabel {"IF_END_" + std::to_string(i)};
+	std::string elseLabel {"ELSE_" + std::to_string(i)};
 
 	getKeyWord({"if"});
 	getSymbol("(");
