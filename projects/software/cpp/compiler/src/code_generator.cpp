@@ -495,30 +495,33 @@ void CodeGenerator::genTerm() {
 			vmWriter.writePush(Segment::THIS, 0);	//TODO: verify
 	}
 	else if(token.type == TokenType::IDENTIFIER) {
-        auto symbolEntry = symbolTable.getEntry(token.value);
-        auto segment = kindToSegment(symbolEntry.kind);
-
 		if(tokenizer.hasNext()) {
+			std::string identifier {token.value};
 			token = tokenizer.getNext();
-			if(token.value == "[") { // Array evaluation
-				//TODO: make sure symbolEntry.type == 'Array'
-                vmWriter.writePush(segment, symbolEntry.index);
-				genExp();
-                vmWriter.writeArithmetic(Command::ADD);
-				getSymbol("]");
-			}
-			else if(token.value == "(" || token.value == ".") { // Subroutine call
+			if(token.value == "(" || token.value == ".") { // Subroutine call
 				tokenizer.putBack(); // Put back the symbol
 				tokenizer.putBack(); // Put back the identifier
-				//TODO: make sure that the subroutine is a non-void-returning subroutine
 				genSubroutineCall();
 			}
-            else {
-                vmWriter.writePush(segment, symbolEntry.index);
-                tokenizer.putBack();
+			else {
+				auto symbolEntry = symbolTable.getEntry(identifier);
+				auto segment = kindToSegment(symbolEntry.kind);
+
+				if(token.value == "[") { // Array evaluation
+					vmWriter.writePush(segment, symbolEntry.index);
+					genExp();
+					vmWriter.writeArithmetic(Command::ADD);
+					getSymbol("]");
+				}
+				else {
+					vmWriter.writePush(segment, symbolEntry.index);
+					tokenizer.putBack();
+				}
 			}
 		}
 		else {
+			auto symbolEntry = symbolTable.getEntry(token.value);
+			auto segment = kindToSegment(symbolEntry.kind);
             vmWriter.writePush(segment, symbolEntry.index);
 		}
 	}
