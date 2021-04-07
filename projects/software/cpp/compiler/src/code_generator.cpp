@@ -400,7 +400,14 @@ void CodeGenerator::genSubroutineDec() {
 		report(__PRETTY_FUNCTION__);
 	#endif
 
-	auto keyword = getKeyWord({"constructor", "method", "function"});
+	static Set keywords {"constructor", "method", "function"};
+	static std::unordered_map<std::string, SubroutineType> subroutineTypeMap {
+		{"constructor", SubroutineType::CONSTRUCTOR},
+		{"method", SubroutineType::METHOD},
+		{"function", SubroutineType::FUNCTION}
+	};
+	auto keyword = getKeyWord(keywords);
+
 	Token type;
 	symbolTable.clear(Scope::SUBROUTINE);
 	try {
@@ -412,25 +419,39 @@ void CodeGenerator::genSubroutineDec() {
 
 	auto token = getIdentifier();
     std::string funcName {className + "." + token.value};
-	genParameterList();
 	uint16_t nLocals;
+	switch(subroutineTypeMap[keyword.value]) {
+		case SubroutineType::CONSTRUCTOR: {
+			genParameterList();
+			nLocals = symbolTable.count(SymbolKind::FIELD);
+			auto addr = heap.alloc(nLocals);
+			vmWriter.writePush(Segment::CONST, addr);
+			vmWriter.writePop(Segment::POINTER, 0); // Set's the base address of THIS
+			currentSubroutineType = SubroutineType::CONSTRUCTOR;
+		}
+		break;
 
-    if(keyword.value == "constructor") {
-        nLocals = symbolTable.count(SymbolKind::FIELD);
-        auto addr = heap.alloc(nLocals);
-        vmWriter.writePush(Segment::CONST, addr);
-        vmWriter.writePop(Segment::POINTER, 0); // Set's the base address of THIS
-		currentSubroutineType = SubroutineType::CONSTRUCTOR;
-    }
-    else if(keyword.value == "function") {
-        nLocals = symbolTable.count(SymbolKind::ARGUMENT);
-		currentSubroutineType = SubroutineType::FUNCTION;
-    }
-    else if(keyword.value == "method") {
-		symbolTable.insert("this", className, SymbolKind::LOCAL);
-        nLocals = symbolTable.count(SymbolKind::ARGUMENT) + 1; // +1 for the object
-		currentSubroutineType = SubroutineType::METHOD;
-    }
+		case SubroutineType::FUNCTION: {
+			genParameterList();
+			nLocals = symbolTable.count(SymbolKind::ARGUMENT);
+			currentSubroutineType = SubroutineType::FUNCTION;
+		}
+		break;
+
+		case SubroutineType::METHOD: {
+			/*
+				When compiling a Jack method into a VM function, the compiler must insert
+				VM code that sets the base of the this segment properly.
+			*/
+			symbolTable.insert("this", className, SymbolKind::ARGUMENT);
+			genParameterList();
+			vmWriter.writePush(Segment::ARGUMENT, 0);
+			vmWriter.writePop(Segment::POINTER, 0);
+			nLocals = symbolTable.count(SymbolKind::ARGUMENT);
+			currentSubroutineType = SubroutineType::METHOD;
+		}
+		break;
+	}
 
 	vmWriter.writeFunction(funcName, nLocals);
 	genSubroutineBody();
