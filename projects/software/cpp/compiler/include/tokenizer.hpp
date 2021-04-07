@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -19,6 +20,11 @@ struct Token {
     uint32_t columnNo;
 	friend bool operator==(const Token& lhs, const Token& rhs) {
 		return lhs.type == rhs.type && lhs.value == rhs.value;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const Token& token) {
+		os << "'" << token.value << "' at (" << token.lineNo << ", " << token.columnNo << ")";
+		return os;
 	}
 };
 
