@@ -119,3 +119,8 @@ TEST_CASE("Subroutine call", "[genSubroutineCall]") {
 TEST_CASE("Seven") {
     REQUIRE(testFile(fs::path("Seven") / fs::path("Main.jack")));
 }
+
+TEST_CASE("ConvertToBin") {
+    REQUIRE(testFile(fs::path("ConvertToBin") / fs::path("Main.jack")));
+}
+

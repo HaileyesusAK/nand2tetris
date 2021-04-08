@@ -150,21 +150,24 @@ void CodeGenerator::genIfStatement() {
 		report(__PRETTY_FUNCTION__);
 	#endif
 
-	static uint32_t i;
-	std::string endLabel {"IF_END_" + std::to_string(i)};
-	std::string elseLabel {"ELSE_" + std::to_string(i)};
+	static int32_t i = -1;
+	++i; // Enter into a new scope
+	std::string ifTrueLabel {"IF_TRUE" + std::to_string(i)};
+	std::string ifFalseLabel {"IF_FALSE" + std::to_string(i)};
+	std::string ifEndLabel {"IF_END" + std::to_string(i)};
 
 	getKeyWord({"if"});
 	getSymbol("(");
 	genExp();
-	vmWriter.writeArithmetic(Command::NEG);   //Easier to work after negating the expression's result
-    vmWriter.writeIf(elseLabel);
 	getSymbol(")");
+    vmWriter.writeIf(ifTrueLabel);
+	vmWriter.writeGoto(ifFalseLabel);
+	vmWriter.writeLabel(ifTrueLabel);
 	getSymbol("{");
 	genStatements();
-    vmWriter.writeGoto(endLabel);
+    vmWriter.writeGoto(ifEndLabel);
 	getSymbol("}");
-    vmWriter.writeLabel(elseLabel);
+    vmWriter.writeLabel(ifFalseLabel);
 	if(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
 		if(token.value == "else") {
@@ -175,8 +178,8 @@ void CodeGenerator::genIfStatement() {
 		else
 			tokenizer.putBack();
 	}
-    vmWriter.writeLabel(endLabel);
-	++i;
+    vmWriter.writeLabel(ifEndLabel);
+	--i; // Exit out of scope
 }
 
 /*
@@ -637,15 +640,16 @@ void CodeGenerator::genWhileStatement() {
 		report(__PRETTY_FUNCTION__);
 	#endif
 
-	static uint32_t i;
-	std::string whileBeginLabel {"BEGIN_WHILE_" + std::to_string(i)};
-	std::string whileEndLabel {"END_WHILE_" + std::to_string(i)};
+	static int32_t i = -1;
+	++i; // Enter into a new scope
+	std::string whileBeginLabel {"WHILE_EXP" + std::to_string(i)};
+	std::string whileEndLabel {"WHILE_END" + std::to_string(i)};
 
     getKeyWord({"while"});
 	getSymbol("(");
     vmWriter.writeLabel(whileBeginLabel);
 	genExp();
-    vmWriter.writeArithmetic(Command::NEG); //Easier to work after negating the expression's result
+    vmWriter.writeArithmetic(Command::NOT); //Easier to work after negating the expression's result
 	getSymbol(")");
     vmWriter.writeIf(whileEndLabel);
 	getSymbol("{");
@@ -653,7 +657,7 @@ void CodeGenerator::genWhileStatement() {
     vmWriter.writeGoto(whileBeginLabel);
 	getSymbol("}");
     vmWriter.writeLabel(whileEndLabel);
-	++i;
+	--i; // Exit out of scope
 }
 
 Command CodeGenerator::getArithCmd(const std::string& op) {
