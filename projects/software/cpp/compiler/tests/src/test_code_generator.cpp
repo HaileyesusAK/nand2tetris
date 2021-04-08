@@ -33,11 +33,12 @@ bool testFile(const fs::path& path) {
     fs::path jackFile = DATA_DIR / path;
     fs::path vmFile(jackFile);
     vmFile.replace_extension(".vm");
+    fs::path expectedFile = EXP_DATA_DIR / path;
+	expectedFile.replace_extension(".vm");
 
 	CodeGenerator codeGenerator {jackFile};
 	codeGenerator.genClass();
 	codeGenerator.generate();
-    fs::path expectedFile = EXP_DATA_DIR / vmFile.filename();
     return cmpFiles(expectedFile, vmFile);
 }
 
@@ -110,10 +111,11 @@ TEST_CASE("Array assignment") {
 TEST_CASE("Subroutine call", "[genSubroutineCall]") {
     string cmd {"do Circle.area(1 + (2 * 3));"};
 	vector<GeneratorType> instructions { GeneratorType::DO };
-	string output {"push constant 1\npush constant 2\npush constant 3\ncall Math.multiply 2\nadd\ncall Circle.area 1"};
+	string output {"push constant 1\npush constant 2\npush constant 3\n"
+				   "call Math.multiply 2\nadd\ncall Circle.area 1\npop temp 0"};
 	REQUIRE(testCmd(cmd, output, instructions)); 
 }
 
 TEST_CASE("Seven") {
-    REQUIRE(testFile("Seven.jack"));
+    REQUIRE(testFile(fs::path("Seven") / fs::path("Main.jack")));
 }

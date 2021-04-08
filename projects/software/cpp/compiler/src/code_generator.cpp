@@ -27,6 +27,7 @@ void CodeGenerator::genDoStatement() {
 
     getKeyWord({"do"});
     genSubroutineCall();
+	vmWriter.writePop(Segment::TEMP, 0);	//TODO: verify that the subroutine's return type is void
     getSymbol(";");
 }
 
