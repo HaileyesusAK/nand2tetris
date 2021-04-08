@@ -319,15 +319,41 @@ void CodeGenerator::genSubroutineBody() {
 
 	getSymbol("{");
 
+	uint16_t nLocals = 0;
 	while(tokenizer.hasNext()) {
 		auto token = tokenizer.getNext();
 		tokenizer.putBack();
 		if(token.value == "var") {
-			genVarDec();
+			nLocals += genVarDec();
 		}
 		else {
 			break;
 		}
+	}
+
+	vmWriter.writeFunction(currentSubroutineName, nLocals);
+
+	switch(currentSubroutineType) {
+		case SubroutineType::CONSTRUCTOR: {
+			auto nFields = symbolTable.count(SymbolKind::FIELD);
+			auto addr = heap.alloc(nFields);
+			vmWriter.writePush(Segment::CONST, addr);
+			vmWriter.writePop(Segment::POINTER, 0); // Set's the base address of THIS
+		}
+		break;
+
+		case SubroutineType::METHOD: {
+			/*
+				When compiling a Jack method into a VM function, the compiler must insert
+				VM code that sets the base of the this segment properly.
+			*/
+			vmWriter.writePush(Segment::ARGUMENT, 0);
+			vmWriter.writePop(Segment::POINTER, 0);
+		}
+		break;
+
+		default:
+			break;
 	}
 
 	genStatements();
@@ -418,42 +444,28 @@ void CodeGenerator::genSubroutineDec() {
 	}
 
 	auto token = getIdentifier();
-    std::string funcName {className + "." + token.value};
-	uint16_t nLocals;
+    currentSubroutineName = className + "." + token.value;
 	switch(subroutineTypeMap[keyword.value]) {
 		case SubroutineType::CONSTRUCTOR: {
 			genParameterList();
-			nLocals = symbolTable.count(SymbolKind::FIELD);
-			auto addr = heap.alloc(nLocals);
-			vmWriter.writePush(Segment::CONST, addr);
-			vmWriter.writePop(Segment::POINTER, 0); // Set's the base address of THIS
 			currentSubroutineType = SubroutineType::CONSTRUCTOR;
 		}
 		break;
 
 		case SubroutineType::FUNCTION: {
 			genParameterList();
-			nLocals = symbolTable.count(SymbolKind::ARGUMENT);
 			currentSubroutineType = SubroutineType::FUNCTION;
 		}
 		break;
 
 		case SubroutineType::METHOD: {
-			/*
-				When compiling a Jack method into a VM function, the compiler must insert
-				VM code that sets the base of the this segment properly.
-			*/
 			symbolTable.insert("this", className, SymbolKind::ARGUMENT);
 			genParameterList();
-			vmWriter.writePush(Segment::ARGUMENT, 0);
-			vmWriter.writePop(Segment::POINTER, 0);
-			nLocals = symbolTable.count(SymbolKind::ARGUMENT);
 			currentSubroutineType = SubroutineType::METHOD;
 		}
 		break;
 	}
 
-	vmWriter.writeFunction(funcName, nLocals);
 	genSubroutineBody();
 }
 
@@ -551,16 +563,16 @@ void CodeGenerator::genTerm() {
 	varName		: identifier
 	className	: identifier
 */
-void CodeGenerator::genClassVarDec() {
+uint16_t CodeGenerator::genClassVarDec() {
 	#ifdef DEBUG
 		report(__PRETTY_FUNCTION__);
 	#endif
 
 	auto keyword = getKeyWord({"static", "field"});
     if(keyword.value == "static")
-        genVarDecList(SymbolKind::STATIC);
+        return genVarDecList(SymbolKind::STATIC);
     else
-        genVarDecList(SymbolKind::FIELD);
+        return genVarDecList(SymbolKind::FIELD);
 }
 
 /*
@@ -569,13 +581,13 @@ void CodeGenerator::genClassVarDec() {
 	varName	   : identifier
 	className  : identifier
 */
-void CodeGenerator::genVarDec() {
+uint16_t CodeGenerator::genVarDec() {
 	#ifdef DEBUG
 		report(__PRETTY_FUNCTION__);
 	#endif
 
 	getKeyWord({"var"});
-	genVarDecList(SymbolKind::LOCAL);
+	return genVarDecList(SymbolKind::LOCAL);
 }
 
 /*
@@ -584,7 +596,7 @@ void CodeGenerator::genVarDec() {
 	varName	   : identifier
 	className  : identifier
 */
-void CodeGenerator::genVarDecList(const SymbolKind& kind) {
+uint16_t CodeGenerator::genVarDecList(const SymbolKind& kind) {
 	#ifdef DEBUG
 		report(__PRETTY_FUNCTION__);
 	#endif
@@ -592,6 +604,7 @@ void CodeGenerator::genVarDecList(const SymbolKind& kind) {
 	Token token;
 	auto type = getType();
 	auto identifier = getIdentifier();
+	uint16_t nVars = 1;
 
 	symbolTable.insert(identifier.value, type.value, kind);
 
@@ -600,6 +613,7 @@ void CodeGenerator::genVarDecList(const SymbolKind& kind) {
 		if(token.value == ",") {
 			identifier = getIdentifier();
 	        symbolTable.insert(identifier.value, type.value, kind);
+			nVars++;
 		}
 		else if(token.value == ";") {
 			tokenizer.putBack();
@@ -613,6 +627,8 @@ void CodeGenerator::genVarDecList(const SymbolKind& kind) {
 	}
 
 	getSymbol(";");
+
+	return nVars;
 }
 
 void CodeGenerator::genWhileStatement() {

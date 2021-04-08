@@ -24,11 +24,12 @@ class CodeGenerator {
 	Tokenizer tokenizer;
     Heap heap;
 	SubroutineType currentSubroutineType;
+	std::string currentSubroutineName;
     SymbolTable symbolTable;
     VmWriter vmWriter;
 
 	Command getArithCmd(const std::string& op);
-	void genVarDecList(const SymbolKind& kind);
+	uint16_t genVarDecList(const SymbolKind& kind);
 	void appendInputLine(std::string& s, size_t lineNo, size_t columnNo);
     Segment kindToSegment(const SymbolKind& kind);
 	void report(const std::string& caller);
@@ -38,7 +39,7 @@ class CodeGenerator {
 	void generate();
 	void genDoStatement();
 	void genClass();
-	void genClassVarDec();
+	uint16_t genClassVarDec();
 	void genIfStatement();
 	void genExp();
 	uint16_t genExpList();
@@ -50,7 +51,7 @@ class CodeGenerator {
 	void genSubroutineBody();
 	void genSubroutineDec();
 	void genSubroutineCall();
-	void genVarDec();
+	uint16_t genVarDec();
 	void genWhileStatement();
 	Token getIdentifier();
 	Token getSymbol(const std::string& symbol);
