@@ -124,3 +124,7 @@ TEST_CASE("ConvertToBin") {
     REQUIRE(testFile(fs::path("ConvertToBin") / fs::path("Main.jack")));
 }
 
+TEST_CASE("Average") {
+    REQUIRE(testFile(fs::path("Average") / fs::path("Main.jack")));
+}
+
