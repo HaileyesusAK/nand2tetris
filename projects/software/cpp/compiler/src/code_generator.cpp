@@ -538,6 +538,8 @@ void CodeGenerator::genTerm() {
 					vmWriter.writePush(segment, symbolEntry.index);
 					genExp();
 					vmWriter.writeArithmetic(Command::ADD);
+					vmWriter.writePop(Segment::POINTER, 1);	// Set array element address
+					vmWriter.writePush(Segment::THAT, 0); // Assign the evaluated expression
 					getSymbol("]");
 				}
 				else {
