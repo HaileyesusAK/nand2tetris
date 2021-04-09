@@ -102,8 +102,10 @@ void CodeGenerator::genExp() {
 		token = tokenizer.getNext();
 		if(ops.count(token.value)) {
             genTerm();
-			if(token.value == "*" || token.value == "/")
+			if(token.value == "*")
 				vmWriter.writeCall("Math.multiply", 2);
+			else if(token.value == "/")
+				vmWriter.writeCall("Math.divide", 2);
 			else
 				vmWriter.writeArithmetic(getArithCmd(token.value));
 		}
@@ -279,7 +281,7 @@ void CodeGenerator::genReturnStatement() {
         genExp();
     }
     catch (std::domain_error& exp) {
-		vmWriter.writePush(Segment::CONST, 0);	//value for void return type	
+		vmWriter.writePush(Segment::CONST, 0);	//value for void return type
 	}
     getSymbol(";");
 
