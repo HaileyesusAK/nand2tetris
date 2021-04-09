@@ -11,7 +11,14 @@
 #include "tokenizer.hpp"
 #include "vm_writer.hpp"
 
-CodeGenerator::CodeGenerator(const fs::path& inputPath) : tokenizer(inputPath), vmWriter(inputPath){ }
+//The RAM addresses from 2048 - 16483 are reserved as heap
+static const uint16_t JACK_HEAP_BASE_ADDR = 2048;
+static const uint16_t JACK_HEAP_END_ADDR = 16483;
+
+CodeGenerator::CodeGenerator(const fs::path& inputPath) :
+	tokenizer(inputPath),
+	heap(JACK_HEAP_BASE_ADDR, JACK_HEAP_END_ADDR - JACK_HEAP_BASE_ADDR),
+	vmWriter(inputPath) {}
 
 void CodeGenerator::generate() {
     vmWriter.write();
