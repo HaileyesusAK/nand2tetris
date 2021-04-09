@@ -279,16 +279,19 @@ void CodeGenerator::genReturnStatement() {
 	#endif
 
     getKeyWord({"return"});
-    try {
-        genExp();
-    }
-    catch (std::domain_error& exp) {
-		vmWriter.writePush(Segment::CONST, 0);	//value for void return type
+	if(currentSubroutineType == SubroutineType::CONSTRUCTOR) {
+		getKeyWord({"this"});
+		vmWriter.writePush(Segment::POINTER, 0);
+	}
+	else {
+		try {
+			genExp();
+		}
+		catch (std::domain_error& exp) {
+			vmWriter.writePush(Segment::CONST, 0);	//value for void return type
+		}
 	}
     getSymbol(";");
-
-	if(currentSubroutineType == SubroutineType::CONSTRUCTOR)
-		vmWriter.writePush(Segment::POINTER, 0);
 
 	vmWriter.writeReturn();
 }
@@ -521,7 +524,7 @@ void CodeGenerator::genTerm() {
 		else if(token.value == "false" || token.value == "null")
 			vmWriter.writePush(Segment::CONST, 0);
 		else
-			vmWriter.writePush(Segment::THIS, 0);	//TODO: verify
+			vmWriter.writePush(Segment::POINTER, 0);
 	}
 	else if(token.type == TokenType::IDENTIFIER) {
 		if(tokenizer.hasNext()) {
