@@ -502,9 +502,11 @@ void CodeGenerator::genTerm() {
 	if(token.type == TokenType::INTEGER)
         vmWriter.writePush(Segment::CONST, std::stoul(token.value));
 	else if(token.type == TokenType::STRING) {
+		vmWriter.writePush(Segment::CONST, token.value.size());
+		vmWriter.writeCall("String.new", 1);
 		for(const auto& c : token.value) {
 			vmWriter.writePush(Segment::CONST, static_cast<int>(c));
-			vmWriter.writeFunction("System.appendChar", 1);
+			vmWriter.writeCall("String.appendChar", 2); // First argument is for 'this' of the string object
 		}
 	}
 	else if(keywordConstant.count(token.value)) {
