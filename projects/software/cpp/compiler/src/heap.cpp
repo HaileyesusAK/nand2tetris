@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "heap.hpp"
-Heap::Heap() : baseAddr(0), capacity(0) {}
+
 Heap::Heap(uint16_t _baseAddr, uint16_t _capacity) : baseAddr(_baseAddr), capacity(_capacity){
     freeBlocks.push_back({baseAddr, capacity});
 }
