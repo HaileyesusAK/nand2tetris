@@ -22,7 +22,6 @@ enum class SubroutineType {
 class CodeGenerator {
     std::string className;
 	Tokenizer tokenizer;
-    Heap heap;
 	SubroutineType currentSubroutineType;
 	std::string currentSubroutineName;
     SymbolTable symbolTable;

@@ -11,13 +11,8 @@
 #include "tokenizer.hpp"
 #include "vm_writer.hpp"
 
-//The RAM addresses from 2048 - 16483 are reserved as heap
-static const uint16_t JACK_HEAP_BASE_ADDR = 2048;
-static const uint16_t JACK_HEAP_END_ADDR = 16483;
-
 CodeGenerator::CodeGenerator(const fs::path& inputPath) :
 	tokenizer(inputPath),
-	heap(JACK_HEAP_BASE_ADDR, JACK_HEAP_END_ADDR - JACK_HEAP_BASE_ADDR),
 	vmWriter(inputPath) {}
 
 void CodeGenerator::generate() {
@@ -354,8 +349,8 @@ void CodeGenerator::genSubroutineBody() {
 	switch(currentSubroutineType) {
 		case SubroutineType::CONSTRUCTOR: {
 			auto nFields = symbolTable.count(SymbolKind::FIELD);
-			auto addr = heap.alloc(nFields);
-			vmWriter.writePush(Segment::CONST, addr);
+			vmWriter.writePush(Segment::CONST, nFields);
+			vmWriter.writeCall("Memory.alloc", 1);
 			vmWriter.writePop(Segment::POINTER, 0); // Set's the base address of THIS
 		}
 		break;
