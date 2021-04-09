@@ -102,9 +102,8 @@ TEST_CASE("Array assignment") {
         GeneratorType::PARAM_LIST, GeneratorType::VAR_DEC, GeneratorType::LET
     };
 	string output {"push local 1\npush constant 5\nadd\n"
-                   "push local 0\nadd\npop pointer 1\n"
-                   "push argument 0\npush argument 1\nadd\nnot\n"
-                   "pop that 0"};
+                   "push local 0\nadd\npush argument 0\npush argument 1\nadd\nnot\n"
+                   "pop temp 0\npop pointer 1\npush temp 0\npop that 0"};
 	REQUIRE(testCmd(cmd, output, instructions)); 
 }
 
@@ -128,3 +127,20 @@ TEST_CASE("Average") {
     REQUIRE(testFile(fs::path("Average") / fs::path("Main.jack")));
 }
 
+TEST_CASE("ComplexArrays") {
+    REQUIRE(testFile(fs::path("ComplexArrays") / fs::path("Main.jack")));
+}
+
+TEST_CASE("test") {
+    REQUIRE(testFile(fs::path("test") / fs::path("Main.jack")));
+}
+
+/*
+TEST_CASE("SquareDance") {
+	for(auto& p: fs::directory_iterator(DATA_DIR / "Square")) {
+		if(p.path().extension() == ".jack") {
+			REQUIRE(testFile(fs::path("Square") / p.path().filename()));
+		}
+	}
+}
+*/

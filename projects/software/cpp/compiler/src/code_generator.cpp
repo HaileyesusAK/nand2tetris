@@ -214,10 +214,12 @@ void CodeGenerator::genLetStatement() {
 		genExp();
         vmWriter.writePush(segment, symbolEntry.index);
         vmWriter.writeArithmetic(Command::ADD); // Add array base address and index expression
-        vmWriter.writePop(Segment::POINTER, 1);
 		getSymbol("]");
 		getSymbol("=");
 		genExp();
+		vmWriter.writePop(Segment::TEMP, 0);
+        vmWriter.writePop(Segment::POINTER, 1);
+		vmWriter.writePush(Segment::TEMP, 0);
         vmWriter.writePop(Segment::THAT, 0); // Assign the evaluated expression
 	}
 	else {
@@ -535,8 +537,8 @@ void CodeGenerator::genTerm() {
 				auto segment = kindToSegment(symbolEntry.kind);
 
 				if(token.value == "[") { // Array evaluation
-					vmWriter.writePush(segment, symbolEntry.index);
 					genExp();
+					vmWriter.writePush(segment, symbolEntry.index);
 					vmWriter.writeArithmetic(Command::ADD);
 					vmWriter.writePop(Segment::POINTER, 1);	// Set array element address
 					vmWriter.writePush(Segment::THAT, 0); // Assign the evaluated expression
