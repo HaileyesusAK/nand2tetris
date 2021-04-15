@@ -412,7 +412,7 @@ void CodeGenerator::genSubroutineCall() {
 		try {
 			auto symbolEntry = symbolTable.getEntry(identifier);
 			subroutineName = symbolEntry.type + "." + methodName;
-			vmWriter.writePush(Segment::LOCAL, symbolEntry.index);	// push a reference to the object as a first argument
+			vmWriter.writePush(Segment::THIS, symbolEntry.index);	// push a reference to the object as a first argument
 			nArgs = genExpList() + 1; // +1 for the object pushed as the first argument
 		}
 		catch (std::out_of_range& err) {
