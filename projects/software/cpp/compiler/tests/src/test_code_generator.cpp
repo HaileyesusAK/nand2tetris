@@ -142,3 +142,11 @@ TEST_CASE("SquareDance") {
 		}
 	}
 }
+
+TEST_CASE("Pong") {
+	for(auto& p: fs::directory_iterator(DATA_DIR / "Pong")) {
+		if(p.path().extension() == ".jack") {
+			REQUIRE(testFile(fs::path("Pong") / p.path().filename()));
+		}
+	}
+}
