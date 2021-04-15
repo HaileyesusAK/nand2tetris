@@ -135,7 +135,6 @@ TEST_CASE("test") {
     REQUIRE(testFile(fs::path("test") / fs::path("Main.jack")));
 }
 
-/*
 TEST_CASE("SquareDance") {
 	for(auto& p: fs::directory_iterator(DATA_DIR / "Square")) {
 		if(p.path().extension() == ".jack") {
@@ -143,4 +142,3 @@ TEST_CASE("SquareDance") {
 		}
 	}
 }
-*/

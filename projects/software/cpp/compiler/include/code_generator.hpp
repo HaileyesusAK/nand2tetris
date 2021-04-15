@@ -26,6 +26,8 @@ class CodeGenerator {
 	std::string currentSubroutineName;
     SymbolTable symbolTable;
     VmWriter vmWriter;
+	int32_t ifCount;	//If counts at a subroutine level
+	int32_t whileCount; // while counts at a subrouting level
 
 	Command getArithCmd(const std::string& op);
 	uint16_t genVarDecList(const SymbolKind& kind);
