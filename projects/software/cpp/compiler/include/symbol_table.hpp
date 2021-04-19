@@ -27,8 +27,7 @@ using Key = std::pair<std::string, Scope>;
 //std::unordered_map uses std::hash for its key but std::hash doesn't work for std::pair
 struct KeyHash {
     template <class T1, class T2>
-    std::size_t operator() (const std::pair<T1, T2> &pair) const
-    {
+    std::size_t operator() (const std::pair<T1, T2> &pair) const noexcept {
         return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
     }
 };
