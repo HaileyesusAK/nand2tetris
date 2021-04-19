@@ -505,80 +505,97 @@ void CodeGenerator::genTerm() {
 	if(!tokenizer.hasNext())
 		throw std::out_of_range("No more tokens");
 
-	Set keywordConstant {"true", "false", "null", "this"};
+	static Set keywordConstant {"true", "false", "null", "this"};
 
 	auto token = tokenizer.getNext();
-	if(token.type == TokenType::INTEGER)
-        vmWriter.writePush(Segment::CONST, std::stoul(token.value));
-	else if(token.type == TokenType::STRING) {
-		vmWriter.writePush(Segment::CONST, token.value.size());
-		vmWriter.writeCall("String.new", 1);
-		for(const auto& c : token.value) {
-			vmWriter.writePush(Segment::CONST, static_cast<int>(c));
-			vmWriter.writeCall("String.appendChar", 2); // First argument is for 'this' of the string object
-		}
-	}
-	else if(keywordConstant.count(token.value)) {
-		if(token.value == "true") {
-			vmWriter.writePush(Segment::CONST, 1);
-			vmWriter.writeArithmetic(Command::NEG);
-		}
-		else if(token.value == "false" || token.value == "null")
-			vmWriter.writePush(Segment::CONST, 0);
-		else
-			vmWriter.writePush(Segment::POINTER, 0);
-	}
-	else if(token.type == TokenType::IDENTIFIER) {
-		if(tokenizer.hasNext()) {
-			std::string identifier {token.value};
-			token = tokenizer.getNext();
-			if(token.value == "(" || token.value == ".") { // Subroutine call
-				tokenizer.putBack(); // Put back the symbol
-				tokenizer.putBack(); // Put back the identifier
-				genSubroutineCall();
+	switch(token.type) {
+		case TokenType::INTEGER:
+			vmWriter.writePush(Segment::CONST, std::stoul(token.value));
+		break;
+
+		case TokenType::KEYWORD:
+			if(keywordConstant.count(token.value)) {
+				if(token.value == "true") {
+					vmWriter.writePush(Segment::CONST, 1);
+					vmWriter.writeArithmetic(Command::NEG);
+				}
+				else if(token.value == "false" || token.value == "null")
+					vmWriter.writePush(Segment::CONST, 0);
+				else
+					vmWriter.writePush(Segment::POINTER, 0);
 			}
 			else {
-				auto symbolEntry = symbolTable.getEntry(identifier);
-				auto segment = kindToSegment(symbolEntry.kind);
+				tokenizer.putBack();
+				std::string msg("Unexpected token");
+				appendInputLine(msg, token.lineNo, token.columnNo);
+				throw std::domain_error(msg);
+			}
+		break;
+		
+		case TokenType::STRING:
+			vmWriter.writePush(Segment::CONST, token.value.size());
+			vmWriter.writeCall("String.new", 1);
+			for(const auto& c : token.value) {
+				vmWriter.writePush(Segment::CONST, static_cast<uint16_t>(c));
+				vmWriter.writeCall("String.appendChar", 2); // First argument is for 'this' of the string object
+			}
+		break;
 
-				if(token.value == "[") { // Array evaluation
-					genExp();
-					vmWriter.writePush(segment, symbolEntry.index);
-					vmWriter.writeArithmetic(Command::ADD);
-					vmWriter.writePop(Segment::POINTER, 1);	// Set array element address
-					vmWriter.writePush(Segment::THAT, 0); // Assign the evaluated expression
-					getSymbol("]");
+		case TokenType::IDENTIFIER:
+			if(tokenizer.hasNext()) {
+				std::string identifier {token.value};
+				token = tokenizer.getNext();
+				if(token.value == "(" || token.value == ".") { // Subroutine call
+					tokenizer.putBack(); // Put back the symbol
+					tokenizer.putBack(); // Put back the identifier
+					genSubroutineCall();
 				}
 				else {
-					vmWriter.writePush(segment, symbolEntry.index);
-					tokenizer.putBack();
+					auto symbolEntry = symbolTable.getEntry(identifier);
+					auto segment = kindToSegment(symbolEntry.kind);
+
+					if(token.value == "[") { // Array evaluation
+						genExp();
+						vmWriter.writePush(segment, symbolEntry.index);
+						vmWriter.writeArithmetic(Command::ADD);
+						vmWriter.writePop(Segment::POINTER, 1);	// Set array element address
+						vmWriter.writePush(Segment::THAT, 0); // Assign the evaluated expression
+						getSymbol("]");
+					}
+					else {
+						vmWriter.writePush(segment, symbolEntry.index);
+						tokenizer.putBack();
+					}
 				}
 			}
-		}
-		else {
-			auto symbolEntry = symbolTable.getEntry(token.value);
-			auto segment = kindToSegment(symbolEntry.kind);
-            vmWriter.writePush(segment, symbolEntry.index);
-		}
+			else {
+				auto symbolEntry = symbolTable.getEntry(token.value);
+				auto segment = kindToSegment(symbolEntry.kind);
+				vmWriter.writePush(segment, symbolEntry.index);
+			}
+		break;
+
+		default:	// TokenType::SYMBOL:
+			if(token.value == "(") {
+				genExp();
+				getSymbol(")");
+			}
+			else if(token.value == "-") {
+				genTerm();
+				vmWriter.writeArithmetic(Command::NEG);
+			}
+			else if(token.value == "~") {
+				genTerm();
+				vmWriter.writeArithmetic(Command::NOT);
+			}
+			else {
+				tokenizer.putBack();
+				std::string msg("Unexpected token");
+				appendInputLine(msg, token.lineNo, token.columnNo);
+				throw std::domain_error(msg);
+			}
+		break;
 	}
-	else if(token.value == "(") {
-		genExp();
-        getSymbol(")");
-	}
-	else if(token.value == "-") {
-		genTerm();
-		vmWriter.writeArithmetic(Command::NEG);
-	}
-	else if(token.value == "~") {
-		genTerm();
-		vmWriter.writeArithmetic(Command::NOT);
-	}
-	else {
-        tokenizer.putBack();
-		std::string msg("Unexpected token");
-		appendInputLine(msg, token.lineNo, token.columnNo);
-		throw std::domain_error(msg);
-    }
 }
 
 /*
