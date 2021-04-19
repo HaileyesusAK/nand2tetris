@@ -1,6 +1,10 @@
 CC = g++
 INCLUDE = ../include
-CPPFLAGS += -Wall --std=c++17
+CPPFLAGS += -Wall -Wextra --std=c++17 -pedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
+			-Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations \
+			-Wnoexcept -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
+			-Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 \
+			-Wundef -Werror -Wno-unused
 LIB = libanalyzer.a
 OBJS = tokenizer.o analyzer.o code_generator.o heap.o symbol_table.o vm_writer.o
 APP = Analyzer 
