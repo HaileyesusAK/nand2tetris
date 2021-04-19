@@ -10,11 +10,11 @@ VmWriter::VmWriter(const fs::path _outputPath) : outputPath(_outputPath) {}
 
 
 void VmWriter::writePush(const Segment& segment, uint16_t index) {
-    instructions.push_back("push " + segments[segment] + " " + std::to_string(index));
+    instructions.push_back("push " + segments[segment] + " " + std::to_string(static_cast<int>(index)));
 }
 
 void VmWriter::writePop(const Segment& segment, uint16_t index) {
-    instructions.push_back("pop " + segments[segment] + " " + std::to_string(index));
+    instructions.push_back("pop " + segments[segment] + " " + std::to_string(static_cast<int>(index)));
 }
 
 void VmWriter::writeArithmetic(const Command& command) {
@@ -34,11 +34,11 @@ void VmWriter::writeIf(const std::string& label) {
 }
 
 void VmWriter::writeCall(const std::string& name, uint16_t nArgs) {
-    instructions.push_back("call " + name + " " + std::to_string(nArgs));
+    instructions.push_back("call " + name + " " + std::to_string(static_cast<int>(nArgs)));
 }
 
 void VmWriter::writeFunction(const std::string& name, uint16_t nLocals) {
-    instructions.push_back("function " + name + " " + std::to_string(nLocals));
+    instructions.push_back("function " + name + " " + std::to_string(static_cast<int>(nLocals)));
 }
 
 void VmWriter::writeReturn() {
