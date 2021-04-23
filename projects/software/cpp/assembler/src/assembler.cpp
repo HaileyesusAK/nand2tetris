@@ -73,8 +73,8 @@ Assembler::Assembler(std::ifstream& inFile) {
     this->symTable.set("THIS", 3);
     this->symTable.set("THAT", 4);
     this->symTable.set("SCREEN", 16384);
-    this->symTable.set("SCREEN", 24576);
-    for(uint16_t i = 0; i < 16; ++i)
+    this->symTable.set("KEYBOARD", 24576);
+    for(int i = 0; i < 16; ++i)
         this->symTable.set(std::string("R") + std::to_string(i), i);
 
     while(std::getline(inFile, line)) {
