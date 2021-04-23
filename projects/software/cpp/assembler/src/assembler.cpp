@@ -5,30 +5,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <bitset>
 
 #include "assembler.hpp"
 
-using CodeMap = std::unordered_map<std::string, uint16_t>;
-
-static const CodeMap dstMap {
-        {"null", 0}, {"M", 1}, {"D", 2}, {"MD", 3},
-        {"A", 4}, {"AM", 5}, {"AD", 6}, {"AMD", 7}
-};
-
-static const CodeMap jmpMap {
-        {"null", 0}, {"JGT", 1}, {"JEQ", 2}, {"JGE", 3},
-        {"JLT", 4}, {"JNE", 5}, {"JLE", 6}, {"JMP", 7}
-};
-
-static const CodeMap compMap {
-        {"0", 42}, {"1", 63}, {"-1", 58}, {"D", 12}, {"A", 48}, {"!D", 13},
-        {"!A", 49}, {"-D", 15}, {"-A", 51}, {"D+1", 31}, {"A+1", 55},
-        {"D-1", 14}, {"A-1", 50}, {"D+A", 2}, {"D-A", 19}, {"A-D", 7},
-        {"D&A", 0}, {"D|A", 21}, {"M", 112}, {"!M", 113}, {"-M", 115},
-        {"M+1", 119}, {"M-1", 114}, {"D+M", 66}, {"D-M", 83}, {"M-D", 71},
-        {"D&M", 64}, {"D|M", 85}
-};
 
 std::string Assembler::compact(const std::string& s) {
     std::string line(s.substr(0, s.find_first_of('/')));
@@ -77,9 +56,9 @@ uint16_t Assembler::generate(const std::string& c_inst) {
     else
         comp = str.substr(0, semi_pos);
 
-    auto &dstCode = dstMap.at(dst);
-    auto &compCode = compMap.at(comp);
-    auto &jmpCode = jmpMap.at(jmp);
+    auto dstCode = Assembler::dstMap.at(dst);
+    auto compCode = Assembler::compMap.at(comp);
+    auto &jmpCode = Assembler::jmpMap.at(jmp);
     return (7<<13) | (compCode<<6) | (dstCode<<3) | jmpCode;
 }
 
@@ -153,9 +132,9 @@ std::vector<std::bitset<16>> Assembler::generate() {
             else
                 comp = inst.str.substr(0, semi_pos);
 
-            auto &dstCode = dstMap.at(dst);
-            auto &compCode = compMap.at(comp);
-            auto &jmpCode = jmpMap.at(jmp);
+            auto dstCode = Assembler::dstMap.at(dst);
+            auto compCode = Assembler::compMap.at(comp);
+            auto jmpCode = Assembler::jmpMap.at(jmp);
             machineCode = (7<<13) | (compCode<<6) | (dstCode<<3) | jmpCode;
         }
         machineInstructions.push_back(std::bitset<16>(machineCode));

@@ -5,7 +5,7 @@ INCLUDE = -I $(CPPUTEST)/include \
 
 LDFLAGS += $(CPPUTEST)/lib/libCppUTest.a \
 		   ../../src/libassembler.a
-CPPFLAGS += -g -Wall --std=c++11
+CPPFLAGS += -g -Wall --std=c++17
 
 OBJS=Main.o TestAssembler.o
 APP=assembler_tester
