@@ -104,8 +104,8 @@ Assembler::Assembler(std::ifstream& inFile) {
     }
 }
 
-std::vector<std::bitset<16>> Assembler::generate() {
-    std::vector<std::bitset<16>> machineInstructions;
+std::vector<std::bitset<WSIZE>> Assembler::generate() {
+    std::vector<std::bitset<WSIZE>> machineInstructions;
     uint16_t machineCode;
     uint16_t variableAddr = Assembler::BASE_ADDR;
 
@@ -137,7 +137,7 @@ std::vector<std::bitset<16>> Assembler::generate() {
             auto jmpCode = Assembler::jmpMap.at(jmp);
             machineCode = (7<<13) | (compCode<<6) | (dstCode<<3) | jmpCode;
         }
-        machineInstructions.push_back(std::bitset<16>(machineCode));
+        machineInstructions.push_back(std::bitset<WSIZE>(machineCode));
     }
 
     return machineInstructions;

@@ -21,14 +21,13 @@ struct AsmInstruction{
     AsmInstType type;
 };
 
-const uint8_t WSIZE = sizeof(uint16_t) * 8;
+const uint8_t WSIZE = 16;
 
 class Assembler {
 	private:
 		SymbolTable<uint16_t> symTable; 
 		std::vector<AsmInstruction> asmInstructions;
 		static const uint16_t BASE_ADDR = 16;
-		static const uint8_t WSIZE = sizeof(uint16_t) * 8;
 
 		/* mappings between an instruction part with its binary representation. The binary
 		   representation of the decimal values correspond to a valid JACK instruction part
