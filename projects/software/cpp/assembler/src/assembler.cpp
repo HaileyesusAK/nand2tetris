@@ -67,34 +67,34 @@ Assembler::Assembler(std::ifstream& inFile) {
     uint16_t pc = 0;
     std::string line;
 
-    this->symTable.set("SP", 0);
-    this->symTable.set("LCL", 1);
-    this->symTable.set("ARG", 2);
-    this->symTable.set("THIS", 3);
-    this->symTable.set("THAT", 4);
-    this->symTable.set("SCREEN", 16384);
-    this->symTable.set("KEYBOARD", 24576);
+    symTable.set("SP", 0);
+    symTable.set("LCL", 1);
+    symTable.set("ARG", 2);
+    symTable.set("THIS", 3);
+    symTable.set("THAT", 4);
+    symTable.set("SCREEN", 16384);
+    symTable.set("KEYBOARD", 24576);
     for(int i = 0; i < 16; ++i)
-        this->symTable.set(std::string("R") + std::to_string(i), i);
+        symTable.set(std::string("R") + std::to_string(i), i);
 
     while(std::getline(inFile, line)) {
         inst = extractInst(line);
         switch(inst.type) {
             case AsmInstType::Label:
-                this->symTable.set(inst.str, pc);
+                symTable.set(inst.str, pc);
             break;
 
             case AsmInstType::AInst:
                 if(isNumber(inst.str)) { //Treat the number as a symbol
                     auto addr = static_cast<uint16_t>(std::stoul(inst.str));
-                    this->symTable.set(inst.str, addr);
+                    symTable.set(inst.str, addr);
                 }
-                this->asmInstructions.push_back(inst);
+                asmInstructions.push_back(inst);
                 pc++;
             break;
 
             case AsmInstType::CInst:
-                this->asmInstructions.push_back(inst);
+                asmInstructions.push_back(inst);
                 pc++;
             break;
 
@@ -109,14 +109,14 @@ std::vector<std::bitset<16>> Assembler::generate() {
     uint16_t machineCode;
     uint16_t variableAddr = Assembler::BASE_ADDR;
 
-    for(const auto& inst: this->asmInstructions) {
+    for(const auto& inst: asmInstructions) {
         if(inst.type == AsmInstType::AInst) {
-            if(!this->symTable.has(inst.str))
+            if(!symTable.has(inst.str))
             {
-                this->symTable.set(inst.str, variableAddr);
+                symTable.set(inst.str, variableAddr);
                 variableAddr++;
             }
-            machineCode = this->symTable.get(inst.str);
+            machineCode = symTable.get(inst.str);
         }
         else {
             std::string dst("null"), jmp("null"), comp;
