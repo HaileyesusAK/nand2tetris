@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "symboltable.hpp"
+#include "symbol_table.hpp"
 
 using InstCodeMap = std::unordered_map<std::string, uint16_t>;
 
@@ -31,7 +31,7 @@ class Assembler {
 		static const uint8_t WSIZE = sizeof(uint16_t) * 8;
 
 		/* mappings between an instruction part with its binary representation. The binary
-		  representation of the decimal values correspond to a valid JACK instruction part
+		   representation of the decimal values correspond to a valid JACK instruction part
 		*/
 		static inline const InstCodeMap compMap {
 			{"0", 42}, {"1", 63}, {"-1", 58}, {"D", 12}, {"A", 48}, {"!D", 13},
