@@ -1,39 +1,31 @@
 #include <bitset>
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
 #include "assembler.hpp"
+#include "utils.hpp"
 
 #include <CppUTest/TestHarness.h>
 
 using namespace std;
 
-static SimpleString StringFrom(const AsmInstType& type){
-    switch(type) {
-        case AsmInstType::Label:
-            return SimpleString("Label");
-        case AsmInstType::Blank:
-            return SimpleString("Blank");
-        case AsmInstType::AInst:
-            return SimpleString("AInst");
-        default:
-            return SimpleString("CInst");
-    }
-}
+namespace fs = std::filesystem;
 
-static void test_generate(const string& asmFilePath, const string& hackFilePath) {
-    auto asmFile = ifstream(asmFilePath);
-    auto hackFile = ifstream(hackFilePath);
-    Assembler assembler(asmFile);
+static const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
+static const fs::path EXP_DATA_DIR = DATA_DIR / "expected";
 
-    auto actualCode = assembler.generate();
-    auto it = actualCode.begin(); 
-    string line;
-    while(getline(hackFile, line)) {
-        CHECK_EQUAL(line, (*it).to_string());
-        ++it;
-    }
+static void test_generate(const string& asmFilename) {
+    auto asmFilePath = DATA_DIR / fs::path(asmFilename);
+    auto expHackFile = EXP_DATA_DIR / fs::path(asmFilename);
+    auto genHackFile = asmFilePath;
+    genHackFile.replace_extension(".hack");
+    expHackFile.replace_extension(".hack");
+
+    Assembler assembler(asmFilePath);
+    assembler.generate();
+    CHECK_EQUAL(true, cmpFiles(genHackFile, expHackFile));
 }
 
 TEST_GROUP(Assembler)
@@ -41,73 +33,22 @@ TEST_GROUP(Assembler)
 
 };
 
-TEST(Assembler, compact)
+TEST(Assembler, generate_add)
 {
-    CHECK_EQUAL(string("ADM=D;JEQ"), Assembler::compact(string(" ADM = D; JEQ //Comment")));
+    test_generate("Add.asm");
 }
 
-TEST(Assembler, extractInst_Label)
+TEST(Assembler, generate_max)
 {
-    string s("(LABEL)");
-    auto inst = Assembler::extractInst(s);
-    CHECK_EQUAL(AsmInstType::Label, inst.type);
-    CHECK_EQUAL(string("LABEL"), inst.str);
-}
-
-TEST(Assembler, extractInst_comment)
-{
-    string s("//blbla");
-    auto inst = Assembler::extractInst(s);
-    CHECK_EQUAL(AsmInstType::Blank, inst.type);
-}
-
-TEST(Assembler, extractInst_empty)
-{
-    string s(" ");
-    auto inst = Assembler::extractInst(s);
-    CHECK_EQUAL(AsmInstType::Blank, inst.type);
-}
-
-TEST(Assembler, extractInst_AInst)
-{
-    string s("@LABEL");
-    auto inst = Assembler::extractInst(s);
-    CHECK_EQUAL(AsmInstType::AInst, inst.type);
-    CHECK_EQUAL(string("LABEL"), inst.str);
-}
-
-TEST(Assembler, extractInst_CInst)
-{
-    string s("M=D;JGT");
-    auto inst = Assembler::extractInst(s);
-    CHECK_EQUAL(AsmInstType::CInst, inst.type);
-    CHECK_EQUAL(s, inst.str);
-}
-
-TEST(Assembler, generate_dst_cmp_jmp)
-{
-    string c_inst("AMD=D+A;JLT");
-    CHECK_EQUAL(57532, Assembler::generate(c_inst));
-}
-
-TEST(Assembler, generate_dst_cmp)
-{
-    string c_inst("D=-M");
-    CHECK_EQUAL(64720, Assembler::generate(c_inst));
-}
-
-TEST(Assembler, generate_cmp)
-{
-    string c_inst("D&A");
-    CHECK_EQUAL(57344, Assembler::generate(c_inst));
+    test_generate("Max.asm");
 }
 
 TEST(Assembler, generate_mult)
 {
-    test_generate("../data/Mult.asm", "../data/Mult.hack");
+    test_generate("Mult.asm");
 }
 
 TEST(Assembler, generate_pong)
 {
-    test_generate("../data/Pong.asm", "../data/Pong.hack");
+    test_generate("Pong.asm");
 }

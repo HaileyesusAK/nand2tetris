@@ -21,19 +21,16 @@ enum struct InstructionType {
 
 class Instruction {
     public:
-        virtual void decode(MachineCode& machineCode) = 0;
-        virtual InstructionType type() = 0;
+        virtual MachineCode decode(const SymbolTable<uint16_t>& symbolTable) = 0;
 };
 
 class AInstruction : public Instruction {
     private:
         std::string symbol;
-        SymbolTable<uint16_t>& symbolTable;
 
     public:
-        AInstruction(const std::string& symbol, SymbolTable<uint16_t>& symbolTable);
-        void decode(MachineCode& machineCode);
-        InstructionType type();
+        AInstruction(const std::string& symbol);
+        MachineCode decode(const SymbolTable<uint16_t>& symbolTable);
 };
 
 class CInstruction : public Instruction {
@@ -64,27 +61,12 @@ class CInstruction : public Instruction {
 
     public:
         CInstruction(const std::string& inst);
-        void decode(MachineCode& machineCode);
-        InstructionType type();
-};
-
-class LabelInstruction : public Instruction {
-    private:
-        std::string label;
-        uint16_t pc;
-        SymbolTable<uint16_t>& symbolTable;
-
-    public:
-        LabelInstruction(const std::string& label, uint16_t pc, SymbolTable<uint16_t>& symbolTable);
-        void decode(MachineCode& machineCode);
-        InstructionType type();
+        MachineCode decode(const SymbolTable<uint16_t>& symbolTable);
 };
 
 class InstructionFactory {
     public:
-       static std::shared_ptr<Instruction> create(const std::string& instruction,
-                                                  uint16_t pc,
-                                                  SymbolTable<uint16_t>& symbolTable);
+       static std::shared_ptr<Instruction> create(const std::string& instruction);
 };
 
 #endif

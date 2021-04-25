@@ -1,30 +1,25 @@
 #include <bitset>
-#include <iostream>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "instruction.hpp"
 #include "symbol_table.hpp"
 
-/**************************** AInstruction ******************************/
-AInstruction::AInstruction(const std::string& _symbol, SymbolTable<uint16_t>& _symbolTable) :
-    symbol(_symbol),
-    symbolTable(_symbolTable) {}
+AInstruction::AInstruction(const std::string& _symbol) : symbol(_symbol) {}
 
-void AInstruction::decode(MachineCode& machineCode) {
-    machineCode = MachineCode(symbolTable.get(symbol));
+MachineCode AInstruction::decode(const SymbolTable<uint16_t>& symbolTable) {
+    if(std::all_of(symbol.begin(), symbol.end(), ::isdigit))
+        return static_cast<uint16_t>(std::stoul(symbol));
+    else
+        return symbolTable.get(symbol);
 }
 
-InstructionType AInstruction::type() {return InstructionType::A_INST; }
-/************************************************************************/
 
-
-/**************************** CInstruction ******************************/
 CInstruction::CInstruction(const std::string& s) : inst(s) {}
 
-void CInstruction::decode(MachineCode &code) {
+MachineCode CInstruction::decode(const SymbolTable<uint16_t>& symbolTable) {
     std::string dst("null"), jmp("null"), comp;
     auto j = inst.find(';');
     if(j != std::string::npos)
@@ -43,41 +38,16 @@ void CInstruction::decode(MachineCode &code) {
         auto dstCode = dstMap.at(dst) << 3;
         auto compCode = compMap.at(comp) << 6;
         auto jmpCode = jmpMap.at(jmp);
-        code = static_cast<uint16_t>(prefix | compCode | dstCode | jmpCode);
+        return static_cast<uint16_t>(prefix | compCode | dstCode | jmpCode);
     }
     catch(std::out_of_range& e) {
         throw std::domain_error("Invalid instruction: " + inst);
     }
 }
 
-InstructionType CInstruction::type() {return InstructionType::C_INST; }
-/**********************************************************************/
-
-
-/************************* LabelInstruction ***************************/
-LabelInstruction::LabelInstruction(const std::string& _label, uint16_t _pc, SymbolTable<uint16_t>& _symbolTable) :
-    label(_label),
-    pc(_pc),
-    symbolTable(_symbolTable) {}
-
-void LabelInstruction::decode(MachineCode& machineCode) {
-    symbolTable.set(label, pc);
-}
-
-InstructionType LabelInstruction::type() {return InstructionType::LABEL_INST; }
-/**********************************************************************/
-
-
-/********************** InstructionFactory ***************************/
-std::shared_ptr<Instruction> InstructionFactory::create(const std::string& s,
-                                                        uint16_t pc,
-                                                        SymbolTable<uint16_t>& symbolTable)
-{
-    if(s.front() == '(' && s.back() == ')')
-        return std::make_shared<LabelInstruction>(s.substr(1, s.size() - 2), pc, symbolTable);
-    else if(s.front() == '@')
-        return std::make_shared<AInstruction>(s.substr(1), symbolTable);
+std::shared_ptr<Instruction> InstructionFactory::create(const std::string& s) {
+    if(s.front() == '@')
+        return std::make_shared<AInstruction>(s.substr(1));
     else
         return std::make_shared<CInstruction>(s);
 }
-/**********************************************************************/

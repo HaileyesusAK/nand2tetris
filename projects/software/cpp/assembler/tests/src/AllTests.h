@@ -1,1 +1,3 @@
 IMPORT_TEST_GROUP(Assembler);
+IMPORT_TEST_GROUP(Instruction);
+IMPORT_TEST_GROUP(SymbolTable);

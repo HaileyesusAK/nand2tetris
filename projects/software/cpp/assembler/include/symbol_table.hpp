@@ -17,36 +17,27 @@ template<class T, class=addrT<T>>
 class SymbolTable {
     private:
         Map<T> table;
-        const T BASE_ADDR = 16;
-        T currAddr = BASE_ADDR;
 
     public:
-        SymbolTable() {}
-        SymbolTable(T base_addr) : BASE_ADDR(base_addr) {}
-
-        T get(const std::string& symbol) {
+        T get(const std::string& symbol) const {
             if(symbol.empty())
                 throw std::domain_error("Empty string");
 
-            if(std::all_of(symbol.begin(), symbol.end(), ::isdigit)) {
-                return static_cast<T>(std::stoul(symbol));
+            try {
+                return table.at(symbol);
             }
-            else {
-                try {
-                    return table.at(symbol);
-                }
-                catch (std::out_of_range& ex) {
-                    table.emplace(symbol, currAddr);
-                    return currAddr++;
-                }
+            catch (std::out_of_range& ex) {
+                throw std::out_of_range("Symobl '" + symbol + "' doesn't exist");
             }
         }
 
-        void set(const std::string& symbol, T addr) {
-            table.insert_or_assign(symbol, addr);
+        bool set(const std::string& symbol, T addr) {
+            return table.emplace(symbol, addr).second;
         }
 
-        bool has(const std::string& symbol) { return table.count(symbol) == 1; }
+        bool has(const std::string& symbol) {
+            return table.count(symbol) == 1;
+        }
 };
 
 #endif
