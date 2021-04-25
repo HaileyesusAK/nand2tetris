@@ -70,3 +70,21 @@ TEST(Instruction, C_Instruction)
     inst->decode(code);
     CHECK_EQUAL(MachineCode("1111000000111010").to_ulong(), code.to_ulong());
 }
+
+TEST(Instruction, Invalid_Instruction)
+{
+    SymbolTable<uint16_t> symTable;
+
+    // must throw an exception due to unknown Comp part
+    auto inst = InstructionFactory::create("~D", 0, symTable);
+    MachineCode code;
+    CHECK_THROWS(std::domain_error, inst->decode(code));
+
+    // must throw an exception due to unknown dst part
+    inst = InstructionFactory::create("MDA=!D", 0, symTable);
+    CHECK_THROWS(std::domain_error, inst->decode(code));
+
+    // must throw an exception due to unknown jmp part
+    inst = InstructionFactory::create("AMD=!D;JQE", 0, symTable);
+    CHECK_THROWS(std::domain_error, inst->decode(code));
+}

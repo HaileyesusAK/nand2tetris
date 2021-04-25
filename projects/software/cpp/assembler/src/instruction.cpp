@@ -39,11 +39,15 @@ void CInstruction::decode(MachineCode &code) {
         comp = inst.substr(0, j);
 
     uint16_t prefix = 7 << 13;
-    auto dstCode = dstMap.at(dst) << 3;
-    auto compCode = compMap.at(comp) << 6;
-    auto jmpCode = jmpMap.at(jmp);
-
-    code = static_cast<uint16_t>(prefix | compCode | dstCode | jmpCode);
+    try {
+        auto dstCode = dstMap.at(dst) << 3;
+        auto compCode = compMap.at(comp) << 6;
+        auto jmpCode = jmpMap.at(jmp);
+        code = static_cast<uint16_t>(prefix | compCode | dstCode | jmpCode);
+    }
+    catch(std::out_of_range& e) {
+        throw std::domain_error("Invalid instruction: " + inst);
+    }
 }
 
 InstructionType CInstruction::type() {return InstructionType::C_INST; }
