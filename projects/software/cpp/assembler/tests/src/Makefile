@@ -5,10 +5,12 @@ INCLUDE = -I $(CPPUTEST)/include \
 
 LDFLAGS += $(CPPUTEST)/lib/libCppUTest.a \
 		   ../../src/libassembler.a
+
 CPPFLAGS += -g -Wall --std=c++17
 
-OBJS=Main.o TestAssembler.o
-APP=assembler_tester
+SOURCES=$(wildcard *.cpp)
+OBJS=$(SOURCES:.cpp=.o)
+APP=tester
 
 .cpp.o:
 	@echo "Compiling" $< "..."
