@@ -22,6 +22,7 @@ enum struct InstructionType {
 class Instruction {
     public:
         virtual MachineCode decode(const SymbolTable<uint16_t>& symbolTable) = 0;
+		virtual ~Instruction();
 };
 
 class AInstruction : public Instruction {
