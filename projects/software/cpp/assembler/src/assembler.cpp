@@ -35,7 +35,7 @@ Assembler::Assembler(const fs::path& path) : inputPath(path) {
 
 	// Set the 16 predefined symbols: R0 - R15
     for(int i = 0; i < 16; ++i)
-        symbolTable.set("R" + std::to_string(i), i);
+        symbolTable.set("R" + std::to_string(i), static_cast<uint16_t>(i));
 
     // Extract symbols from the source file and extend the symbol table
     uint16_t pc = 0;

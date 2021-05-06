@@ -21,6 +21,7 @@ MachineCode AInstruction::decode(const SymbolTable<uint16_t>& symbolTable) {
 CInstruction::CInstruction(const std::string& s) : inst(s) {}
 
 MachineCode CInstruction::decode(const SymbolTable<uint16_t>& symbolTable) {
+	(void)symbolTable;
     std::string dst("null"), jmp("null"), comp;
     auto j = inst.find(';');
     if(j != std::string::npos)
