@@ -13,7 +13,7 @@ using namespace std;
 
 namespace fs = std::filesystem;
 
-static const fs::path DATA_DIR = fs::current_path().parent_path() / "data";
+static const fs::path DATA_DIR = TEST_DATA_DIR;
 static const fs::path EXP_DATA_DIR = DATA_DIR / "expected";
 
 static void test_generate(const string& asmFilename) {
