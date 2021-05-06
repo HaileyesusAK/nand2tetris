@@ -7,6 +7,7 @@
 #include "instruction.hpp"
 #include "symbol_table.hpp"
 
+Instruction::~Instruction(){}
 AInstruction::AInstruction(const std::string& _symbol) : symbol(_symbol) {}
 
 MachineCode AInstruction::decode(const SymbolTable<uint16_t>& symbolTable) {
