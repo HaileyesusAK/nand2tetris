@@ -20,7 +20,11 @@ std::string Assembler::compact(const std::string& s) {
     return line;
 }
 
-Assembler::Assembler(const fs::path& path) : inputPath(path) {
+Assembler::Assembler(const fs::path& path) : inputPath(path) {}
+
+SymbolTable<uint16_t> Assembler::generateSymbolTable(const fs::path& path) {
+    SymbolTable<uint16_t> symbolTable;
+
     std::ifstream inFile(path);
     if(!inFile.is_open())
        throw std::runtime_error(std::strerror(errno) + std::string(": ") + inputPath.string());
@@ -33,7 +37,7 @@ Assembler::Assembler(const fs::path& path) : inputPath(path) {
     symbolTable.set("SCREEN", 16384);
     symbolTable.set("KBD", 24576);
 
-	// Set the 16 predefined symbols: R0 - R15
+    // Set the 16 predefined symbols: R0 - R15
     for(int i = 0; i < 16; ++i)
         symbolTable.set("R" + std::to_string(i), static_cast<uint16_t>(i));
 
@@ -61,19 +65,22 @@ Assembler::Assembler(const fs::path& path) : inputPath(path) {
         if(symbolTable.set(symbol, varAddr))
             varAddr++;
     }
+
+    return symbolTable;
 }
 
-void Assembler::generate() {
-    std::ifstream inFile(inputPath);
-    if(!inFile.is_open())
-        throw std::runtime_error(std::strerror(errno) + std::string(": ") + inputPath.string());
-
-    auto outputPath = inputPath;
-    std::ofstream outFile(outputPath.replace_extension(".hack"));
+void Assembler::generate(const fs::path& asmPath) {
+    auto hackPath = asmPath;
+    std::ofstream outFile(hackPath.replace_extension(".hack"));
     if(!outFile.is_open())
-        throw std::runtime_error(std::strerror(errno) + std::string(": ") + outputPath.string());
+        throw std::runtime_error(std::strerror(errno) + std::string(": ") + hackPath.string());
 
-    //Encode each assembly instruction and write to the output file
+    SymbolTable symbolTable = generateSymbolTable(asmPath);
+
+    std::ifstream inFile(asmPath);
+    if(!inFile.is_open())
+        throw std::runtime_error(std::strerror(errno) + std::string(": ") + asmPath.string());
+
     std::string line, s;
     while(std::getline(inFile, line)) {
         s = compact(line);
@@ -82,5 +89,21 @@ void Assembler::generate() {
 
         auto instPtr = InstructionFactory::create(s);
         outFile << instPtr->decode(symbolTable) << std::endl;
+    }
+}
+
+void Assembler::generate() {
+    if(fs::is_directory(inputPath)) {
+        std::for_each(fs::directory_iterator(inputPath),
+                      fs::directory_iterator(),
+                      [this](const fs::path& p) {
+                            if(!fs::is_directory(p) && p.extension() == ".asm") {
+                                this->generate(p);
+                            }
+                      });
+    }
+    else {
+        auto assembler = Assembler(inputPath);
+        assembler.generate(inputPath);
     }
 }
