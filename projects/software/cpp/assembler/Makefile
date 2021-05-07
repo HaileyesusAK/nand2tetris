@@ -1,7 +1,7 @@
 CXX = g++
 INCLUDE = include
 LDFLAGS = -lstdc++fs
-CPPFLAGS =  -Wall -Wextra --std=c++17 -pedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
+CPPFLAGS =  -MMD -Wall -Wextra --std=c++17 -pedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
 			-Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations \
 			-Wnoexcept -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
 			-Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 \
@@ -11,8 +11,6 @@ SRC_DIR = src
 TEST_DIR = tests
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(SOURCES:.cpp=.o)
-
-#TODO: handle HEADERS
 
 $(APP): $(OBJS)
 	@echo "linking" $@
@@ -31,4 +29,7 @@ $(SRC_DIR)/%.o : $(SRC_DIR)/%.cpp
 
 clean:
 	rm -rf $(OBJS)
+	rm -rf $(OBJS:.o=.d)
 	rm -rf $(SRC_DIR)/$(APP)
+
+-include $(OBJS:.o=.d)
