@@ -54,6 +54,12 @@ TEST(Assembler, generate_pong)
     test_generate("Pong.asm");
 }
 
+TEST(Assembler, invalid_instruction)
+{
+    auto assembler = Assembler(DATA_DIR / "non_existent_file.asm");
+    CHECK_THROWS(std::runtime_error, assembler.generate());
+}
+
 TEST(Assembler, directory_assembly)
 {
     using namespace std::placeholders;

@@ -70,16 +70,16 @@ SymbolTable<uint16_t> Assembler::generateSymbolTable(const fs::path& path) {
 }
 
 void Assembler::generate(const fs::path& asmPath) {
+    std::ifstream inFile(asmPath);
+    if(!inFile.is_open())
+        throw std::runtime_error(std::strerror(errno) + std::string(": ") + asmPath.string());
+
     auto hackPath = asmPath;
     std::ofstream outFile(hackPath.replace_extension(".hack"));
     if(!outFile.is_open())
         throw std::runtime_error(std::strerror(errno) + std::string(": ") + hackPath.string());
 
     SymbolTable symbolTable = generateSymbolTable(asmPath);
-
-    std::ifstream inFile(asmPath);
-    if(!inFile.is_open())
-        throw std::runtime_error(std::strerror(errno) + std::string(": ") + asmPath.string());
 
     std::string line, s;
     while(std::getline(inFile, line)) {
