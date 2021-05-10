@@ -5,9 +5,9 @@
 	A=M-1
 	D=M-D
 	M=-1
-	@END_REL_OP_2
+	@END_REL_OP_1
 	D;JLT
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_2)
+	(END_REL_OP_1)

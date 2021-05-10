@@ -6,8 +6,8 @@
 	D=M-D
 	M=-1
 	@END_REL_OP_3
-	D;JGT
+	D;JEQ
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_3)
+	(END_REL_OP_3)

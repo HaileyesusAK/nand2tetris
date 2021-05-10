@@ -4,6 +4,97 @@
 	M=D
 	@Sys.init
 	0;JMP
+//function Sys.init 0
+(Sys.init)
+	@LCL
+	D=M
+	@i
+	M=D
+	@0
+	D=D+A
+	@n
+	M=D
+(Sys.init_SET_LCL)
+	@n
+	D=M
+	@i
+	D=M-D
+	@Sys.init_SET_LCL_END
+	D;JGE
+	@i
+	A=M
+	M=0
+	@i
+	M=M+1
+	@SP
+	M=M+1
+	@Sys.init_SET_LCL
+	0;JMP
+(Sys.init_SET_LCL_END)
+//push constant 4
+	@4
+	D=A
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//call Main.fibonacci 1   
+	@Main.fibonacci$end8
+	D=A
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@LCL
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@ARG
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@THIS
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@THAT
+	D=M
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+	@5
+	D=A
+	@1
+	D=D+A
+	@SP
+	D=M-D
+	@ARG
+	M=D
+	@SP
+	D=M
+	@LCL
+	M=D
+	@Main.fibonacci
+	0;JMP
+(Main.fibonacci$end8)
+//label WHILE
+(Sys.init$WHILE)
+//goto WHILE              
+	@Sys.init$WHILE
+	0;JMP
 //function Main.fibonacci 0
 (Main.fibonacci)
 	@LCL
@@ -58,12 +149,12 @@
 	A=M-1
 	D=M-D
 	M=-1
-	@END_REL_OP_1
+	@END_REL_OP_4
 	D;JLT
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_1)
+	(END_REL_OP_4)
 //if-goto IF_TRUE
 	@SP
 	AM=M-1
@@ -160,7 +251,7 @@
 	A=M-1
 	M=M-D
 //call Main.fibonacci 1  
-	@Main.fibonacci$end1
+	@Main.fibonacci$end9
 	D=A
 	@SP
 	A=M
@@ -209,7 +300,7 @@
 	M=D
 	@Main.fibonacci
 	0;JMP
-(Main.fibonacci$end1)
+(Main.fibonacci$end9)
 //push argument 0
 	@0
 	D=A
@@ -237,7 +328,7 @@
 	A=M-1
 	M=M-D
 //call Main.fibonacci 1  
-	@Main.fibonacci$end2
+	@Main.fibonacci$end10
 	D=A
 	@SP
 	A=M
@@ -286,7 +377,7 @@
 	M=D
 	@Main.fibonacci
 	0;JMP
-(Main.fibonacci$end2)
+(Main.fibonacci$end10)
 //add                    
 	@SP
 	AM=M-1
@@ -338,97 +429,6 @@
 	M=D
 	@ret
 	A=M
-	0;JMP
-//function Sys.init 0
-(Sys.init)
-	@LCL
-	D=M
-	@i
-	M=D
-	@0
-	D=D+A
-	@n
-	M=D
-(Sys.init_SET_LCL)
-	@n
-	D=M
-	@i
-	D=M-D
-	@Sys.init_SET_LCL_END
-	D;JGE
-	@i
-	A=M
-	M=0
-	@i
-	M=M+1
-	@SP
-	M=M+1
-	@Sys.init_SET_LCL
-	0;JMP
-(Sys.init_SET_LCL_END)
-//push constant 4
-	@4
-	D=A
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-//call Main.fibonacci 1   
-	@Main.fibonacci$end3
-	D=A
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-	@LCL
-	D=M
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-	@ARG
-	D=M
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-	@THIS
-	D=M
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-	@THAT
-	D=M
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-	@5
-	D=A
-	@1
-	D=D+A
-	@SP
-	D=M-D
-	@ARG
-	M=D
-	@SP
-	D=M
-	@LCL
-	M=D
-	@Main.fibonacci
-	0;JMP
-(Main.fibonacci$end3)
-//label WHILE
-(Sys.init$WHILE)
-//goto WHILE              
-	@Sys.init$WHILE
 	0;JMP
 (END)
 	@END

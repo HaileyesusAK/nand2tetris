@@ -22,52 +22,22 @@
 	A=M-1
 	D=M-D
 	M=-1
-	@END_REL_OP_4
-	D;JEQ
-	@SP
-	A=M-1
-	M=0
-(END_REL_OP_4)
-//push constant 17
-	@17
-	D=A
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-//push constant 16
-	@16
-	D=A
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-//eq
-	@SP
-	AM=M-1
-	D=M
-	@SP
-	A=M-1
-	D=M-D
-	M=-1
 	@END_REL_OP_5
 	D;JEQ
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_5)
-//push constant 16
-	@16
+	(END_REL_OP_5)
+//push constant 17
+	@17
 	D=A
 	@SP
 	A=M
 	M=D
 	@SP
 	M=M+1
-//push constant 17
-	@17
+//push constant 16
+	@16
 	D=A
 	@SP
 	A=M
@@ -87,24 +57,24 @@
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_6)
-//push constant 892
-	@892
+	(END_REL_OP_6)
+//push constant 16
+	@16
 	D=A
 	@SP
 	A=M
 	M=D
 	@SP
 	M=M+1
-//push constant 891
-	@891
+//push constant 17
+	@17
 	D=A
 	@SP
 	A=M
 	M=D
 	@SP
 	M=M+1
-//lt
+//eq
 	@SP
 	AM=M-1
 	D=M
@@ -113,21 +83,21 @@
 	D=M-D
 	M=-1
 	@END_REL_OP_7
-	D;JLT
+	D;JEQ
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_7)
-//push constant 891
-	@891
+	(END_REL_OP_7)
+//push constant 892
+	@892
 	D=A
 	@SP
 	A=M
 	M=D
 	@SP
 	M=M+1
-//push constant 892
-	@892
+//push constant 891
+	@891
 	D=A
 	@SP
 	A=M
@@ -147,7 +117,37 @@
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_8)
+	(END_REL_OP_8)
+//push constant 891
+	@891
+	D=A
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//push constant 892
+	@892
+	D=A
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//lt
+	@SP
+	AM=M-1
+	D=M
+	@SP
+	A=M-1
+	D=M-D
+	M=-1
+	@END_REL_OP_9
+	D;JLT
+	@SP
+	A=M-1
+	M=0
+	(END_REL_OP_9)
 //push constant 891
 	@891
 	D=A
@@ -172,12 +172,12 @@
 	A=M-1
 	D=M-D
 	M=-1
-	@END_REL_OP_9
+	@END_REL_OP_10
 	D;JLT
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_9)
+	(END_REL_OP_10)
 //push constant 32767
 	@32767
 	D=A
@@ -188,36 +188,6 @@
 	M=M+1
 //push constant 32766
 	@32766
-	D=A
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-//gt
-	@SP
-	AM=M-1
-	D=M
-	@SP
-	A=M-1
-	D=M-D
-	M=-1
-	@END_REL_OP_10
-	D;JGT
-	@SP
-	A=M-1
-	M=0
-(END_REL_OP_10)
-//push constant 32766
-	@32766
-	D=A
-	@SP
-	A=M
-	M=D
-	@SP
-	M=M+1
-//push constant 32767
-	@32767
 	D=A
 	@SP
 	A=M
@@ -237,7 +207,37 @@
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_11)
+	(END_REL_OP_11)
+//push constant 32766
+	@32766
+	D=A
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//push constant 32767
+	@32767
+	D=A
+	@SP
+	A=M
+	M=D
+	@SP
+	M=M+1
+//gt
+	@SP
+	AM=M-1
+	D=M
+	@SP
+	A=M-1
+	D=M-D
+	M=-1
+	@END_REL_OP_12
+	D;JGT
+	@SP
+	A=M-1
+	M=0
+	(END_REL_OP_12)
 //push constant 32766
 	@32766
 	D=A
@@ -262,12 +262,12 @@
 	A=M-1
 	D=M-D
 	M=-1
-	@END_REL_OP_12
+	@END_REL_OP_13
 	D;JGT
 	@SP
 	A=M-1
 	M=0
-(END_REL_OP_12)
+	(END_REL_OP_13)
 //push constant 57
 	@57
 	D=A

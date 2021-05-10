@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <string>
 #include <utility>
-#include "generator.hpp"
+#include "translator.hpp"
 
 namespace fs = std::filesystem;
 
